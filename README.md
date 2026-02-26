@@ -1,4 +1,4 @@
-# lo — LO Work System Plugin
+# lo — LORF Work System Plugin
 
 Claude Code plugin for managing work in Loosely Organized projects. Provides a complete work lifecycle: backlog management, plan execution, knowledge capture, and a shipping pipeline.
 

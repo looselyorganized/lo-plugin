@@ -1,7 +1,7 @@
 ---
 type: "milestone"
 date: "2026-02-25"
-title: "LO work system"
+title: "LORF work system"
 commits: 0
 ---
 

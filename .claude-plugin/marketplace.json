@@ -10,7 +10,7 @@
     {
       "name": "lo",
       "source": "./plugins/lo",
-      "description": "LO work system — backlog, work execution, knowledge capture, shipping pipeline, and design system for Loosely Organized projects",
+      "description": "LORF work system — backlog, work execution, knowledge capture, shipping pipeline, and design system for Loosely Organized projects",
       "license": "MIT",
       "keywords": ["lo", "work-management", "backlog", "skills", "design-system"],
       "category": "productivity"
