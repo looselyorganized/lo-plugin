@@ -4,12 +4,11 @@ Claude Code plugin for managing work in Loosely Organized projects. Provides a c
 
 ## Install
 
-Add to your Claude Code settings:
+Add the marketplace and install the plugin:
 
-```json
-{
-  "plugins": ["github.com/looselyorganized/lo-plugin"]
-}
+```
+/plugin marketplace add looselyorganized/lo-plugin
+/plugin install lo@looselyorganized
 ```
 
 ## Skills
@@ -34,6 +33,14 @@ See [`docs/lo-spec.md`](docs/lo-spec.md) for the full specification.
 
 ## Development
 
+Test the plugin locally:
+
 ```bash
-claude --plugin-dir .
+claude --plugin-dir ./plugins/lo
+```
+
+Validate the marketplace:
+
+```bash
+claude plugin validate .
 ```
