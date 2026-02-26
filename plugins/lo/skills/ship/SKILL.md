@@ -29,9 +29,12 @@ Runs the quality pipeline to ship completed work. Each gate must pass before pro
 
 ### Gate 1: Pre-flight
 
-1. **Not on main/master:** Check `git branch --show-current`. If on main/master, stop.
+1. **Branch check:** Check `git branch --show-current`.
+   - If on a feature/fix branch → proceed normally (full pipeline including PR).
+   - If on main/master → warn the user: "You're on main. The ship pipeline creates a PR from a feature branch. If you intended to work on main, commit directly and use `/lo:backlog done` to mark the item complete instead. If you meant to branch, create one now and cherry-pick or re-commit your changes."
+   - Do not proceed on main. Stop and let the user decide.
 2. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
-3. **Identify the feature:** Map branch name (e.g., `feature/f003-auth-system`) to the feature ID. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
+3. **Identify the feature:** Map branch name (e.g., `feat/f003-auth-system` or `fix/t005-slug`) to the feature/task ID. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
 
 ### Gate 2: Run Tests
 

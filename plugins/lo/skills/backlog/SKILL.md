@@ -1,6 +1,6 @@
 ---
 name: backlog
-description: Manages the LO project backlog in .lo/BACKLOG.md. Supports viewing, adding, updating, and starting features and tasks. Use when user says "backlog", "add task", "add feature", "update backlog", "what should I work on", "what's next", "start a feature", "view backlog", "/backlog", "/task", or "/feature".
+description: Manages the LO project backlog in .lo/BACKLOG.md. Supports viewing, adding, updating, starting features, and picking up tasks. Use when user says "backlog", "add task", "add feature", "update backlog", "what should I work on", "what's next", "start a feature", "work on task", "view backlog", "/backlog", "/task", or "/feature".
 metadata:
   version: 0.2.0
   author: LORF
@@ -37,7 +37,7 @@ IDs are permanent — never reuse an ID, even after deletion. To determine the n
 
 ## Modes
 
-Detect mode from arguments. `/lo:backlog` with no args → view. `/lo:backlog view` → view. `/lo:backlog task "fix X"` → add task. `/lo:backlog feature "auth"` → add feature. `/lo:backlog start "auth"` → start feature. `/lo:backlog update` → pick item to update. `/lo:backlog update "auth"` → update specific item.
+Detect mode from arguments. `/lo:backlog` with no args → view. `/lo:backlog view` → view. `/lo:backlog task "fix X"` → add task. `/lo:backlog feature "auth"` → add feature. `/lo:backlog start "auth"` → start feature. `/lo:backlog work "t001"` → execute a task. `/lo:backlog update` → pick item to update. `/lo:backlog update "auth"` → update specific item.
 
 ### Mode 1: View Backlog
 
@@ -104,16 +104,71 @@ Graduates a feature from backlog to active work, creates a plan, then offers to 
         Feature started: f{NNN} "<name>"
         Work directory: .lo/work/f{NNN}-slug/
 
-9. **Brainstorm:** Invoke `superpowers:brainstorming` to explore the design with the user
-10. **Plan:** Invoke `superpowers:writing-plans` (or enter plan mode) to create a structured implementation plan
-11. **Save plan** to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format from `/lo:work`
-12. **Bridge to execution:**
+9. **Isolation:** Before any design or implementation work, ask the user about branch isolation. Check `git branch --show-current` and `git status` to assess current state, then present:
+
+        You're on <current-branch>.
+
+        1. New branch: feat/f{NNN}-slug (recommended)
+        2. New worktree (recommended if you have uncommitted work on current branch)
+        3. Stay on <current-branch>
+
+    **When to recommend worktree over branch:**
+    - Working tree is dirty (uncommitted changes on current branch)
+    - User is mid-work on something else and context-switching
+    - Feature is large/multi-phase and benefits from a separate directory
+
+    **When to recommend branch:**
+    - Working tree is clean
+    - Simple feature, single phase
+    - Default choice for most work
+
+    If the user picks worktree, use the EnterWorktree tool. If they pick branch, create it with `git checkout -b feat/f{NNN}-slug`. If they stay, note this so `/lo:ship` knows there's no feature branch.
+
+    **Do not proceed to step 10 until the user answers.**
+
+10. **Brainstorm:** Invoke `superpowers:brainstorming` to explore the design with the user
+11. **Plan:** Invoke `superpowers:writing-plans` (or enter plan mode) to create a structured implementation plan
+12. **Save plan** to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format from `/lo:work`
+13. **Bridge to execution:**
 
         Plan saved: .lo/work/f{NNN}-slug/001-<phase-slug>.md
 
         Ready to start executing? Type /lo:work to begin.
 
-### Mode 5: Update Item
+### Mode 5: Work on Task
+
+Arguments: `work "t{NNN}"` or `work "description"`
+
+Picks up a task for execution with an isolation prompt. Tasks are smaller than features — they don't need brainstorming or plans, but they still deserve a branch decision.
+
+1. Read current BACKLOG.md
+2. Find the matching task (by ID `t{NNN}` or fuzzy match on description)
+3. If not found, show open tasks and ask user to choose
+4. Check `git branch --show-current` and `git status`, then ask:
+
+        Working on: t{NNN} "<description>"
+        You're on <current-branch>.
+
+        1. New branch: fix/t{NNN}-slug (recommended for non-trivial changes)
+        2. Stay on <current-branch> (fine for quick fixes)
+
+    If the working tree is dirty, add option: `3. New worktree (you have uncommitted changes)`
+
+    **Do not proceed until the user answers.**
+
+5. If they chose a branch, create it: `git checkout -b fix/t{NNN}-slug`
+6. If they chose worktree, use EnterWorktree tool
+7. Tell the user to go ahead and work. When done:
+
+        Ready to ship t{NNN}? You can:
+          - /lo:ship (if on a branch — runs full quality pipeline + PR)
+          - /lo:backlog done "t{NNN}" (if on main — just marks it complete)
+
+**Ship path for tasks on branches:** `/lo:ship` handles commit, push, PR as normal. After merge, the task gets marked done.
+
+**Ship path for tasks on main:** User commits directly, then marks done with `/lo:backlog done "t{NNN}"`.
+
+### Mode 6: Update Item
 
 Arguments: `update` or `update "name"` or `update "f{NNN}"` or `update "t{NNN}"`
 
@@ -143,7 +198,7 @@ Apply the edit, update `updated:` date, confirm:
 
     Updated: f001 "Auth system" — description changed
 
-### Mode 6: Complete Task
+### Mode 7: Complete Task
 
 When user says "done with X", "finished X", or checks off a task:
 
@@ -151,7 +206,7 @@ When user says "done with X", "finished X", or checks off a task:
 2. Update it: `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`
 3. Update `updated:` date
 
-### Mode 7: Complete Feature
+### Mode 8: Complete Feature
 
 When a feature is shipped (typically triggered by lo:ship, not invoked directly):
 
