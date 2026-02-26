@@ -4,8 +4,6 @@ description: Logs a hypothesis to .lo/hypotheses/. Quick mode (default) takes a 
 metadata:
   version: 0.2.0
   author: LORF
-  category: project-documentation
-  tags: [lo, hypothesis, research, assumptions]
 ---
 
 # LO Hypothesis

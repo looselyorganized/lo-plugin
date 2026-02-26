@@ -4,8 +4,6 @@ description: Generates a structured LO research article with proper frontmatter,
 metadata:
   version: 0.2.0
   author: LORF
-  category: research-writing
-  tags: [lorf, research, writing, editorial, documentation]
 ---
 
 # LO Research Article Generator

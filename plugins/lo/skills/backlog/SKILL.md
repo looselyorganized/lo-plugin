@@ -4,8 +4,6 @@ description: Manages the LO project backlog in .lo/BACKLOG.md. Supports viewing,
 metadata:
   version: 0.2.0
   author: LORF
-  category: work-management
-  tags: [lo, backlog, tasks, features]
 ---
 
 # LO Backlog Manager

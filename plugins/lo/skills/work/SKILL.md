@@ -4,8 +4,6 @@ description: Executes plans from .lo/work/ directories. Creates branches or work
 metadata:
   version: 0.2.0
   author: LORF
-  category: work-execution
-  tags: [lo, work, execution, planning, parallel]
 ---
 
 # LO Work Executor

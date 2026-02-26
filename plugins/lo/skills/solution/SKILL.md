@@ -4,8 +4,6 @@ description: Captures reusable knowledge in .lo/solutions/ after completing work
 metadata:
   version: 0.2.0
   author: LORF
-  category: knowledge-capture
-  tags: [lo, solutions, knowledge, reusable]
 ---
 
 # LO Solution Capture

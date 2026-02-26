@@ -5,8 +5,6 @@ license: MIT
 metadata:
   author: Loosely Organized
   version: 0.2.0
-  category: design-system
-  tags: [tailwind-v4, next-js-16, mdx, monospace, design-tokens, dark-mode, next-themes]
 ---
 
 # StockTaper Design System

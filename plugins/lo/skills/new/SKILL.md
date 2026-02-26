@@ -4,8 +4,6 @@ description: Scaffolds the .lo/ directory structure for a new LO project. Create
 metadata:
   version: 0.2.0
   author: LORF
-  category: project-scaffolding
-  tags: [lorf, project-setup, scaffolding, convention]
 ---
 
 # LO New Project

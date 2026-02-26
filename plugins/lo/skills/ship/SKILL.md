@@ -4,8 +4,6 @@ description: Quality pipeline for shipping completed work. Runs tests, code-simp
 metadata:
   version: 0.2.0
   author: LORF
-  category: shipping
-  tags: [lo, ship, quality, pipeline, pr]
 ---
 
 # LO Ship Pipeline

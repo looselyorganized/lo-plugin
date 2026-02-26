@@ -4,8 +4,6 @@ description: Updates the .lo/stream/ folder with milestone and update entries by
 metadata:
   version: 0.2.0
   author: LORF
-  category: project-documentation
-  tags: [lo, stream, milestones, changelog, project-history]
 ---
 
 # LO Stream
