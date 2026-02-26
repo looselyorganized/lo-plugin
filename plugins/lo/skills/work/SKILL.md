@@ -1,6 +1,11 @@
 ---
 name: work
 description: Executes plans from .lo/work/ directories. Creates branches or worktrees for isolation, identifies parallelizable tasks, and dispatches work using direct execution, subagents, or Agent Teams (preview feature). Stops when plan is complete — does not ship. Use when user says "start working", "let's build", "execute the plan", "work on", or "/work".
+metadata:
+  version: 0.2.0
+  author: LORF
+  category: work-execution
+  tags: [lo, work, execution, planning, parallel]
 ---
 
 # LO Work Executor

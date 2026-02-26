@@ -1,6 +1,11 @@
 ---
 name: ship
 description: Quality pipeline for shipping completed work. Runs tests, code-simplifier, security review, then commits, pushes, and creates a PR. Creates a stream milestone and prompts for solution capture. Stops and reports if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "push and PR", "/ship", or when work execution is complete.
+metadata:
+  version: 0.2.0
+  author: LORF
+  category: shipping
+  tags: [lo, ship, quality, pipeline, pr]
 ---
 
 # LO Ship Pipeline
