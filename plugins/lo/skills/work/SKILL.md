@@ -93,6 +93,18 @@ If they pick option 3, ask what they'd prefer (different branch name, worktree, 
 
 If they choose to stay on the current branch, proceed — but note this in the plan summary so `/lo:ship` knows there's no feature branch to PR from.
 
+### Step 3.5: Check Project Status for Test Expectations
+
+Read `.lo/PROJECT.md` status field:
+
+- **`explore`** — Do not mention tests. Speed is the priority.
+- **`build`** — When writing implementation code with testable logic, write tests alongside it. If `.github/workflows/test.yml` exists, ensure new test files are covered by the workflow (e.g., if tests are added to a new directory, update the workflow if needed). If the workflow doesn't exist yet, suggest running `/lo:status build` to generate it.
+- **`open`** — Tests are expected for all testable code. Flag any testable logic without tests.
+
+**What counts as testable logic:** Functions with business logic, parsers, validators, data transformations, state machines, API handlers. **Not testable:** Config, types, UI layout, markdown, thin wrappers.
+
+This check informs execution behavior — it does not block work.
+
 ### Step 4: Execute
 
 Choose parallelization level based on the plan's task structure:

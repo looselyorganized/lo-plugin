@@ -19,6 +19,7 @@ Add the marketplace and install the plugin:
 | work | `/lo:work` | Execute plans with branch/worktree + parallel agents |
 | solution | `/lo:solution` | Capture reusable knowledge |
 | ship | `/lo:ship` | Test → simplify → security → commit → push → PR |
+| status | `/lo:status` | Manage project lifecycle transitions (explore → build → open → closed) |
 | new | `/lo:new` | Scaffold `.lo/` directory |
 | stream | `/lo:stream` | Update `.lo/stream/` with milestones and updates |
 | hypothesis | `/lo:hypothesis` | Create testable hypotheses |
