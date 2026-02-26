@@ -1,16 +1,16 @@
 ---
-name: milestones
-description: Updates the .lo/stream/ folder with milestone and update entries by grouping commits under thematic arcs. The stream is a curated editorial layer on top of git — not a restatement of commit messages. Reads existing stream entries first to avoid duplicates. Use when user says "update stream", "add milestone", "scan milestones", "catch up stream", "what happened since last milestone", "log progress", "update lo", "sync stream", or "/lo:milestones". Also use proactively when significant work has been completed and the stream hasn't been updated recently.
+name: stream
+description: Updates the .lo/stream/ folder with milestone and update entries by grouping commits under thematic arcs. The stream is a curated editorial layer on top of git — not a restatement of commit messages. Reads existing stream entries first to avoid duplicates. Use when user says "update stream", "add milestone", "catch up stream", "what happened since last stream update", "log progress", "update lo", "sync stream", or "/lo:stream". Also use proactively when significant work has been completed and the stream hasn't been updated recently.
 metadata:
-  version: 2.0.0
+  version: 2.1.0
   author: LORF
   category: project-documentation
-  tags: [lorf, milestones, stream, changelog, project-history]
+  tags: [lo, stream, milestones, changelog, project-history]
 ---
 
-# LO Milestone Stream Updater
+# LO Stream
 
-Groups commits under thematic milestones to keep `.lo/stream/` current. The stream is a **curated editorial layer on top of git** — milestones are editorial decisions about what matters, not paraphrases of what happened. Git stays the source of truth for details; the stream provides the narrative arc.
+Groups commits under thematic entries to keep `.lo/stream/` current. The stream is a **curated editorial layer on top of git** — entries are editorial decisions about what matters, not paraphrases of what happened. Git stays the source of truth for details; the stream provides the narrative arc.
 
 ## Core Principle
 
@@ -18,8 +18,8 @@ Groups commits under thematic milestones to keep `.lo/stream/` current. The stre
 
 ## When to Use
 
-- User invokes `/lo:milestones`
-- User says "add milestone", "update stream", "catch up stream", "scan milestones"
+- User invokes `/lo:stream`
+- User says "update stream", "add milestone", "catch up stream", "log progress"
 - Significant work has shipped and `.lo/stream/` hasn't been updated
 - User wants to backfill stream entries from git history
 

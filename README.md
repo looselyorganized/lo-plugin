@@ -20,7 +20,7 @@ Add the marketplace and install the plugin:
 | solution | `/lo:solution` | Capture reusable knowledge |
 | ship | `/lo:ship` | Test → simplify → security → commit → push → PR |
 | new | `/lo:new` | Scaffold `.lo/` directory |
-| milestones | `/lo:milestones` | Update `.lo/stream/` with milestones |
+| stream | `/lo:stream` | Update `.lo/stream/` with milestones and updates |
 | hypothesis | `/lo:hypothesis` | Create testable hypotheses |
 | research | `/lo:research` | Write structured research articles |
 | stocktaper-design-system | — | StockTaper / LORF design system tokens, components, and layout patterns |

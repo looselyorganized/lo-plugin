@@ -23,7 +23,7 @@ Scaffolds the `.lo/` directory convention in the current repository root.
 - NEVER overwrite an existing `.lo/` directory. If one exists, warn the user and stop.
 - All files use plain Markdown with YAML frontmatter. No MDX.
 - `PROJECT.md` is the only content file created at init. `BACKLOG.md` is created by `/lo:backlog` on first use.
-- Use today's date (YYYY-MM-DD) for the initial stream entry.
+- If git history exists, backdate the "project started" entry to the first commit and run `/lo:stream` to backfill the stream. If no history, use today's date.
 
 ## Workflow
 
@@ -65,29 +65,35 @@ Pre-populate the `stack` field with what you find.
 
 #### 2c: Detect Infrastructure
 
-Scan ALL of the following sources — check every one, not just the first hit:
+Scan ALL of the following sources in order — check every one, not just the first hit:
 
-1. **package.json** — search `dependencies` AND `devDependencies` for infra packages
-2. **Source code** — grep `src/` (or equivalent) for import statements referencing infra SDKs
-3. **Config files** — check for infra-specific config at the repo root and common subdirs
-4. **Environment variables** — check `.env.example`, `.env.local.example`, or any `.env*` files (NOT `.env` itself) for variable name prefixes
-5. **CI/CD files** — check `.github/workflows/`, `Procfile`, `nixpacks.toml`
+1. **Config files** (definitive — check first) — infra-specific config at repo root and common subdirs
+2. **Known directories** — `supabase/`, `prisma/`, `terraform/`, `.aws/`
+3. **Package dependencies** — search `dependencies` AND `devDependencies` in `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`
+4. **Source code imports** — grep `src/` (or equivalent) for import statements referencing infra SDKs
+5. **Environment variable declarations** — check `env.d.ts`, `.env.example`, `.env.template`, `.env.sample`, `.env.local.example`, or any committed `.env*` files (NOT `.env` itself) for variable name prefixes
+6. **CI/CD files** — check `.github/workflows/`, `Procfile`, `nixpacks.toml`
 
 | Signal (match ANY of these) | Infrastructure |
 |------------------------------|---------------|
-| `@supabase/supabase-js` or `@supabase/ssr` in deps, `supabase/` dir, `createClient` imported from `@supabase/*` in source, `SUPABASE_URL` or `SUPABASE_ANON_KEY` in env files | Supabase |
-| `railway.toml`, `railway.json`, `.railwayignore`, `nixpacks.toml`, `RAILWAY_*` env vars, Railway deploy URL in configs | Railway |
+| `supabase/config.toml`, `supabase/migrations/`, `@supabase/supabase-js` or `@supabase/ssr` in deps, `createClient` imported from `@supabase/*` in source, `SUPABASE_URL` or `SUPABASE_ANON_KEY` in env declarations | Supabase |
+| `railway.toml`, `railway.json`, `.railwayignore`, `nixpacks.toml`, `RAILWAY_*` env vars | Railway |
 | `vercel.json`, `@vercel/*` in deps, `VERCEL_*` env vars | Vercel |
-| `firebase.json`, `firebase-functions` or `firebase-admin` in deps, `.firebaserc` | Firebase / Google Cloud |
+| `firebase.json`, `.firebaserc`, `firebase-functions` or `firebase-admin` in deps | Firebase / Google Cloud |
+| `wrangler.toml`, `@cloudflare/workers-types` in deps, `CLOUDFLARE_*` env vars | Cloudflare Workers |
 | `fly.toml` | Fly.io |
 | `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml`, `.dockerignore` | Docker |
 | `terraform/`, `*.tf` files | Terraform |
-| `.aws/`, `serverless.yml`, `AWS_*` env vars | AWS |
+| `.aws/`, `serverless.yml`, `cdk.json`, `aws-cdk-lib` in deps, `AWS_*` env vars | AWS |
+| `amplify.yml`, `@aws-amplify/*` in deps | AWS Amplify |
 | `netlify.toml` | Netlify |
 | `render.yaml` | Render |
 | `planetscale` in deps, `DATABASE_URL` with `pscale` | PlanetScale |
+| `turso` in deps, `TURSO_*` env vars | Turso |
+| `prisma/schema.prisma`, `prisma` in deps | Prisma (ORM) |
+| `drizzle.config.ts`, `drizzle-orm` in deps | Drizzle (ORM) |
 
-**Important:** Do not stop after checking package.json. Many projects use infra SDKs without listing a CLI tool in deps — you must also grep source files for import patterns like `from "@supabase/"` or `from "firebase"` and check for config/env files.
+**Important:** Do not stop after checking package.json. Many projects use infra SDKs without listing a CLI tool in deps — you must also check config files, known directories, grep source files for import patterns, and check env declarations (`env.d.ts` is especially reliable for TypeScript projects).
 
 #### 2d: Ask Which Agent(s)
 
@@ -121,8 +127,7 @@ Ask the user for the project's current status and classification:
 - `closed` — Stopped working on it. Record stays up.
 
 **Classification** (single select):
-- `public-open` — Open source, anyone can contribute
-- `public-closed` — Publicly visible but not accepting contributions
+- `public` — Publicly visible
 - `classified` — Private / internal only
 
 #### 2f: Auto-fill from Codebase
@@ -155,7 +160,7 @@ Template structure:
 title: "Project: [NAME]"
 description: "[One-sentence description of what this project does.]"
 status: "[from Step 2e]"              # explore | build | open | closed
-classification: "[from Step 2e]"      # public-open | public-closed | classified
+classification: "[from Step 2e]"      # public | classified
 topics:
   - [topic-1]
   - [topic-2]
@@ -195,7 +200,15 @@ The project page parses the body by `## ` headings. Two headings get special ren
 
 Any other `## ` headings render as generic prose sections. All sections are optional — omit any that aren't relevant yet.
 
-### Step 5: Write Initial Stream Entry
+### Step 5: Populate Stream from Git History
+
+Check if the repo has any commit history:
+
+```bash
+git log --oneline 2>/dev/null | head -1
+```
+
+**If no commits exist (empty repo):**
 
 Write `.lo/stream/YYYY-MM-DD-project-started.md` using today's date:
 
@@ -204,10 +217,32 @@ Write `.lo/stream/YYYY-MM-DD-project-started.md` using today's date:
 type: "milestone"
 date: "YYYY-MM-DD"
 title: "Project initialized"
+commits: 0
 ---
 
 LO project structure created. Project tracking begins.
 ```
+
+**If commits exist:**
+
+1. Find the first commit date:
+   ```bash
+   git log --reverse --pretty=format:"%ad" --date=short | head -1
+   ```
+
+2. Write `.lo/stream/FIRST-COMMIT-DATE-project-started.md` using the first commit's date:
+   ```markdown
+   ---
+   type: "milestone"
+   date: "FIRST-COMMIT-DATE"
+   title: "Project initialized"
+   commits: 1
+   ---
+
+   LO project structure created. Project tracking begins.
+   ```
+
+3. Run `/lo:stream` to scan the full git history and generate stream entries for all existing work. This backfills the stream so it reflects the project's actual history, not just the moment LO was added.
 
 ### Step 6: Write .gitkeep Files
 
@@ -266,7 +301,7 @@ Next steps:
 Before finishing, verify:
 - [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter
 - [ ] All subdirectories exist
-- [ ] Stream entry has today's date in both filename and frontmatter
+- [ ] Stream entry has correct date in both filename and frontmatter (first commit date or today)
 - [ ] `.gitkeep` files in hypotheses/, notes/, research/, work/, solutions/
 - [ ] No files outside the expected structure
 - [ ] `.lo/work/` directory exists

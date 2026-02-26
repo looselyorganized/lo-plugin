@@ -1,33 +1,35 @@
 ---
 name: hypothesis
-description: Generates a properly formatted LO hypothesis file with correct frontmatter and writes it to .lo/hypotheses/. Takes file(s) as input (notes, code, research) and walks the user through distilling a testable hypothesis statement. Use when user says "new hypothesis", "add hypothesis", "create hypothesis", "log a hypothesis", "test this idea", or "/lo:hypothesis".
+description: Logs a hypothesis to .lo/hypotheses/. Quick mode (default) takes a statement inline and generates the file immediately. Guided mode walks through refining the statement and adding context. Use when user says "new hypothesis", "add hypothesis", "log hypothesis", "I think X will work", or "/lo:hypothesis".
 metadata:
-  version: 1.0.0
+  version: 2.0.0
   author: LORF
   category: project-documentation
-  tags: [lorf, hypothesis, research, scientific-method]
+  tags: [lo, hypothesis, research, assumptions]
 ---
 
-# LO Hypothesis Generator
+# LO Hypothesis
 
-Walks the user through creating a properly formatted hypothesis file for `.lo/hypotheses/`.
+Captures hypotheses — directional bets about technology, architecture, or approach — in `.lo/hypotheses/`.
 
 ## When to Use
 
 - User invokes `/lo:hypothesis`
-- User says "new hypothesis", "add hypothesis", "create hypothesis", "log a hypothesis"
-- User has notes or observations they want to formalize into a testable hypothesis
+- User says "new hypothesis", "add hypothesis", "I think X", "I bet X"
+- User has an assumption worth recording before acting on it
 
 ## Critical Rules
 
 - `.lo/` directory MUST exist. If it doesn't, tell the user to run `/lo:new` first.
 - Hypothesis IDs are sequential within the project: `h001`, `h002`, etc.
 - Filename convention: `h{NNN}-{slug}.md` — numeric prefix for ordering, slug for readability.
-- The `statement` field must be a **testable claim** — something that can be validated or invalidated.
 - Date is always today's date unless the user specifies otherwise.
 - All files are plain Markdown with YAML frontmatter. No MDX.
+- **Default to quick mode.** Only use guided mode if the user asks for help refining their idea or provides files as input.
 
-## Workflow
+## Quick Mode (Default)
+
+If the user provides a statement (inline or as `$ARGUMENTS`), generate the file with minimal prompting.
 
 ### Step 1: Verify .lo/ Exists
 
@@ -36,6 +38,60 @@ Check that `.lo/hypotheses/` exists. If not:
 No .lo/ directory found. Run /lo:new first to set up the project structure.
 ```
 Stop here.
+
+### Step 2: Determine Next Hypothesis ID
+
+Scan `.lo/hypotheses/` for existing files matching the pattern `h{NNN}-*.md`.
+
+- Extract the highest existing number
+- Next ID = highest + 1, zero-padded to 3 digits
+- If no hypotheses exist, start at `h001`
+
+### Step 3: Generate the File
+
+Derive a kebab-case slug (2-5 words) from the statement.
+
+Read `.lo/PROJECT.md` and extract the project's slug from its `title` field (the part after "Project: ", kebab-cased) for the `content_slug` field.
+
+Write to `.lo/hypotheses/h{NNN}-{slug}.md`:
+
+```markdown
+---
+id: "h{NNN}"
+statement: "[The hypothesis statement as provided]"
+status: "proposed"
+date: "YYYY-MM-DD"
+content_slug: "[project-slug]"
+---
+
+## Context
+
+[Infer 1-2 sentences from the statement about why this hypothesis matters. Keep it brief.]
+
+## Evidence
+
+[Empty — fill in as evidence is gathered.]
+```
+
+### Step 4: Confirm
+
+```
+h{NNN}: [statement]
+→ .lo/hypotheses/h{NNN}-{slug}.md
+```
+
+Done. No follow-up questions.
+
+## Guided Mode
+
+Use guided mode when:
+- The user asks for help refining their idea
+- The user provides file(s) as input (notes, code, research)
+- The user says "help me think through this" or similar
+
+### Step 1: Verify .lo/ Exists
+
+Same as quick mode.
 
 ### Step 2: Read Input (if provided)
 
@@ -46,45 +102,30 @@ If the user provided file path(s):
 
 If no files provided, ask:
 ```
-What observation, assumption, or idea do you want to formalize as a hypothesis?
+What are you thinking? What assumption or bet are you making?
 ```
 
 ### Step 3: Determine Next Hypothesis ID
 
-Scan `.lo/hypotheses/` for existing files matching the pattern `h{NNN}-*.md`.
+Same as quick mode.
 
-- Extract the highest existing number
-- Next ID = highest + 1, zero-padded to 3 digits
-- If no hypotheses exist, start at `h001`
+### Step 4: Refine the Statement
 
-### Step 4: Craft the Hypothesis Statement
+Help the user sharpen their idea into a clear directional statement. Don't gatekeep — a hypothesis doesn't need to be formally falsifiable to be worth recording. It just needs to be specific enough that you'll know later whether it held up.
 
-Work with the user to distill a **testable hypothesis statement**.
-
-A good hypothesis statement:
-- Is a specific, falsifiable claim
-- Describes what you expect to be true and under what conditions
-- Can be validated or invalidated through evidence
-
-Help the user refine their idea. Present the statement and ask for confirmation.
-
-**Examples of good statements:**
+**Good statements (specific, directional):**
 - "Redis distributed locks with TTL expiration are sufficient for file-level mutual exclusion in multi-agent systems"
-- "Streaming LLM responses through WebSocket connections reduces perceived latency by 60% compared to HTTP polling"
+- "Monorepo will simplify deploys for the three services"
 - "A single Bun process can coordinate 20+ concurrent agent connections without message loss"
 
-**Examples of weak statements (help the user improve these):**
-- "Redis is good for locking" (too vague, not testable)
-- "The system will work" (not specific, not falsifiable)
-- "WebSockets are better" (better than what? by what measure?)
+**Weak statements (help the user tighten these):**
+- "Redis is good for locking" → good for what specifically?
+- "The system will work" → which part, under what conditions?
+- "WebSockets are better" → better than what, by what measure?
 
-### Step 5: Generate the Slug
+Present the refined statement and ask for confirmation.
 
-Derive a kebab-case slug from the hypothesis topic:
-- 2-5 words, descriptive
-- e.g., `redis-locking`, `websocket-latency`, `agent-coordination-limits`
-
-### Step 6: Determine Status
+### Step 5: Determine Status
 
 Default status is `proposed`. Ask the user if they've already started testing:
 
@@ -96,54 +137,39 @@ Default status is `proposed`. Ask the user if they've already started testing:
 | Tried it, didn't work | `invalidated` |
 | Revising a previous hypothesis | `revised` (ask for `revisesId`) |
 
-### Step 7: Write the File
+### Step 6: Write the File
 
-Write to `.lo/hypotheses/h{NNN}-{slug}.md`.
-
-To determine `content_slug`, read `.lo/PROJECT.md` and extract the project's slug from its `title` field (the part after "Project: ", kebab-cased). This links the hypothesis to the parent project.
-
-If `revisesId` was set in Step 6, include it. Otherwise omit it entirely (don't include it commented out).
+Same template as quick mode, but:
+- Use the refined statement
+- Use the determined status
+- If `revisesId` was set, include it in frontmatter. Otherwise omit it entirely.
+- Add richer context based on the conversation or input files.
 
 ```markdown
 ---
 id: "h{NNN}"
-statement: "[The testable hypothesis statement]"
+statement: "[Refined statement]"
 status: "[proposed|testing|validated|invalidated|revised]"
 date: "YYYY-MM-DD"
 revisesId: "h{NNN}"              # Only include if status is "revised"
-content_slug: "[project-slug]"   # FK to parent project
+content_slug: "[project-slug]"
 ---
 
 ## Context
 
-[Where this hypothesis came from — what observation, note, or problem prompted it.]
-
-## How to Test
-
-[What experiment, measurement, or evidence would validate or invalidate this hypothesis.]
+[Where this hypothesis came from — what observation, conversation, or problem prompted it.]
 
 ## Evidence
 
 [Leave empty for proposed hypotheses. Fill in as evidence is gathered.]
-
-## Notes
-
-[Any additional context, related hypotheses, or open questions.]
 ```
 
-### Step 8: Confirm
+### Step 7: Confirm
 
 ```
-Hypothesis created: .lo/hypotheses/h{NNN}-{slug}.md
-
-  ID: h{NNN}
-  Statement: [statement]
-  Status: [status]
-
-Next steps:
-  - Design an experiment to test this hypothesis
-  - Update the status as evidence is gathered
-  - If this hypothesis is revised, create a new one with revisesId: "h{NNN}"
+h{NNN}: [statement]
+Status: [status]
+→ .lo/hypotheses/h{NNN}-{slug}.md
 ```
 
 ## Reference
