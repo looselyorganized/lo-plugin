@@ -2,7 +2,7 @@
 name: hypothesis
 description: Logs a hypothesis to .lo/hypotheses/. Quick mode (default) takes a statement inline and generates the file immediately. Guided mode walks through refining the statement and adding context. Use when user says "new hypothesis", "add hypothesis", "log hypothesis", "I think X will work", or "/lo:hypothesis".
 metadata:
-  version: 2.0.0
+  version: 0.2.0
   author: LORF
   category: project-documentation
   tags: [lo, hypothesis, research, assumptions]

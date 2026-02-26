@@ -4,7 +4,7 @@ description: Implements the StockTaper / Loosely Organized Research Facility des
 license: MIT
 metadata:
   author: Loosely Organized
-  version: 1.1.0
+  version: 0.2.0
   category: design-system
   tags: [tailwind-v4, next-js-16, mdx, monospace, design-tokens, dark-mode, next-themes]
 ---
