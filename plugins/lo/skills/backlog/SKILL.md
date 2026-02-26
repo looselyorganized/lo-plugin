@@ -10,6 +10,14 @@ metadata:
 
 Manages the project backlog at `.lo/BACKLOG.md`. Features and tasks live here until they graduate into active work.
 
+## ID Convention
+
+All backlog items get sequential IDs scoped to the project:
+- Features: `f001`, `f002`, etc.
+- Tasks: `t001`, `t002`, etc.
+
+IDs are permanent — never reuse an ID, even after deletion. To determine the next ID, scan BACKLOG.md for the highest existing `f{NNN}` or `t{NNN}` and increment.
+
 ## When to Use
 
 - User invokes `/lo:backlog`
@@ -22,9 +30,10 @@ Manages the project backlog at `.lo/BACKLOG.md`. Features and tasks live here un
 - If `.lo/BACKLOG.md` doesn't exist, create it with the default template before proceeding.
 - ALWAYS read the current backlog before making changes — never overwrite blindly.
 - Update the `updated:` date in frontmatter whenever the file is modified.
-- Feature status values: `backlog` | `active -> .lo/work/<name>/` | `done -> YYYY-MM-DD`
-- Tasks are checkboxes: `- [ ]` open, `- [x] ~~text~~ -> YYYY-MM-DD` done.
+- Feature status values: `backlog` | `active -> .lo/work/f{NNN}-slug/` | `done -> YYYY-MM-DD`
+- Tasks are checkboxes: `- [ ] t{NNN} description` open, `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD` done.
 - All files are plain Markdown with YAML frontmatter. No MDX.
+- Every feature and task MUST have an ID. Never create items without one.
 
 ## Modes
 
@@ -39,13 +48,13 @@ Read `.lo/BACKLOG.md` and display a summary:
     Backlog (updated YYYY-MM-DD):
 
     Features:
-      [backlog] Feature Name — short description
-      [active]  Feature Name -> .lo/work/feature-name/
-      [done]    Feature Name -> completed YYYY-MM-DD
+      f001 [backlog] Feature Name — short description
+      f002 [active]  Feature Name -> .lo/work/f002-feature-name/
+      f003 [done]    Feature Name -> completed YYYY-MM-DD
 
     Tasks:
-      [ ] Task description
-      [x] Completed task -> YYYY-MM-DD
+      [ ] t001 Task description
+      [x] t002 Completed task -> YYYY-MM-DD
 
 If backlog is empty, suggest adding items.
 
@@ -54,9 +63,10 @@ If backlog is empty, suggest adding items.
 Arguments: `task "description"`
 
 1. Read current BACKLOG.md
-2. Append a new checkbox under `## Tasks`: `- [ ] description`
-3. Update `updated:` date
-4. Confirm: `Task added: "description"`
+2. Determine next task ID: scan for highest `t{NNN}`, increment
+3. Append a new checkbox under `## Tasks`: `- [ ] t{NNN} description`
+4. Update `updated:` date
+5. Confirm: `t{NNN}: "description"`
 
 If no description provided, prompt for one.
 
@@ -65,64 +75,65 @@ If no description provided, prompt for one.
 Arguments: `feature "name"`
 
 1. Read current BACKLOG.md
-2. Ask for a 1-2 sentence description if not provided
-3. Append under `## Features`:
+2. Determine next feature ID: scan for highest `f{NNN}`, increment
+3. Ask for a 1-2 sentence description if not provided
+4. Append under `## Features`:
 
-        ### Feature Name
+        ### f{NNN} — Feature Name
         Description of the feature.
         Status: backlog
 
-4. Update `updated:` date
-5. Confirm: `Feature added: "Feature Name" (status: backlog)`
+5. Update `updated:` date
+6. Confirm: `f{NNN}: "Feature Name" (status: backlog)`
 
 ### Mode 4: Start Feature
 
-Arguments: `start "name"`
+Arguments: `start "name"` or `start "f{NNN}"`
 
 Graduates a feature from backlog to active work, creates a plan, then offers to execute it.
 
 1. Read current BACKLOG.md
-2. Find the matching feature (fuzzy match on name)
+2. Find the matching feature (match by ID `f{NNN}` or fuzzy match on name)
 3. If not found, show available backlog features and ask user to choose
-4. Derive directory name: kebab-case from feature name
-5. Create `.lo/work/<feature-name>/` directory
-6. Update the feature's status line: `Status: active -> .lo/work/<feature-name>/`
+4. Derive directory name: `f{NNN}-slug` (kebab-case from feature name, prefixed with ID)
+5. Create `.lo/work/f{NNN}-slug/` directory
+6. Update the feature's status line: `Status: active -> .lo/work/f{NNN}-slug/`
 7. Update `updated:` date
 8. Confirm:
 
-        Feature started: "<name>"
-        Work directory: .lo/work/<feature-name>/
+        Feature started: f{NNN} "<name>"
+        Work directory: .lo/work/f{NNN}-slug/
 
 9. **Brainstorm:** Invoke `superpowers:brainstorming` to explore the design with the user
 10. **Plan:** Invoke `superpowers:writing-plans` (or enter plan mode) to create a structured implementation plan
-11. **Save plan** to `.lo/work/<feature-name>/001-<phase-slug>.md` using the plan file format from `/lo:work`
+11. **Save plan** to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format from `/lo:work`
 12. **Bridge to execution:**
 
-        Plan saved: .lo/work/<feature-name>/001-<phase-slug>.md
+        Plan saved: .lo/work/f{NNN}-slug/001-<phase-slug>.md
 
         Ready to start executing? Type /lo:work to begin.
 
 ### Mode 5: Update Item
 
-Arguments: `update` or `update "name"`
+Arguments: `update` or `update "name"` or `update "f{NNN}"` or `update "t{NNN}"`
 
 Edit an existing feature or task in the backlog.
 
-**With no name:** List all features and tasks with numbers, ask user to pick one:
+**With no name:** List all features and tasks, ask user to pick one:
 
     Which item do you want to update?
 
     Features:
-      1. [backlog] Auth system
-      2. [active]  Dashboard redesign
+      f001 [backlog] Auth system
+      f002 [active]  Dashboard redesign
 
     Tasks:
-      3. [ ] Fix button color on settings page
-      4. [ ] Update dependency versions
+      t001 [ ] Fix button color on settings page
+      t002 [ ] Update dependency versions
 
-    Enter a number:
+    Enter an ID or number:
 
-**With a name:** Find the matching item (fuzzy match).
+**With a name or ID:** Find the matching item (exact ID match or fuzzy name match).
 
 Once an item is selected, ask what to change:
 - **Feature:** name, description, or status
@@ -130,14 +141,14 @@ Once an item is selected, ask what to change:
 
 Apply the edit, update `updated:` date, confirm:
 
-    Updated: "Auth system" — description changed
+    Updated: f001 "Auth system" — description changed
 
 ### Mode 6: Complete Task
 
 When user says "done with X", "finished X", or checks off a task:
 
-1. Find the matching task in BACKLOG.md
-2. Update it: `- [x] ~~description~~ -> YYYY-MM-DD`
+1. Find the matching task in BACKLOG.md (by ID or fuzzy name)
+2. Update it: `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`
 3. Update `updated:` date
 
 ### Mode 7: Complete Feature
@@ -161,6 +172,6 @@ If BACKLOG.md doesn't exist, create it:
 
     ## Tasks
 
-    - [ ] Review PROJECT.md and fill any TODO placeholders
+    - [ ] t001 Review PROJECT.md and fill any TODO placeholders
 
 Use today's date for the `updated` field.

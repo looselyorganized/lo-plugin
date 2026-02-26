@@ -44,7 +44,7 @@ Stop here.
 ### Step 2: Read Existing Stream
 
 Read every file in `.lo/stream/` and build an index of what's already recorded:
-- Parse each file's frontmatter (`type`, `date`, `title`, `commits`)
+- Parse each file's frontmatter (`type`, `date`, `title`, `feature_id`, `commits`)
 - Note the **most recent entry date** — this is the "last known" point in the timeline
 
 Present a summary:
@@ -113,11 +113,14 @@ For each approved entry, write to `.lo/stream/YYYY-MM-DD-{slug}.md`:
 type: "[milestone|update|note]"
 date: "YYYY-MM-DD"
 title: "[Short descriptive title]"
+feature_id: "f{NNN}"
 commits: N
 ---
 
 [1-3 terse sentences. What was built, why it matters. Concrete details — component names, key decisions, numbers.]
 ```
+
+The `feature_id` field is **optional** — include it when the entry corresponds to a tracked feature from the backlog. Omit it for entries that group miscellaneous commits, chores, or non-feature work. This links the stream narrative back to the backlog → work → ship chain.
 
 Slug rules:
 - Derive from the title, kebab-case

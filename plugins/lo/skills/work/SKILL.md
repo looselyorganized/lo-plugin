@@ -24,20 +24,27 @@ Executes plans from `.lo/work/` feature directories. Handles branching, parallel
 - Be transparent about what's running in parallel and why.
 - Stop and report when a plan phase is complete. Ask before proceeding to the next phase.
 - If no plans exist in the work directory, bridge to brainstorming and plan-writing first.
+- Work directories are named `f{NNN}-slug/` matching the feature ID from the backlog.
 
 ## Workflow
 
 ### Step 1: Find Active Work
 
-Scan `.lo/work/` for feature directories containing plan files (numbered: `001-*.md`, `002-*.md`).
+Scan `.lo/work/` for feature directories (named `f{NNN}-slug/`) containing plan files (numbered: `001-*.md`, `002-*.md`).
 
 **If no work directories exist:**
-Tell user to use `/lo:backlog pick "feature"` to graduate a feature.
+Tell user to use `/lo:backlog start "feature"` to graduate a feature.
 
 **If directories exist but no plan files:**
 Tell user the feature directory exists but needs plans. Bridge to brainstorming → writing-plans.
 
-**If multiple features have plans:** Ask which to work on.
+**If multiple features have plans:** List them with IDs and ask which to work on:
+
+    Active features with plans:
+      f003 auth-system — 2 phases
+      f005 dashboard-redesign — 1 phase
+
+    Which feature?
 
 ### Step 2: Read the Plan
 
@@ -46,7 +53,7 @@ Read the current plan file (lowest-numbered incomplete plan):
 1. Parse the plan's tasks, dependencies, and parallelization markers
 2. Present a summary:
 
-        Working on: <feature-name>
+        Working on: f003 auth-system
         Plan: 001-<phase-name>.md
 
         Tasks:
@@ -77,8 +84,8 @@ Present it as:
     3. Something else
 
 Examples:
-- `1. New branch: feature/<feature-name> (recommended)`
-- `1. New worktree: ../<repo-name>-<feature-name> (recommended)`
+- `1. New branch: feature/f003-auth-system (recommended)`
+- `1. New worktree: ../<repo-name>-f003-auth-system (recommended)`
 
 **Do not proceed to Step 4 until the user answers.**
 
@@ -111,7 +118,8 @@ As tasks complete:
 
         Phase complete: 001-<phase-name>
           [N] tasks completed
-          Branch: feature/<feature-name>
+          Feature: f003 auth-system
+          Branch: feature/f003-auth-system
 
         Next phase: 002-<phase-name> (if exists)
         Continue? Or ship with /lo:ship?
@@ -126,10 +134,11 @@ Do NOT automatically proceed to shipping.
 
 ## Plan File Format
 
-Plans in `.lo/work/` follow the executing-plans skill format:
+Plans in `.lo/work/f{NNN}-slug/` follow the executing-plans skill format:
 
     ---
     status: pending
+    feature_id: "f{NNN}"
     feature: <feature-name>
     phase: 1
     ---

@@ -23,6 +23,7 @@ Runs the quality pipeline to ship completed work. Each gate must pass before pro
 - Must be on a feature branch, not main. If on main, stop and explain.
 - Always create a stream milestone after successful shipping.
 - Always prompt for solution capture — but respect "no" as an answer.
+- Identify features by their `f{NNN}` ID throughout the pipeline.
 
 ## Pipeline
 
@@ -30,7 +31,7 @@ Runs the quality pipeline to ship completed work. Each gate must pass before pro
 
 1. **Not on main/master:** Check `git branch --show-current`. If on main/master, stop.
 2. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
-3. **Identify the feature:** Map branch name to `.lo/work/` directory or BACKLOG.md entry. If unclear, ask.
+3. **Identify the feature:** Map branch name (e.g., `feature/f003-auth-system`) to the feature ID. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
 
 ### Gate 2: Run Tests
 
@@ -61,7 +62,7 @@ Scan changed files for:
 ### Gate 5: Commit
 
 1. Stage changes: `git add` relevant files (avoid blindly adding all)
-2. Draft commit message based on feature name and changes
+2. Draft commit message based on feature ID and name
 3. Present for user approval
 4. Commit
 
@@ -76,9 +77,9 @@ If push fails, stop and report.
 ### Gate 7: Create Pull Request
 
 Create PR with:
-- Title derived from feature name
+- Title derived from feature ID and name (e.g., "f003: Auth system")
 - Body summarizing what was built and why
-- Reference to plan in `.lo/work/` if applicable
+- Reference to plan in `.lo/work/f{NNN}-slug/` if applicable
 
 Report the PR URL.
 
@@ -90,6 +91,7 @@ Write to `.lo/stream/YYYY-MM-DD-<feature-slug>.md`:
     type: "milestone"
     date: "YYYY-MM-DD"
     title: "<Feature name>"
+    feature_id: "f{NNN}"
     commits: N
     ---
 
@@ -100,16 +102,17 @@ Count commits: `git rev-list --count main..HEAD`
 ### Gate 9: Update Backlog
 
 1. Read BACKLOG.md
-2. Update matching feature status: `done -> YYYY-MM-DD`
-3. Update `updated:` date
+2. Find feature by `f{NNN}` ID
+3. Update status: `Status: done -> YYYY-MM-DD`
+4. Update `updated:` date
 
 ### Gate 10: Solution Prompt
 
-    Feature shipped!
+    Feature shipped: f{NNN} "<name>"
 
     PR: [url]
     Stream: .lo/stream/YYYY-MM-DD-<slug>.md
-    Backlog: updated
+    Backlog: f{NNN} -> done
 
     Anything reusable worth capturing?
     Type /lo:solution to capture it, or "no" to skip.
@@ -118,7 +121,7 @@ Count commits: `git rev-list --count main..HEAD`
 
 After completion:
 
-    Ship complete!
+    Ship complete: f{NNN} "<name>"
       Tests:    passed (N tests)
       Simplify: [N changes | clean]
       Security: clean
@@ -126,12 +129,13 @@ After completion:
       Push:     origin/<branch>
       PR:       <url>
       Stream:   .lo/stream/YYYY-MM-DD-<slug>.md
-      Backlog:  <feature> -> done
+      Backlog:  f{NNN} -> done
       Solution: [captured | skipped]
 
 ## Error Recovery
 
     Ship stopped at Gate N: <gate-name>
+    Feature: f{NNN} "<name>"
     Issue: [what failed]
     Fix: [suggestion]
     After fixing, run /lo:ship again.
