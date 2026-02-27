@@ -84,7 +84,13 @@ Create PR with:
 - Body summarizing what was built and why
 - Reference to plan in `.lo/work/f{NNN}-slug/` if applicable
 
-Report the PR URL.
+After creating the PR, enable auto-merge:
+
+```
+gh pr merge <PR-NUMBER> --auto --squash
+```
+
+This allows the PR to merge automatically once CI passes and CodeRabbit approves. Report the PR URL.
 
 ### Gate 8: Stream Milestone
 
@@ -130,7 +136,7 @@ After completion:
       Security: clean
       Commit:   <hash> "<message>"
       Push:     origin/<branch>
-      PR:       <url>
+      PR:       <url> (auto-merge enabled)
       Stream:   .lo/stream/YYYY-MM-DD-<slug>.md
       Backlog:  f{NNN} -> done
       Solution: [captured | skipped]
