@@ -211,8 +211,7 @@ gh api orgs/{owner} --jq '.plan.name'
         1. Enable auto-merge (allows PRs to merge automatically when checks pass)
         2. Branch protection on main:
            - Require pull request before merging
-           - Require Ellipsis review check to pass
-           - Require test workflow to pass (if generated in Step B)
+           - Require enabled CI checks to pass (Lint, Unit Tests, Build — based on detected capabilities)
 
         These use the GitHub API and modify repo settings.
         Proceed? (yes/no)
@@ -231,7 +230,7 @@ gh api orgs/{owner} --jq '.plan.name'
     {
       "required_status_checks": {
         "strict": true,
-        "contexts": ["Tests"]
+        "contexts": [<detected-checks>]
       },
       "enforce_admins": false,
       "required_pull_request_reviews": {
@@ -242,13 +241,20 @@ gh api orgs/{owner} --jq '.plan.name'
     EOF
     ```
 
-    Note: The `"contexts"` array should match the workflow job name from Step B. If no test workflow was generated, omit `required_status_checks`.
+    The `"contexts"` array should include only the checks that are enabled for this project:
+    - `"Lint"` — if the project has a lint script
+    - `"Unit Tests"` — if the project has a test script
+    - `"Build"` — if the project has a build script
+
+    These names match the job names in the reusable workflow at `looselyorganized/ci`.
+
+    If no capabilities were detected in Step B, omit `required_status_checks`.
 
 3. Report results:
 
         Auto-merge: enabled
         Branch protection on main: enabled
-          - Required checks: Tests, Ellipsis
+          - Required checks: <list of enabled checks, e.g. Lint, Unit Tests, Build>
           - Required reviewers: 1
 
 #### Step D: Create README and Public Docs
@@ -272,7 +278,7 @@ After all selected steps complete:
 
       Status:     build
       Tests:      f{NNN} — N files to cover. Run /lo:work f{NNN} to start.
-      CI:         .github/workflows/test.yml [created | skipped]
+      CI:         .github/workflows/ci.yml [created | skipped]
       Protection: branch protection [enabled | skipped | requires Team plan] + auto-merge [enabled | skipped | requires Team plan]
       Docs:       README.md [created | already exists | skipped]
 
