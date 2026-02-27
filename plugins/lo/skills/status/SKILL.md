@@ -282,7 +282,8 @@ Arguments: `open`
 
 1. Read `.lo/PROJECT.md`, confirm current status
 2. Update `status: "open"` in frontmatter
-3. Report:
+3. Update `.github/workflows/ci.yml`: change `status:` value to `open`. Do not modify other inputs.
+4. Report:
 
         Status changed: <old-status> → open
 
@@ -292,6 +293,18 @@ Arguments: `closed`
 
 1. Read `.lo/PROJECT.md`, confirm current status
 2. Update `status: "closed"` in frontmatter
-3. Report:
+3. Update `.github/workflows/ci.yml`: change `status:` value to `closed`. Do not modify other inputs.
+4. Report:
 
         Status changed: <old-status> → closed
+
+### Mode 5: Transition to `explore`
+
+Arguments: `explore`
+
+1. Read `.lo/PROJECT.md`, confirm current status. This is a backward transition — confirm with user.
+2. Update `status: "explore"` in frontmatter
+3. Update `.github/workflows/ci.yml`: change `status:` value to `explore`. Do not modify other inputs.
+4. Report:
+
+        Status changed: <old-status> → explore
