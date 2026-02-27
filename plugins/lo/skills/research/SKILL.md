@@ -2,7 +2,7 @@
 name: research
 description: Generates a structured LO research article with proper frontmatter, editorial headings, narrative prose, and image placement notes. Takes file(s) as input and walks the user through creating a research document following the Loosely Organized editorial style. Use when user says "write research", "create research article", "draft research", "new research doc", "write up findings", or "/lo:research".
 metadata:
-  version: 0.2.0
+  version: 0.2.1
   author: LORF
 ---
 

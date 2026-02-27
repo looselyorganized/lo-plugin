@@ -1,7 +1,7 @@
 {
   "name": "lo",
-  "description": "LORF work system — backlog, work execution, knowledge capture, shipping pipeline, and design system for Loosely Organized projects",
-  "version": "0.2.0",
+  "description": "LO work system — backlog, work execution, knowledge capture, shipping pipeline, and design system for Loosely Organized projects",
+  "version": "0.2.1",
   "author": {
     "name": "Loosely Organized Research Facility"
   },

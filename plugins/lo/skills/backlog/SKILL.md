@@ -2,7 +2,7 @@
 name: backlog
 description: Manages the LO project backlog in .lo/BACKLOG.md. Supports viewing, adding, updating, starting features, and picking up tasks. Use when user says "backlog", "add task", "add feature", "update backlog", "what should I work on", "what's next", "start a feature", "work on task", "view backlog", "/backlog", "/task", or "/feature".
 metadata:
-  version: 0.2.0
+  version: 0.2.1
   author: LORF
 ---
 

@@ -2,7 +2,7 @@
 name: new
 description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (hypotheses, stream, notes, research, work, solutions), .gitkeep files, and an initial "project started" stream entry. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
 metadata:
-  version: 0.2.0
+  version: 0.2.1
   author: LORF
 ---
 
@@ -155,7 +155,7 @@ Template structure:
 
 ```markdown
 ---
-title: "Project: [NAME]"
+title: "[NAME]"
 description: "[One-sentence description of what this project does.]"
 status: "[from Step 2e]"              # explore | build | open | closed
 classification: "[from Step 2e]"      # public | classified
@@ -183,6 +183,10 @@ agents:                               # Populated from user selection in Step 2d
 ## Architecture
 
 [≤300 characters. Key components, runtime, data flow. No fluff.]
+
+## Infrastructure
+
+[List hosting, databases, and services. One line per service with its role. Omit if no infrastructure detected.]
 ```
 
 #### Body section notes
@@ -193,6 +197,7 @@ The project page parses the body by `## ` headings. Two headings get special ren
 |---------|-----------|--------|------------|
 | `## Capabilities` | Grid of capability cards | Bullet list: `- **Name** — terse description` (one per line) | Keep each line short and technical |
 | `## Architecture` | Prose block alongside the `stack` array | Free-form Markdown | ≤300 characters total |
+| `## Infrastructure` | Service list rendered alongside `infrastructure` array | Bullet list: `- **Service** — role/purpose` (one per line) | Keep terse; omit if none |
 
 **Do NOT generate verbose placeholder text.** No multi-sentence product descriptions, no marketing copy. Each section should be terse and technical. If you can't auto-detect content, use a short `[TODO]` placeholder — never fabricate lengthy descriptions.
 

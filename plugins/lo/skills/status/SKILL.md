@@ -2,7 +2,7 @@
 name: status
 description: Manages project lifecycle transitions. Updates PROJECT.md status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Use when user says "status", "change status", "move to build", "go to open", "close project", "/status", or "/lo:status".
 metadata:
-  version: 0.2.0
+  version: 0.2.1
   author: LORF
 ---
 

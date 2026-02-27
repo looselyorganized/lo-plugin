@@ -2,7 +2,7 @@
 name: stream
 description: Updates the .lo/stream/ folder with milestone and update entries by grouping commits under thematic arcs. The stream is a curated editorial layer on top of git — not a restatement of commit messages. Reads existing stream entries first to avoid duplicates. Use when user says "update stream", "add milestone", "catch up stream", "what happened since last stream update", "log progress", "update lo", "sync stream", or "/lo:stream". Also use proactively when significant work has been completed and the stream hasn't been updated recently.
 metadata:
-  version: 0.2.0
+  version: 0.2.1
   author: LORF
 ---
 
