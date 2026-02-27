@@ -108,12 +108,12 @@ Write to `.lo/stream/YYYY-MM-DD-<feature-slug>.md`:
 
 Count commits: `git rev-list --count main..HEAD`
 
-### Gate 9: Update Backlog
+### Gate 9: Archive Feature
 
-1. Read BACKLOG.md
-2. Find feature by `f{NNN}` ID
-3. Update status: `Status: done -> YYYY-MM-DD`
-4. Update `updated:` date
+1. Move `.lo/work/f{NNN}-slug/` to `.lo/work/done/f{NNN}-slug/`
+2. Mark all plan files in the moved directory with `status: done` in their frontmatter
+3. Remove the feature entry from BACKLOG.md entirely (backlog is for pending work only — done features live in `work/done/`)
+4. Update `updated:` date in BACKLOG.md
 
 ### Gate 10: Solution Prompt
 
@@ -121,7 +121,7 @@ Count commits: `git rev-list --count main..HEAD`
 
     PR: [url]
     Stream: .lo/stream/YYYY-MM-DD-<slug>.md
-    Backlog: f{NNN} -> done
+    Archived: .lo/work/done/f{NNN}-slug/
 
     Anything reusable worth capturing?
     Type /lo:solution to capture it, or "no" to skip.
@@ -138,7 +138,7 @@ After completion:
       Push:     origin/<branch>
       PR:       <url> (auto-merge enabled)
       Stream:   .lo/stream/YYYY-MM-DD-<slug>.md
-      Backlog:  f{NNN} -> done
+      Archived: .lo/work/done/f{NNN}-slug/
       Solution: [captured | skipped]
 
 ## Error Recovery

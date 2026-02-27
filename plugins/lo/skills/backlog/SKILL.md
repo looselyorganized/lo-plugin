@@ -210,8 +210,10 @@ When user says "done with X", "finished X", or checks off a task:
 
 When a feature is shipped (typically triggered by lo:ship, not invoked directly):
 
-1. Update the feature's status: `Status: done -> YYYY-MM-DD`
-2. Update `updated:` date
+1. Remove the feature entry from BACKLOG.md entirely (backlog is for pending work only)
+2. Move `.lo/work/f{NNN}-slug/` to `.lo/work/done/f{NNN}-slug/`
+3. Mark all plan files in the moved directory with `status: done` in frontmatter
+4. Update `updated:` date in BACKLOG.md
 
 ## Default BACKLOG.md Template
 
