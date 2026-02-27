@@ -181,7 +181,21 @@ Present the generated workflow to the user for review before writing.
 
 #### Step C: Enable Branch Protection + Auto-Merge
 
-**These are GitHub API operations that modify repo settings. Ask the user before running each one.**
+**These require GitHub Team plan ($4/user/mo) for private repos. Public repos work on the free plan.**
+
+First, check if the repo can support these features:
+
+```bash
+gh api repos/{owner}/{repo} --jq '.visibility'
+gh api orgs/{owner} --jq '.plan.name'
+```
+
+**If private repo on free plan:** Skip and report:
+
+        Branch protection + auto-merge: skipped (requires GitHub Team plan for private repos)
+        Branching is enforced at the workflow level by /lo:work and /lo:ship skills.
+
+**If public repo or Team+ plan:** Ask the user before running.
 
 1. Present what will happen:
 
@@ -200,7 +214,7 @@ Present the generated workflow to the user for review before writing.
 
     **Enable auto-merge:**
     ```bash
-    gh api repos/{owner}/{repo} --method PATCH --field allow_auto_merge=true
+    gh api repos/{owner}/{repo} --method PATCH --input - <<< '{"allow_auto_merge": true}'
     ```
 
     **Enable branch protection:**
@@ -252,7 +266,7 @@ After all selected steps complete:
       Status:     build
       Tests:      f{NNN} — N files to cover. Run /lo:work f{NNN} to start.
       CI:         .github/workflows/test.yml [created | skipped]
-      Protection: branch protection [enabled | skipped] + auto-merge [enabled | skipped]
+      Protection: branch protection [enabled | skipped | requires Team plan] + auto-merge [enabled | skipped | requires Team plan]
       Docs:       README.md [created | already exists | skipped]
 
 ### Mode 3: Transition to `open`
