@@ -225,10 +225,10 @@ If BACKLOG.md doesn't exist, create it:
 
     ## Features
 
-    _No features yet. Use `/lo:backlog feature "name"` to add one._
+    _No features in backlog. Use `/lo:backlog feature "description"` to add one._
 
     ## Tasks
 
-    - [ ] t001 Review PROJECT.md and fill any TODO placeholders
+    _No tasks in backlog. Use `/lo:backlog task "description"` to add one._
 
 Use today's date for the `updated` field.
