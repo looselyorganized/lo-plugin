@@ -2,7 +2,7 @@
 title: "LO Plugin"
 description: "Claude Code plugin providing the LO work system — backlog, work execution, knowledge capture, shipping pipeline, and design system."
 status: "build"
-classification: "public"
+state: "public"
 topics:
   - developer-tooling
   - ai-collaboration

@@ -18,7 +18,7 @@ The root file. One per project. Contains all metadata and the project brief.
 | `title` | string | Project title, e.g. `"Project: Nexus"` |
 | `description` | string | One-sentence description |
 | `status` | enum | `explore` \| `build` \| `open` \| `closed` |
-| `classification` | enum | `public-open` \| `public-closed` \| `classified` |
+| `state` | enum | `public` \| `private` |
 | `topics` | string[] | Non-empty array for filtering/discovery |
 
 ### Optional Fields
@@ -33,7 +33,7 @@ The root file. One per project. Contains all metadata and the project brief.
 ### Validation Rules
 
 - `status` must be one of: `explore`, `build`, `open`, `closed`
-- `classification` must be one of: `public-open`, `public-closed`, `classified`
+- `state` must be one of: `public`, `private`
 - `topics` must be a non-empty array of strings
 - `agents[].name` and `agents[].role` are required if `agents` is present
 - `stack` and `infrastructure` are distinct: stack = code (Bun, React, Hono), infrastructure = services (Supabase, Railway, Docker)
@@ -66,7 +66,7 @@ Any other `## ` headings render as generic prose sections. All sections are opti
 title: "Project: Nexus"
 description: "A coordination server for multi-agent engineering teams."
 status: "build"
-classification: "public-open"
+state: "public"
 repo: "https://github.com/mhofwell/nexus-2"
 stack:
   - Bun

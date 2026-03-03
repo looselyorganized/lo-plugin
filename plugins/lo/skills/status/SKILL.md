@@ -43,7 +43,7 @@ Read `.lo/PROJECT.md` frontmatter and display:
 
     Project: <title>
     Status: <current-status>
-    Classification: <public|private>
+    State: <public|private>
 
 ### Mode 2: Transition to `build`
 

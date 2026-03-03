@@ -114,9 +114,9 @@ Agent field mapping:
 | Cursor | `"cursor"` | `"AI coding agent (Cursor)"` |
 | Other | Ask user for name | Ask user for role |
 
-#### 2e: Ask Status & Classification
+#### 2e: Ask Status & State
 
-Ask the user for the project's current status and classification:
+Ask the user for the project's current status and state:
 
 **Status** (single select):
 - `explore` — Poking at an idea. Conversations, research, references. Nothing built yet.
@@ -124,9 +124,9 @@ Ask the user for the project's current status and classification:
 - `open` — Inviting people in. Public, accepting feedback, telemetry running.
 - `closed` — Stopped working on it. Record stays up.
 
-**Classification** (single select):
+**State** (single select):
 - `public` — Publicly visible
-- `classified` — Private / internal only
+- `private` — Private / internal only
 
 #### 2f: Auto-fill from Codebase
 
@@ -158,7 +158,7 @@ Template structure:
 title: "[NAME]"
 description: "[One-sentence description of what this project does.]"
 status: "[from Step 2e]"              # explore | build | open | closed
-classification: "[from Step 2e]"      # public | classified
+state: "[from Step 2e]"               # public | private
 topics:
   - [topic-1]
   - [topic-2]
@@ -286,7 +286,7 @@ Show the user what was created and what was auto-detected:
 
   PROJECT.md
     status: [user selection]
-    classification: [user selection]
+    state: [user selection]
     repo: [detected or placeholder]
     stack: [detected items]
     infrastructure: [detected items]

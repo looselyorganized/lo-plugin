@@ -54,7 +54,7 @@ The root file. One per project. Contains all metadata and the project brief.
 title: "Project: Nexus"
 description: "A coordination server for multi-agent engineering teams."
 status: "build"                  # explore | build | open | closed
-classification: "public"         # public | private
+state: "public"                  # public | private
 repo: "https://github.com/mhofwell/nexus-2"  # optional
 stack:                           # optional, array of strings
   - Bun
@@ -77,12 +77,12 @@ relatedContent:                  # optional, cross-references to website content
 
 **Body:** The project brief. Free-form Markdown describing what the project is, why it exists, architecture, capabilities, and current state. This replaces the body of `content/projects/{slug}/index.mdx`.
 
-**Required fields:** `title`, `description`, `status`, `classification`, `topics`
+**Required fields:** `title`, `description`, `status`, `state`, `topics`
 **Optional fields:** `repo`, `stack`, `agents`, `relatedContent`
 
 **Validation rules:**
 - `status` must be one of: `explore`, `build`, `open`, `closed`
-- `classification` must be one of: `public`, `private`
+- `state` must be one of: `public`, `private`
 - `topics` must be a non-empty array of strings
 - `agents[].name` and `agents[].role` are required if `agents` is present
 - `relatedContent[].type` must be `research` or `thoughts`
@@ -242,7 +242,7 @@ The core table. One row per project. Keyed by `content_slug` (matches the existi
 | `title` | `text` NOT NULL | From `project.md` frontmatter |
 | `description` | `text` NOT NULL | From `project.md` frontmatter |
 | `status` | `text` NOT NULL | Enum-like: `explore\|build\|open\|closed` |
-| `classification` | `text` NOT NULL | Enum-like: `public\|private` |
+| `state` | `text` NOT NULL | Enum-like: `public\|private` |
 | `repo_url` | `text` | Nullable. GitHub repo URL. |
 | `stack` | `jsonb` | Array of strings: `["Bun", "Hono", "Redis"]` |
 | `topics` | `jsonb` NOT NULL | Array of strings: `["distributed-systems", "redis"]` |
@@ -449,7 +449,7 @@ Create `.lo/project.md`:
 title: "Your Project Name"
 description: "One-sentence description of what this project does."
 status: "explore"
-classification: "public"
+state: "public"
 topics:
   - your-topic
   - another-topic
