@@ -1,42 +1,53 @@
 ---
 name: work
-description: Executes plans from .lo/work/ directories. Creates branches or worktrees for isolation, identifies parallelizable tasks, and dispatches work using direct execution, subagents, or Agent Teams (preview feature). Stops when plan is complete — does not ship. Use when user says "start working", "let's build", "execute the plan", "work on", or "/work".
+description: Executes features (from plans) and tasks (directly) in .lo/work/. Handles branch isolation, worktree-based parallelization, and progress tracking. Not for planning — use /lo:plan to design first. Stops when complete — does not ship. Use when user says "start working", "let's build", "execute the plan", "work on", or "/work".
 metadata:
-  version: 0.2.1
+  version: 0.3.0
   author: LORF
 ---
 
 # LO Work Executor
 
-Executes plans from `.lo/work/` feature directories. Handles branching, parallelization, and progress tracking. Stops when the plan is complete — shipping is a separate step (`/lo:ship`).
+Executes work for both features (from plans in `.lo/work/`) and tasks (directly from backlog). Handles isolation, parallelization with worktrees, and progress tracking. Stops when complete — shipping is a separate step (`/lo:ship`).
 
 ## When to Use
 
 - User invokes `/lo:work`
-- User says "start working", "let's build", "execute the plan"
-- A feature has been picked from the backlog and plans exist in `.lo/work/`
+- User says "start working", "let's build", "execute the plan", "work on"
+- A feature has plans in `.lo/work/` ready for execution
+- A task from the backlog is ready to be picked up
 
 ## Critical Rules
 
-- `.lo/work/` MUST exist. If it doesn't, tell the user to run `/lo:new` first.
-- NEVER ship code. This skill executes plans. `/lo:ship` handles the quality pipeline.
-- ALWAYS ask the user about branch isolation before executing. Do not skip this step.
+- The `.lo/work/` directory must exist — if it doesn't, tell the user to run `/lo:new` first.
+- Do not ship code from this skill. Execution and quality are separate concerns — `/lo:ship` handles the quality pipeline.
+- Set up branch isolation before executing. Working directly on main risks polluting the shared branch with incomplete work.
 - Be transparent about what's running in parallel and why.
 - Stop and report when a plan phase is complete. Ask before proceeding to the next phase.
-- If no plans exist in the work directory, bridge to brainstorming and plan-writing first.
-- Work directories are named `f{NNN}-slug/` matching the feature ID from the backlog.
+- Work directories are named `f{NNN}-slug/` for features and `t{NNN}-slug/` for tasks.
 
-## Workflow
+## Modes
+
+Detect from arguments:
+- `/lo:work` with no args → find active work
+- `/lo:work f003` → execute feature f003's plan
+- `/lo:work t005` → pick up task t005 for execution
+
+---
+
+## Feature Execution
 
 ### Step 1: Find Active Work
 
-Scan `.lo/work/` for feature directories (named `f{NNN}-slug/`) containing plan files (numbered: `001-*.md`, `002-*.md`).
+**With argument (`f{NNN}`):** Look up `.lo/work/f{NNN}-slug/` directly.
+
+**No argument:** Scan `.lo/work/` for feature directories containing plan files (numbered: `001-*.md`, `002-*.md`).
 
 **If no work directories exist:**
-Tell user to use `/lo:backlog start "feature"` to graduate a feature.
+Tell user to use `/lo:backlog feature "name"` then `/lo:plan f{NNN}` to create plans.
 
 **If directories exist but no plan files:**
-Tell user the feature directory exists but needs plans. Bridge to brainstorming → writing-plans.
+Tell user the feature directory exists but needs plans. Redirect to `/lo:plan f{NNN}`.
 
 **If multiple features have plans:** List them with IDs and ask which to work on:
 
@@ -51,7 +62,8 @@ Tell user the feature directory exists but needs plans. Bridge to brainstorming 
 Read the current plan file (lowest-numbered incomplete plan):
 
 1. Parse the plan's tasks, dependencies, and parallelization markers
-2. Present a summary:
+2. Determine execution strategy based on task structure
+3. Present a summary:
 
         Working on: f003 auth-system
         Plan: 001-<phase-name>.md
@@ -68,40 +80,38 @@ Wait for user confirmation before executing.
 
 ### Step 3: Set Up Isolation
 
-**Before executing anything, recommend an isolation strategy and ask the user.**
+**The feature branch is the integration point.** All work — sequential, subagent, or team — merges into it.
 
-Pick the best default based on scope:
-- Multiple phases or large feature → recommend worktree
-- Single phase or small scope → recommend branch
-- Already on a feature branch → recommend staying
+Check `git branch --show-current` and `git status`, then recommend:
 
-Present it as:
+- Already on a feature branch (e.g., `feat/f003-*`) → recommend staying
+- On main, clean working tree → recommend new branch
+- On main, dirty working tree → recommend new branch (stash or commit first)
+
+Present:
 
     You're on <current-branch>.
 
-    1. <recommended option> (recommended)
+    1. New branch: feat/f{NNN}-slug (recommended)
     2. Stay on <current-branch>
     3. Something else
 
-Examples:
-- `1. New branch: feature/f003-auth-system (recommended)`
-- `1. New worktree: ../<repo-name>-f003-auth-system (recommended)`
+**Do not proceed until the user answers.**
 
-**Do not proceed to Step 4 until the user answers.**
-
-If they pick option 3, ask what they'd prefer (different branch name, worktree, etc.).
-
-If they choose to stay on the current branch, proceed — but note this in the plan summary so `/lo:ship` knows there's no feature branch to PR from.
+If they pick a new branch: `git checkout -b feat/f{NNN}-slug`
+If they stay: note this so `/lo:ship` knows there's no feature branch.
 
 ### Step 3.5: Check Project Status for Test Expectations
 
 Read `.lo/PROJECT.md` status field:
 
 - **`explore`** — Do not mention tests. Speed is the priority.
-- **`build`** — When writing implementation code with testable logic, write tests alongside it. If `.github/workflows/test.yml` exists, ensure new test files are covered by the workflow (e.g., if tests are added to a new directory, update the workflow if needed). If the workflow doesn't exist yet, suggest running `/lo:status build` to generate it.
+- **`build`** — When writing implementation code with testable logic, write tests alongside it. If `.github/workflows/test.yml` exists, ensure new test files are covered by the workflow. If the workflow doesn't exist yet, suggest running `/lo:status build` to generate it.
 - **`open`** — Tests are expected for all testable code. Flag any testable logic without tests.
 
 **What counts as testable logic:** Functions with business logic, parsers, validators, data transformations, state machines, API handlers. **Not testable:** Config, types, UI layout, markdown, thin wrappers.
+
+**Test gap check:** Before executing, scan the plan tasks for test-related work. If status is `build` or `open` and the plan contains testable logic but no test tasks, flag this to the user: "This plan has no test tasks but the project is in [build/open] status. Add tests to the plan, or proceed without?" Do not block — let the user decide.
 
 This check informs execution behavior — it does not block work.
 
@@ -109,29 +119,63 @@ This check informs execution behavior — it does not block work.
 
 Choose parallelization level based on the plan's task structure:
 
-**Level 1 — Sequential:** Simple tasks or tasks with dependencies between all steps. Execute one at a time, report progress after each.
+#### Level 1 — Sequential
 
-**Level 2 — Subagents:** Independent tasks within a phase. Dispatch to subagents, wait for all to complete before moving to dependent tasks.
+Simple tasks or tasks with dependencies between all steps. Execute one at a time on the feature branch, report progress after each.
 
-**Level 3 — Agent Teams:** Large features with substantial independent workstreams. Use Agent Teams (preview feature enabled) to coordinate parallel work.
+```
+feat/f003-auth (feature branch)
+  └── agent executes task 1, then 2, then 3, then 4
+```
 
-**Transparency requirement:** Always tell the user:
-- How many parallel tracks are running
-- What each track is doing
-- When tracks complete
-- If any track fails
+#### Level 2 — Subagents
+
+Independent tasks within a phase. Each subagent gets its own worktree. The main agent coordinates merges on the feature branch.
+
+```
+feat/f003-auth (feature branch) ← main agent coordinates here
+  ├── subagent A (worktree) → task 2 → returns branch
+  ├── subagent B (worktree) → task 3 → returns branch
+  └── main agent merges A, then B into feat/f003-auth
+      then executes task 4 (depends on 2 + 3)
+```
+
+#### Level 3 — Agent Teams
+
+Large features with substantial independent workstreams. Each team member gets their own worktree.
+
+```
+feat/f003-auth (feature branch) ← team lead coordinates
+  ├── teammate "api" (worktree) → builds endpoints → returns branch
+  ├── teammate "ui" (worktree) → builds components → returns branch
+  └── team lead merges both into feat/f003-auth
+```
+
+For dispatch protocols, merge procedures, error handling, and worktree cleanup details, see `references/execution-patterns.md`.
+
+**Choosing between levels:**
+
+| Signal | Level |
+|--------|-------|
+| All tasks depend on each other | Sequential |
+| 2-4 independent tasks in a phase | Subagents |
+| 5+ independent tasks or multi-day workstreams | Agent Teams |
+| Tasks touch overlapping files | Sequential (safest) |
+| Tasks touch completely separate areas | Subagents or Teams |
+
+**Transparency requirement:** Always tell the user how many parallel tracks are running, what each is doing, when they complete, and if any fail.
 
 ### Step 5: Track Progress
 
 As tasks complete:
-1. Mark done in the plan file if it uses checkboxes
+1. Mark done in the plan file: `- [x] Task description`
 2. Report progress
 3. When all tasks in a phase complete:
 
         Phase complete: 001-<phase-name>
           [N] tasks completed
           Feature: f003 auth-system
-          Branch: feature/f003-auth-system
+          Branch: feat/f003-auth-system
 
         Next phase: 002-<phase-name> (if exists)
         Continue? Or ship with /lo:ship?
@@ -144,27 +188,61 @@ When a plan phase completes:
 
 Do NOT automatically proceed to shipping.
 
-## Plan File Format
+---
 
-Plans in `.lo/work/f{NNN}-slug/` follow the executing-plans skill format:
+## Task Execution
 
-    ---
-    status: pending
-    feature_id: "f{NNN}"
-    feature: <feature-name>
-    phase: 1
-    ---
+Tasks are smaller than features — they don't need formal plans. `/lo:work t{NNN}` picks up a task and executes it directly.
 
-    ## Objective
-    What this phase accomplishes.
+### Step 1: Find the Task
 
-    ## Tasks
-    - [ ] Task 1 description
-    - [ ] Task 2 description [parallel]
-    - [ ] Task 3 description [parallel]
-    - [ ] Task 4 description (depends on 2, 3)
+1. Read `.lo/BACKLOG.md`
+2. Find the matching task by ID `t{NNN}` or fuzzy match on description
+3. If not found, show open tasks and ask user to choose
 
-The `[parallel]` marker indicates tasks that can run simultaneously.
+### Step 2: Check for a Plan
+
+Check if `.lo/work/t{NNN}-slug/` exists with plan files:
+- **Plan exists:** Follow the feature execution flow (Steps 2-6 above) using the task's plan
+- **No plan:** Continue to direct execution below
+
+### Step 3: Set Up Isolation
+
+Check `git branch --show-current` and `git status`, then ask:
+
+    Working on: t{NNN} "<description>"
+    You're on <current-branch>.
+
+    1. New branch: fix/t{NNN}-slug (recommended for non-trivial changes)
+    2. Stay on <current-branch> (fine for quick fixes)
+
+If the working tree is dirty, add option: `3. New worktree (you have uncommitted changes)`
+
+**Do not proceed until the user answers.**
+
+If they chose a branch: `git checkout -b fix/t{NNN}-slug`
+If they chose worktree: use the EnterWorktree tool
+
+### Step 4: Execute
+
+Execute the task directly. If the task description provides enough context, implement it. If the scope is unclear or the task requires decisions, ask the user before proceeding. Tasks are typically small enough for sequential execution — no subagents needed.
+
+### Step 5: Completion
+
+When the task is done:
+
+    Task complete: t{NNN} "<description>"
+    Branch: fix/t{NNN}-slug
+
+    Ready to ship? Run /lo:ship to commit, push, and create a PR.
+
+---
+
+## How Work Reads Plans
+
+Plan files are created by `/lo:plan`. Execute numbered files (`001-*.md`, `002-*.md`) in order, lowest-numbered incomplete plan first. Parse frontmatter for `status` (skip `done`), task checkboxes for progress, `[parallel]` for concurrency, and `(depends on N, M)` for ordering.
+
+See `/lo:plan`'s `references/plan-format-contract.md` for the full format specification.
 
 ## Error Handling
 
@@ -172,3 +250,43 @@ The `[parallel]` marker indicates tasks that can run simultaneously.
 - Subagent fails → report which agent and what went wrong.
 - Merge conflicts → stop and ask the user.
 - Tests fail during execution → stop and fix before continuing.
+- Worktree cleanup fails → warn user, suggest manual cleanup.
+
+## Examples
+
+### Executing a feature plan
+
+    User: /lo:work f003
+
+    Agent finds .lo/work/f003-user-auth/, reads 001-auth-flow.md
+
+    Working on: f003 user-auth
+    Plan: 001-auth-flow.md
+
+    Tasks:
+      1. Set up auth middleware — sequential
+      2. Create login endpoint [parallel]
+      3. Create signup endpoint [parallel]
+      4. Add session management (depends on 2, 3)
+
+    Strategy: Subagents (tasks 2 and 3 are independent)
+
+    User confirms → agent sets up feat/f003-user-auth branch
+    Dispatches subagents for tasks 2 and 3
+    Merges results, executes task 4
+
+    Phase complete: 001-auth-flow
+      4 tasks completed
+      Branch: feat/f003-user-auth
+
+### Picking up a task
+
+    User: /lo:work t005
+
+    Working on: t005 "Update dependency versions"
+    You're on main.
+
+    1. New branch: fix/t005-update-deps (recommended)
+    2. Stay on main
+
+    User picks option 2 → executes directly → reports completion

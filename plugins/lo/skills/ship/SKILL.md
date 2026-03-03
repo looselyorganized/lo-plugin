@@ -1,8 +1,8 @@
 ---
 name: ship
-description: Quality pipeline for shipping completed work. Runs tests, code-simplifier, security review, then commits, pushes, and creates a PR. Creates a stream milestone and prompts for solution capture. Stops and reports if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "push and PR", "/ship", or when work execution is complete.
+description: Quality pipeline for shipping completed work. Full pipeline (tests, review, commit, push, PR) on feature branches. Light pipeline (tests, security, commit, mark done) on main. Not for planning or execution — use /lo:plan to design and /lo:work to build first. Archives features and prompts for stream/solution capture. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "push and PR", "done with", "mark done", "/ship", or when work execution is complete.
 metadata:
-  version: 0.2.1
+  version: 0.3.0
   author: LORF
 ---
 
@@ -10,31 +10,42 @@ metadata:
 
 Runs the quality pipeline to ship completed work. Each gate must pass before proceeding. Stops and reports if any gate fails.
 
+Two modes based on branch context:
+- **Full pipeline** (feature/fix branch): tests → simplify → security → commit → push → PR → archive → wrap-up
+- **Light pipeline** (main branch, tasks only): tests → security → commit → mark done → wrap-up
+
 ## When to Use
 
 - User invokes `/lo:ship`
-- User says "ship it", "ready to merge", "push and PR", "ready to ship"
+- User says "ship it", "ready to merge", "push and PR", "ready to ship", "done with", "mark done"
 - Work has been completed via `/lo:work`
 
 ## Critical Rules
 
-- NEVER skip a pipeline gate. Every stage runs in order.
-- If ANY gate fails, STOP and report what needs fixing. Do not continue.
-- Must be on a feature branch, not main. If on main, stop and explain.
-- Always create a stream milestone after successful shipping.
-- Always prompt for solution capture — but respect "no" as an answer.
-- Identify features by their `f{NNN}` ID throughout the pipeline.
+- Run every pipeline gate in order. Skipping a gate risks shipping broken or insecure code.
+- If any gate fails, stop and report what needs fixing. Continuing past a failure defeats the purpose of the pipeline.
+- Prompt for stream update and solution capture after shipping — but respect "no" as an answer.
+- Identify items by their `f{NNN}` or `t{NNN}` ID throughout the pipeline.
 
 ## Pipeline
 
 ### Gate 1: Pre-flight
 
 1. **Branch check:** Check `git branch --show-current`.
-   - If on a feature/fix branch → proceed normally (full pipeline including PR).
-   - If on main/master → warn the user: "You're on main. The ship pipeline creates a PR from a feature branch. If you intended to work on main, commit directly and use `/lo:backlog done` to mark the item complete instead. If you meant to branch, create one now and cherry-pick or re-commit your changes."
-   - Do not proceed on main. Stop and let the user decide.
+   - If on a feature/fix branch → **full pipeline** (Gates 1-9).
+   - If on main/master → ask the user:
+
+         You're on main. Two options:
+
+         1. Create a branch and run full pipeline (recommended)
+         2. Quick ship — tests + security + commit on main, mark done (for small tasks)
+
+     If they choose option 1, create the branch and proceed with full pipeline.
+     If they choose option 2, proceed with **light pipeline** (Gates 1-5, skip 6-7, then Gate 8-9).
+     Light pipeline is only available for tasks (`t{NNN}`). If the user is shipping a feature on main, recommend option 1.
+
 2. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
-3. **Identify the feature:** Map branch name (e.g., `feat/f003-auth-system` or `fix/t005-slug`) to the feature/task ID. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
+3. **Identify the item:** Map branch name (e.g., `feat/f003-auth-system` or `fix/t005-slug`) to the feature/task ID. On main, ask the user which backlog item this work completes. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
 
 ### Gate 2: Run Tests
 
@@ -45,6 +56,8 @@ Detect the project's test runner (package.json scripts, Cargo.toml, pyproject.to
 - **No tests:** Warn user, ask whether to proceed without tests.
 
 ### Gate 3: Code Simplification
+
+*Full pipeline only. Skip for light pipeline.*
 
 1. Identify changed files: `git diff --name-only main...HEAD`
 2. Review for: unnecessary complexity, dead code, verbose patterns, duplication
@@ -65,11 +78,13 @@ Scan changed files for:
 ### Gate 5: Commit
 
 1. Stage changes: `git add` relevant files (avoid blindly adding all)
-2. Draft commit message based on feature ID and name
+2. Draft commit message based on item ID and name
 3. Present for user approval
 4. Commit
 
 ### Gate 6: Push
+
+*Full pipeline only. Skip for light pipeline.*
 
 ```
 git push -u origin <branch-name>
@@ -79,10 +94,12 @@ If push fails, stop and report.
 
 ### Gate 7: Create Pull Request
 
+*Full pipeline only. Skip for light pipeline.*
+
 Create PR with:
-- Title derived from feature ID and name (e.g., "f003: Auth system")
+- Title derived from item ID and name (e.g., "f003: Auth system" or "t005: Fix button color")
 - Body summarizing what was built and why
-- Reference to plan in `.lo/work/f{NNN}-slug/` if applicable
+- Reference to plan in `.lo/work/` if applicable
 
 After creating the PR, enable auto-merge:
 
@@ -92,43 +109,34 @@ gh pr merge <PR-NUMBER> --auto --squash
 
 This allows the PR to merge automatically once CI passes and CodeRabbit approves. Report the PR URL.
 
-### Gate 8: Stream Milestone
+### Gate 8: Archive & Complete
 
-Write to `.lo/stream/YYYY-MM-DD-<feature-slug>.md`:
+Detect item type from ID prefix and handle accordingly:
 
-    ---
-    type: "milestone"
-    date: "YYYY-MM-DD"
-    title: "<Feature name>"
-    feature_id: "f{NNN}"
-    commits: N
-    ---
-
-    [1-3 terse sentences about what was built and why it matters.]
-
-Count commits: `git rev-list --count main..HEAD`
-
-### Gate 9: Archive Feature
-
+**For features (`f{NNN}`):**
 1. Move `.lo/work/f{NNN}-slug/` to `.lo/work/done/f{NNN}-slug/`
 2. Mark all plan files in the moved directory with `status: done` in their frontmatter
 3. Remove the feature entry from BACKLOG.md entirely (backlog is for pending work only — done features live in `work/done/`)
 4. Update `updated:` date in BACKLOG.md
 
-### Gate 10: Solution Prompt
+**For tasks (`t{NNN}`):**
+1. Mark the task checkbox done in BACKLOG.md: `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`
+2. If `.lo/work/t{NNN}-slug/` exists, move it to `.lo/work/done/t{NNN}-slug/`
+3. Update `updated:` date in BACKLOG.md
 
-    Feature shipped: f{NNN} "<name>"
+### Gate 9: Wrap-up Prompts
 
-    PR: [url]
-    Stream: .lo/stream/YYYY-MM-DD-<slug>.md
-    Archived: .lo/work/done/f{NNN}-slug/
+    Shipped: <f{NNN}|t{NNN}> "<name>"
 
-    Anything reusable worth capturing?
-    Type /lo:solution to capture it, or "no" to skip.
+    PR: [url] (full pipeline only)
+    Archived: .lo/work/done/<slug>/ (if work dir existed)
+
+    Update the stream? Run /lo:stream to capture this milestone.
+    Anything reusable worth capturing? Run /lo:solution, or "no" to skip.
 
 ## Pipeline Summary
 
-After completion:
+**Full pipeline** (feature/fix branch):
 
     Ship complete: f{NNN} "<name>"
       Tests:    passed (N tests)
@@ -137,16 +145,62 @@ After completion:
       Commit:   <hash> "<message>"
       Push:     origin/<branch>
       PR:       <url> (auto-merge enabled)
-      Stream:   .lo/stream/YYYY-MM-DD-<slug>.md
       Archived: .lo/work/done/f{NNN}-slug/
-      Solution: [captured | skipped]
+
+**Light pipeline** (main branch, tasks):
+
+    Ship complete: t{NNN} "<name>"
+      Tests:    passed (N tests)
+      Security: clean
+      Commit:   <hash> "<message>"
+      Done:     t{NNN} marked complete in backlog
 
 ## Error Recovery
 
     Ship stopped at Gate N: <gate-name>
-    Feature: f{NNN} "<name>"
+    Item: <f{NNN}|t{NNN}> "<name>"
+    Pipeline: [full | light]
     Issue: [what failed]
     Fix: [suggestion]
     After fixing, run /lo:ship again.
 
 Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
+
+## Examples
+
+### Full pipeline (feature branch)
+
+    User: /lo:ship
+
+    Agent checks branch → on feat/f003-user-auth
+    Identifies item: f003 "User Authentication"
+
+    Gate 1: Pre-flight ✓
+    Gate 2: Tests — 47 passed ✓
+    Gate 3: Simplify — 2 suggestions applied ✓
+    Gate 4: Security — clean ✓
+    Gate 5: Commit — abc1234 "feat(f003): user authentication" ✓
+    Gate 6: Push — origin/feat/f003-user-auth ✓
+    Gate 7: PR — github.com/org/repo/pull/42 (auto-merge enabled) ✓
+    Gate 8: Archive — .lo/work/done/f003-user-auth/ ✓
+    Gate 9: Wrap-up ✓
+
+    Shipped: f003 "User Authentication"
+    Update the stream? Run /lo:stream to capture this milestone.
+
+### Light pipeline (task on main)
+
+    User: /lo:ship
+
+    Agent checks branch → on main
+    Asks: full pipeline or quick ship?
+    User picks quick ship → identifies t005 "Update dependency versions"
+
+    Gate 1: Pre-flight ✓
+    Gate 2: Tests — 47 passed ✓
+    Gate 4: Security — clean ✓
+    Gate 5: Commit — def5678 "chore(t005): update dependency versions" ✓
+    Gate 8: Done — t005 marked complete in backlog ✓
+    Gate 9: Wrap-up ✓
+
+    Shipped: t005 "Update dependency versions"
