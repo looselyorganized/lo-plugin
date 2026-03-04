@@ -22,7 +22,7 @@ Turns backlog items into actionable implementation plans. Brainstorms design, wr
 - Brainstorm before planning features. Jumping straight to a plan skips design exploration, which leads to rework.
 - This skill designs — it does not execute. Redirect to `/lo:work` when the user wants to start building.
 - Save plans to `.lo/work/f{NNN}-slug/` or `.lo/work/t{NNN}-slug/` using the format in `references/plan-format-contract.md`.
-- Update BACKLOG.md status to `active` when creating a work directory for a feature.
+- Remove the feature from BACKLOG.md when creating a work directory — the work dir is now the source of truth for in-progress work.
 
 ## Modes
 
@@ -48,12 +48,13 @@ Arguments: `f{NNN}` or feature name (fuzzy match against BACKLOG.md)
 
 1. Derive directory name: `f{NNN}-slug` (kebab-case from feature name, prefixed with ID)
 2. Create `.lo/work/f{NNN}-slug/` directory
-3. Update BACKLOG.md: set feature status to `Status: active -> .lo/work/f{NNN}-slug/`
-4. Update `updated:` date
+3. Remove the feature entry from BACKLOG.md (the work dir is now the source of truth)
+4. Update `updated:` date in BACKLOG.md
 5. Confirm:
 
         Feature activated: f{NNN} "<name>"
         Work directory: .lo/work/f{NNN}-slug/
+        Removed from backlog (work dir is source of truth)
 
 ### Step 3: Check Solutions for Prior Art
 
@@ -175,7 +176,7 @@ When invoked as `/lo:plan` with no arguments:
 
     Agent reads BACKLOG.md → finds f003 "User Authentication" (status: backlog)
     Creates .lo/work/f003-user-auth/
-    Updates backlog: Status: active -> .lo/work/f003-user-auth/
+    Removes f003 from backlog (work dir is source of truth)
     Checks .lo/solutions/ for relevant prior art
     Invokes brainstorming → explores design → user approves
     Asks: Plan mode or quick plan?

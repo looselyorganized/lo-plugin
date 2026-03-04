@@ -1,4 +1,5 @@
 ---
+proj_id: "proj_d1fe04ef-cb5e-42de-a1f0-8bcadb9c469a"
 title: "LO Plugin"
 description: "Claude Code plugin providing the LO work system — backlog, work execution, knowledge capture, shipping pipeline, and design system."
 status: "build"

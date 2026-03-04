@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Quality pipeline for shipping completed work. Full pipeline (tests, review, commit, push, PR) on feature branches. Light pipeline (tests, security, commit, mark done) on main. Not for planning or execution — use /lo:plan to design and /lo:work to build first. Archives features and prompts for stream/solution capture. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "push and PR", "done with", "mark done", "/ship", or when work execution is complete.
+description: Quality pipeline for shipping completed work. Full pipeline (tests, review, commit, push, PR) on feature branches. Light pipeline (tests, security, commit, mark done) on main. Not for planning or execution — use /lo:plan to design and /lo:work to build first. Cleans up work dirs and prompts for stream/solution capture. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "push and PR", "done with", "mark done", "/ship", or when work execution is complete.
 metadata:
   version: 0.3.0
   author: LORF
@@ -11,7 +11,7 @@ metadata:
 Runs the quality pipeline to ship completed work. Each gate must pass before proceeding. Stops and reports if any gate fails.
 
 Two modes based on branch context:
-- **Full pipeline** (feature/fix branch): tests → simplify → security → commit → push → PR → archive → wrap-up
+- **Full pipeline** (feature/fix branch): tests → simplify → security → commit → push → PR → clean up → wrap-up
 - **Light pipeline** (main branch, tasks only): tests → security → commit → mark done → wrap-up
 
 ## When to Use
@@ -132,19 +132,17 @@ gh pr merge <PR-NUMBER> --auto --squash
 
 This allows the PR to merge automatically once CI passes and CodeRabbit approves. Report the PR URL.
 
-### Gate 8: Archive & Complete
+### Gate 8: Clean Up
 
 Detect item type from ID prefix and handle accordingly:
 
 **For features (`f{NNN}`):**
-1. Move `.lo/work/f{NNN}-slug/` to `.lo/work/done/f{NNN}-slug/`
-2. Mark all plan files in the moved directory with `status: done` in their frontmatter
-3. Remove the feature entry from BACKLOG.md entirely (backlog is for pending work only — done features live in `work/done/`)
-4. Update `updated:` date in BACKLOG.md
+1. Delete `.lo/work/f{NNN}-slug/` entirely (git history preserves everything)
+2. Feature was already removed from BACKLOG.md at plan time — no backlog update needed
 
 **For tasks (`t{NNN}`):**
 1. Mark the task checkbox done in BACKLOG.md: `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`
-2. If `.lo/work/t{NNN}-slug/` exists, move it to `.lo/work/done/t{NNN}-slug/`
+2. If `.lo/work/t{NNN}-slug/` exists, delete it
 3. Update `updated:` date in BACKLOG.md
 
 ### Gate 9: Wrap-up Prompts
@@ -152,7 +150,7 @@ Detect item type from ID prefix and handle accordingly:
     Shipped: <f{NNN}|t{NNN}> "<name>"
 
     PR: [url] (full pipeline only)
-    Archived: .lo/work/done/<slug>/ (if work dir existed)
+    Cleaned: .lo/work/<slug>/ removed
 
     Update the stream? Run /lo:stream to capture this milestone.
     Anything reusable worth capturing? Run /lo:solution, or "no" to skip.
@@ -168,7 +166,7 @@ Detect item type from ID prefix and handle accordingly:
       Commit:   <hash> "<message>"
       Push:     origin/<branch>
       PR:       <url> (auto-merge enabled)
-      Archived: .lo/work/done/f{NNN}-slug/
+      Cleaned: .lo/work/f{NNN}-slug/ removed
 
 **Light pipeline** (main branch, tasks):
 
@@ -205,7 +203,7 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     Gate 5: Commit — abc1234 "feat(f003): user authentication" ✓
     Gate 6: Push — origin/feat/f003-user-auth ✓
     Gate 7: PR — github.com/org/repo/pull/42 (auto-merge enabled) ✓
-    Gate 8: Archive — .lo/work/done/f003-user-auth/ ✓
+    Gate 8: Clean up — .lo/work/f003-user-auth/ removed ✓
     Gate 9: Wrap-up ✓
 
     Shipped: f003 "User Authentication"
