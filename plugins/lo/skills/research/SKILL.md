@@ -2,7 +2,7 @@
 name: research
 description: Captures research findings and discoveries in .lo/research/ during deep work sessions. Also publishes research to the platform via pub mode. Use when user says "write research", "create research article", "draft research", "capture findings", or "/lo:research". Use pub mode with "/lo:research pub <project>" to combine findings into a platform MDX article.
 metadata:
-  version: 0.3.0
+  version: 0.2.1
   author: LORF
 ---
 
