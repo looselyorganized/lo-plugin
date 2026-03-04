@@ -146,9 +146,9 @@ title: "Prototype deployed to Railway"
 
 ---
 
-### `research/*.md` — Research Documents
+### `research/*.md` — Research Files
 
-Research articles that are specific to this project. These may be drafts that eventually get published to the website's `content/research/` directory, or they may stay as project-internal docs.
+Raw materials captured during deep work sessions. Findings, observations, and analysis that may later be combined into published articles on the platform.
 
 **Filename convention:** `{slug}.md` (e.g., `distributed-locking.md`)
 
@@ -161,18 +161,16 @@ date: "2026-01-20"
 topics:
   - distributed-systems
   - redis
-status: "draft"                  # draft | review | published
+published_as: "distributed-locking-for-agents"  # optional, set by /lo:research pub
 ---
 ```
 
-**Body:** Full research content. Free-form Markdown.
+**Body:** Free-form Markdown. Findings, code snippets, observations.
 
-**Required fields:** `title`, `date`, `topics`, `status`
+**Required fields:** `title`, `date`, `topics`
+**Optional fields:** `published_as` (slug of the platform MDX article, set by `/lo:research pub`)
 
-**Status semantics:**
-- `draft` — Work in progress, visible only on the project detail page
-- `review` — Ready for review, may appear in a "coming soon" section
-- `published` — Finalized, synced to the website's research section
+Publishing to the platform is handled by `/lo:research pub` from the platform repo, which combines one or more research files into an MDX article.
 
 ---
 
@@ -220,7 +218,7 @@ Managed by `/lo:solution`.
 
 ## Supabase Schema Design
 
-Five new tables store parsed `.lo/` content. These are **separate from the existing telemetry tables** (`projects`, `events`, `daily_metrics`, `facility_status`). The telemetry pipeline owns those tables; the webhook pipeline owns these.
+Four new tables store parsed `.lo/` content. These are **separate from the existing telemetry tables** (`projects`, `events`, `daily_metrics`, `facility_status`). The telemetry pipeline owns those tables; the webhook pipeline owns these.
 
 ### Table: `project_content`
 
@@ -317,25 +315,6 @@ Contributor data comes from two sources: the GitHub API (commit authors) and age
 - `contributor` — anyone with commits
 - `agent` — matched from `agents[]` declaration in `project.md` (by name or email)
 
-### Table: `research_docs`
-
-| Column | Type | Notes |
-|--------|------|-------|
-| `id` | `uuid` DEFAULT `gen_random_uuid()` PRIMARY KEY | |
-| `content_slug` | `text` NOT NULL FK → `project_content` | |
-| `slug` | `text` NOT NULL | Derived from filename |
-| `title` | `text` NOT NULL | |
-| `date` | `date` NOT NULL | |
-| `topics` | `jsonb` NOT NULL | Array of strings |
-| `status` | `text` NOT NULL | `draft\|review\|published` |
-| `body` | `text` NOT NULL | Full Markdown content |
-| `synced_at` | `timestamptz` NOT NULL | |
-
-**Indexes:**
-- FK index on `content_slug`
-- Unique on `(content_slug, slug)`
-- Index on `status` (for filtering published docs)
-
 ---
 
 ## Activity State Derivation
@@ -382,7 +361,6 @@ Activity state is computed at query time (or cached with a short TTL). It is nev
    - project.md → upsert project_content
    - hypotheses/*.md → upsert hypotheses (delete removed files)
    - stream/*.md → upsert project_stream (source = 'webhook')
-   - research/*.md → upsert research_docs
 6. Fetch contributors via GitHub Contributors API → upsert project_contributors
 7. Match agents[] from project.md → insert agent contributors
 8. Update synced_at timestamps
