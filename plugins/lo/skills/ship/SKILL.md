@@ -66,13 +66,36 @@ Detect the project's test runner (package.json scripts, Cargo.toml, pyproject.to
 
 ### Gate 4: Security Review
 
-Scan changed files for:
-- Hardcoded secrets, API keys, tokens
-- SQL injection, XSS vectors
-- Insecure dependencies
-- Sensitive data in logs
+Two-phase security gate. Both phases must pass.
 
-- **Issues found:** Stop. Report each with file and line.
+**Phase 1 — Static scan (quick):**
+
+Scan changed files for:
+- Hardcoded secrets, API keys, tokens, passwords
+- `.env` files or credentials staged for commit
+- Sensitive data in logs or error messages
+
+**Phase 2 — Vulnerability sweep (thorough):**
+
+Read every changed file and analyze for:
+- **Injection:** SQL injection, XSS, command injection, path traversal, template injection
+- **Auth/access:** broken authentication, missing authorization checks, privilege escalation
+- **Data exposure:** information leakage, insecure direct object references, verbose errors revealing internals
+- **Crypto:** weak hashing, hardcoded salts, insecure random number generation, missing encryption
+- **Dependencies:** known-vulnerable packages (check lock files if changed), insecure imports
+- **OWASP Top 10:** any other applicable categories for the language/framework in use
+
+For each file, think through how an attacker could exploit the code. Consider the context — is this a public endpoint, internal service, or CLI tool? Calibrate severity accordingly.
+
+**Reporting:**
+
+- **Issues found:** Stop. Report each issue with:
+  - File and line number
+  - Vulnerability class (e.g., "SQL Injection", "Broken Access Control")
+  - Severity: critical / high / medium / low
+  - Explanation of the attack vector
+  - Suggested fix
+  Do not continue past critical or high severity issues. Medium/low issues: warn and ask user whether to proceed.
 - **Clean:** Proceed.
 
 ### Gate 5: Commit
@@ -141,7 +164,7 @@ Detect item type from ID prefix and handle accordingly:
     Ship complete: f{NNN} "<name>"
       Tests:    passed (N tests)
       Simplify: [N changes | clean]
-      Security: clean
+      Security: clean (static + vuln sweep)
       Commit:   <hash> "<message>"
       Push:     origin/<branch>
       PR:       <url> (auto-merge enabled)
@@ -151,7 +174,7 @@ Detect item type from ID prefix and handle accordingly:
 
     Ship complete: t{NNN} "<name>"
       Tests:    passed (N tests)
-      Security: clean
+      Security: clean (static + vuln sweep)
       Commit:   <hash> "<message>"
       Done:     t{NNN} marked complete in backlog
 
