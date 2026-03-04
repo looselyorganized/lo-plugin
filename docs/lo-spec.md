@@ -28,9 +28,9 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 ├── research/             # Research docs (raw/drafts)
 │   ├── distributed-locking.md
 │   └── institutional-memory.md
-├── work/                 # Active feature work directories
-│   └── feature-name/
-│       └── plan.md
+├── work/                 # In-progress feature/task plans (deleted on ship)
+│   └── f001-feature-slug/
+│       └── 001-phase-slug.md
 ├── solutions/            # Reusable knowledge captured after shipping
 │   └── topic-slug.md
 └── notes/                # Informal scratch notes
@@ -178,15 +178,17 @@ status: "draft"                  # draft | review | published
 
 ---
 
-### `work/` — Active Feature Work
+### `work/` — In-Progress Work
 
-Contains directories for features graduated from the backlog. Each feature gets its own directory with plan files.
+Contains directories for features and tasks that have been pulled from the backlog. When `/lo:plan` creates a work directory, the item is removed from BACKLOG.md — the work dir becomes the source of truth for in-progress work. When `/lo:ship` completes an item, the work directory is deleted (git history preserves everything).
 
-**Directory convention:** `work/<feature-slug>/` (e.g., `work/changing-lorf-to-lo/`)
+**Directory convention:** `work/f{NNN}-slug/` or `work/t{NNN}-slug/` (e.g., `work/f003-user-auth/`)
 
-Plans follow the numbered convention: `plan.md` for single-phase features, or `001-phase-name.md`, `002-phase-name.md` for multi-phase work.
+Plans follow the numbered convention: `001-phase-slug.md`, `002-phase-slug.md` for multi-phase work.
 
-Managed by `/lo:backlog pick` (creates directory) and `/lo:work` (executes plans).
+**Lifecycle:** backlog → `/lo:plan` (creates dir, removes from backlog) → `/lo:work` (executes) → `/lo:ship` (deletes dir)
+
+Managed by `/lo:plan` (creates directory), `/lo:work` (executes plans), and `/lo:ship` (deletes directory).
 
 ---
 

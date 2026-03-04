@@ -15,16 +15,17 @@ Add the marketplace and install the plugin:
 
 | Skill | Command | Purpose |
 |-------|---------|---------|
-| backlog | `/lo:backlog` | View, add tasks/features, pick up work |
+| backlog | `/lo:backlog` | View, add tasks/features |
+| plan | `/lo:plan` | Brainstorm and design implementation plans |
 | work | `/lo:work` | Execute plans with branch/worktree + parallel agents |
-| solution | `/lo:solution` | Capture reusable knowledge |
 | ship | `/lo:ship` | Test → simplify → security → commit → push → PR |
+| solution | `/lo:solution` | Capture reusable knowledge |
 | status | `/lo:status` | Manage project lifecycle transitions (explore → build → open → closed) |
 | new | `/lo:new` | Scaffold `.lo/` directory |
 | stream | `/lo:stream` | Update `.lo/stream/` with milestones and updates |
 | hypothesis | `/lo:hypothesis` | Create testable hypotheses |
 | research | `/lo:research` | Write structured research articles |
-| stocktaper-design-system | — | StockTaper / LORF design system tokens, components, and layout patterns |
+| stocktaper-design-system | — | StockTaper / LO design system tokens, components, and layout patterns |
 
 ## The `.lo/` Convention
 
