@@ -23,6 +23,12 @@ Walks the user through creating a structured research article for `.lo/research/
 - Filename convention: `{slug}.md` (kebab-case, descriptive)
 - Research files in `.lo/research/` are raw materials — findings captured during deep work. Publishing to the platform is a separate step via `pub` mode.
 
+## Modes
+
+Detect from arguments:
+- `/lo:research` with no args or with content description → **capture mode** (default, writes to `.lo/research/`)
+- `/lo:research pub <project>` or `/lo:research pub <project> slug1 slug2` → **pub mode** (must be in platform repo)
+
 ## Editorial Style
 
 The Loosely Organized research style has specific characteristics. Before writing, consult `references/design-systems-for-agents.mdx` for the canonical example.
@@ -176,3 +182,130 @@ Next steps:
 For the canonical example of the Loosely Organized editorial style, consult `references/design-systems-for-agents.mdx`.
 
 For the research doc frontmatter contract, consult `references/frontmatter-contract.md`.
+
+## Pub Mode
+
+Combines research files from a sibling project into a platform MDX article. **Must be run from the platform repo.**
+
+### Invocation
+
+```
+/lo:research pub <project-name> [slug1 slug2 ...]
+```
+
+- With slugs: reads those specific files
+- Without slugs: lists available research files, lets user pick
+
+### Pub Step 1: Verify Platform Context
+
+Check that you're in the platform repo:
+- `content/research/` directory must exist
+- `public/research/` directory must exist
+
+If not found:
+```
+This command must be run from the platform repo.
+/lo:research pub reads research files from sibling project directories
+and creates MDX articles here.
+```
+
+### Pub Step 2: Resolve Project
+
+Scan `../` for a directory with `.lo/PROJECT.md` whose title or directory name matches `<project-name>`.
+
+If not found:
+```
+No project matching "<project-name>" found in sibling directories.
+Available projects:
+  nexus (../nexus/.lo/PROJECT.md)
+  claude-dashboard (../claude-dashboard/.lo/PROJECT.md)
+```
+
+### Pub Step 3: List Research Files
+
+Read all `.md` files in `<project>/.lo/research/`, parse frontmatter.
+
+Display:
+```
+Research files in <project>/.lo/research/:
+  1. distributed-locking.md — "Distributed Locking Findings"
+  2. redis-findings.md — "Redis TTL Observations"
+  3. agent-coordination.md — "Agent Coordination Patterns" (published → agent-coordination-deep-dive)
+
+Which files to combine? (e.g., 1,2 or all)
+```
+
+Files with `published_as` in frontmatter are marked but still selectable.
+
+If slugs were passed as args, skip this step and use those files directly.
+
+### Pub Step 4: Article Metadata
+
+Ask for:
+1. **Title** — specific and descriptive
+2. **Description** — 1-2 sentence excerpt for metadata
+
+Pre-populate topics from the union of source files' topics. Let user adjust.
+
+Derive slug from title (kebab-case). Derive `readingTime` from combined word count.
+
+### Pub Step 5: Combine and Draft
+
+Merge the selected files' content into a cohesive MDX article following the editorial style from `references/design-systems-for-agents.mdx`:
+
+1. Opening hook — state the core insight
+2. Context — what existed before, reference points
+3. Iteration/discovery — the core narrative from the source files
+4. What we learned — distilled insights
+5. Implications — what changes because of this
+6. What's next — open questions
+
+Add `<!-- IMAGE: ... -->` placeholders where visuals would strengthen the narrative.
+
+### Pub Step 6: Create Branch and Write
+
+In the platform repo:
+
+1. Create branch: `git checkout -b research/{slug}`
+2. Write `content/research/YYYY-MM-DD-{slug}.mdx` with frontmatter:
+
+```yaml
+---
+title: "[title]"
+date: "YYYY-MM-DD"
+description: "[description]"
+topics:
+  - [topics]
+status: "draft"
+project: "[project-name]"
+author: "[from PROJECT.md or ask]"
+readingTime: "[estimated]"
+---
+```
+
+3. Create image directory: `mkdir -p public/research/{slug}/`
+4. Commit the draft:
+
+```bash
+git add content/research/YYYY-MM-DD-{slug}.mdx public/research/{slug}/
+git commit -m "draft: research article — {title}"
+```
+
+### Pub Step 7: Update Source Files
+
+Go back to the project repo and add `published_as: "{slug}"` to each source file's frontmatter. Do not commit in the project repo — let the user decide when to commit that change.
+
+### Pub Step 8: Report
+
+```
+Article drafted: content/research/YYYY-MM-DD-{slug}.mdx
+Branch: research/{slug}
+Image dir: public/research/{slug}/
+Sources updated: N files marked with published_as in <project>/.lo/research/
+
+Next steps:
+  - Add images to public/research/{slug}/
+  - Polish the MDX — add demo components if needed
+  - Update status to "published" when ready
+  - Push branch and merge to go live
+```
