@@ -183,28 +183,25 @@ First working deployment. API responds to health checks, WebSocket connections e
 
 ---
 
-## research/*.md — Research Documents
+## research/*.md — Research Files
 
-Project-specific research. Filename convention: `{slug}.md`.
+Raw materials captured during deep work. Filename convention: `{slug}.md`.
 
 ### Required Fields
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `title` | string | Article title |
+| `title` | string | Descriptive title |
 | `date` | date | Creation or last update date (YYYY-MM-DD) |
 | `topics` | string[] | Topic tags |
-| `status` | enum | `draft` \| `review` \| `published` |
 
-### Status Semantics
+### Optional Fields
 
-| Status | Meaning | Visibility |
-|--------|---------|------------|
-| `draft` | Work in progress | Project detail page only |
-| `review` | Ready for feedback | May appear in project page "research" section |
-| `published` | Finalized | Visible on the project page as a complete research article |
+| Field | Type | Description |
+|-------|------|-------------|
+| `published_as` | string | Platform article slug (set by `/lo:research pub`) |
 
-Research articles live inside their parent project. There is no standalone `/research` route — all research is accessed through the project it belongs to.
+Research files are raw materials — findings captured during deep work. To publish as an article, use `/lo:research pub` from the platform repo.
 
 ### Example
 
@@ -215,7 +212,6 @@ date: "2026-01-20"
 topics:
   - distributed-systems
   - redis
-status: "draft"
 ---
 
 Full research content in Markdown goes here.
