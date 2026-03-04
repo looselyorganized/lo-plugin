@@ -27,7 +27,7 @@ When a solution comes from a shipped feature, the `from` field links back to the
 
 - `.lo/` directory MUST exist. If it doesn't, tell the user to run `/lo:new` first.
 - If `.lo/solutions/` doesn't exist, create it.
-- Solutions are about **reusable knowledge**, not project-specific notes. If it's only relevant to this one instance, suggest `.lo/notes/` instead.
+- Solutions are about **reusable knowledge**, not project-specific observations. If it's only relevant to this one instance, suggest a stream entry instead.
 - Filename convention: `s{NNN}-topic-slug.md` (ID prefix, kebab-case slug, 2-5 words)
 - Every solution MUST have an `id` in frontmatter matching the filename prefix.
 - If appending to an existing solution, keep the same ID — don't create a new one.
@@ -60,7 +60,7 @@ Ask three questions (adapt phrasing to context):
 3. **When would you use this again?** — Under what conditions would future-you want to know this?
 
 If answers sound project-specific rather than reusable, gently redirect:
-"This sounds specific to [feature]. Would it be better as a note in .lo/notes/? If there's a reusable pattern buried in here, let's extract just that part."
+"This sounds specific to [feature]. Would it be better as a stream entry? If there's a reusable pattern buried in here, let's extract just that part."
 
 ### Step 4: Write the Solution
 

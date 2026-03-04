@@ -1,6 +1,6 @@
 ---
 name: new
-description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (hypotheses, stream, notes, research, work, solutions), .gitkeep files, and an initial "project started" stream entry. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
+description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (hypotheses, stream, research, work, solutions), .gitkeep files, and an initial "project started" stream entry. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
 metadata:
   version: 0.2.1
   author: LORF
@@ -151,7 +151,7 @@ Present all auto-filled content to the user for review/editing before writing. M
 ### Step 3: Create Directory Structure
 
 ```bash
-mkdir -p .lo/hypotheses .lo/stream .lo/notes .lo/research .lo/work .lo/solutions
+mkdir -p .lo/hypotheses .lo/stream .lo/research .lo/work .lo/solutions
 ```
 
 ### Step 4: Write PROJECT.md
@@ -262,7 +262,6 @@ LO project structure created. Project tracking begins.
 
 Write empty `.gitkeep` files in directories that start empty:
 - `.lo/hypotheses/.gitkeep`
-- `.lo/notes/.gitkeep`
 - `.lo/research/.gitkeep`
 - `.lo/work/.gitkeep`
 - `.lo/solutions/.gitkeep`
@@ -309,7 +308,6 @@ Show the user what was created and what was auto-detected:
 
   hypotheses/
   stream/YYYY-MM-DD-project-started.md
-  notes/
   research/
   work/
   solutions/
@@ -328,7 +326,6 @@ Next steps:
 ├── PROJECT.md
 ├── hypotheses/
 ├── stream/
-├── notes/
 ├── research/
 ├── work/
 └── solutions/
@@ -340,7 +337,7 @@ Before finishing, verify:
 - [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter (including `proj_id` as first field)
 - [ ] All subdirectories exist
 - [ ] Stream entry has correct date in both filename and frontmatter (first commit date or today)
-- [ ] `.gitkeep` files in hypotheses/, notes/, research/, work/, solutions/
+- [ ] `.gitkeep` files in hypotheses/, research/, work/, solutions/
 - [ ] `.github/workflows/ci.yml` exists with correct status
 - [ ] No files outside the expected structure
 - [ ] `.lo/work/` directory exists

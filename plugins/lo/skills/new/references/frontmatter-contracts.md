@@ -223,8 +223,3 @@ Full research content in Markdown goes here.
 
 ---
 
-## notes/ — Informal Notes
-
-Notes are informal scratch files that get turned into hypotheses or research docs. They have **no required frontmatter contract** — they are not synced to Supabase. Use whatever format is useful.
-
-Notes are the staging area for ideas that haven't been formalized yet.

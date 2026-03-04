@@ -25,7 +25,7 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 │   ├── 2026-01-15-project-started.md
 │   ├── 2026-02-15-prototype-deployed.md
 │   └── 2026-02-17-load-test-results.md
-├── research/             # Research docs (raw/drafts)
+├── research/             # Research docs (draft → review → published)
 │   ├── distributed-locking.md
 │   └── institutional-memory.md
 ├── work/                 # In-progress feature/task plans (deleted on ship)
@@ -33,8 +33,6 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 │       └── 001-phase-slug.md
 ├── solutions/            # Reusable knowledge captured after shipping
 │   └── topic-slug.md
-└── notes/                # Informal scratch notes
-    └── observation.md
 ```
 
 All files use Markdown with YAML frontmatter (parsed by gray-matter). No MDX — `.lo/` content is plain Markdown to keep the contract simple and parseable by any tool.
@@ -217,16 +215,6 @@ tags:
 **Optional fields:** `feature`, `tags`
 
 Managed by `/lo:solution`.
-
----
-
-### `notes/` — Scratch Notes
-
-Informal observations, thoughts, and reference material that don't fit elsewhere. Not synced to the website.
-
-**Filename convention:** `<slug>.md` — no date prefix required.
-
-No frontmatter contract — freeform.
 
 ---
 
