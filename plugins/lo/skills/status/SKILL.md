@@ -2,7 +2,7 @@
 name: status
 description: Manages project lifecycle transitions. Updates PROJECT.md status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Use when user says "status", "change status", "move to build", "go to open", "close project", "/status", or "/lo:status".
 metadata:
-  version: 0.2.1
+  version: 0.3.0
   author: LORF
 ---
 
@@ -20,20 +20,20 @@ Manages project lifecycle transitions in `.lo/PROJECT.md`. Each transition can t
 - `.lo/PROJECT.md` MUST exist. If it doesn't, tell the user to run `/lo:new` first.
 - ALWAYS read the current status before making changes.
 - ALWAYS confirm the transition with the user before applying.
-- Status values: `explore` | `build` | `open` | `closed`
+- Status values: `Explore` | `Build` | `Open` | `Closed`
 - Update the PROJECT.md frontmatter `status` field only. Do not alter the body.
 
 ## Status Lifecycle
 
 ```
-explore → build → open → closed
+Explore → Build → Open → Closed
 ```
 
-Backward transitions are allowed (e.g., `open` → `build` if rework is needed) but should prompt a confirmation: "This moves the project backward. Are you sure?"
+Backward transitions are allowed (e.g., `Open` → `Build` if rework is needed) but should prompt a confirmation: "This moves the project backward. Are you sure?"
 
 ## Modes
 
-Detect mode from arguments. `/lo:status` with no args → show current status. `/lo:status build` → transition to build. `/lo:status open` → transition to open. `/lo:status closed` → transition to closed.
+Detect mode from arguments. `/lo:status` with no args → show current status. `/lo:status Build` → transition to Build. `/lo:status Open` → transition to Open. `/lo:status Closed` → transition to Closed.
 
 ### Mode 1: Show Status
 
@@ -45,19 +45,19 @@ Read `.lo/PROJECT.md` frontmatter and display:
     Status: <current-status>
     State: <public|private>
 
-### Mode 2: Transition to `build`
+### Mode 2: Transition to `Build`
 
-Arguments: `build`
+Arguments: `Build`
 
 This is the major transition — the project is becoming real. Multiple automation steps follow.
 
 1. Read `.lo/PROJECT.md`, confirm current status
-2. Update `status: "build"` in frontmatter
+2. Update `status: "Build"` in frontmatter
 3. Announce:
 
-        Status changed: <old-status> → build
+        Status changed: <old-status> → Build
 
-        The project is now in build phase. This unlocks:
+        The project is now in Build phase. This unlocks:
           - Test coverage planning
           - CI/CD pipeline setup
           - Branch protection + auto-merge
@@ -94,7 +94,7 @@ Create a backlog feature and work plan:
 2. Add to BACKLOG.md:
 
         ### f{NNN} — Test Coverage
-        Retroactive test coverage for core project logic. Generated during explore → build transition.
+        Retroactive test coverage for core project logic. Generated during Explore → Build transition.
         Status: active -> .lo/work/f{NNN}-test-coverage/
 
 3. Create `.lo/work/f{NNN}-test-coverage/001-test-coverage.md`:
@@ -107,7 +107,7 @@ Create a backlog feature and work plan:
         ---
 
         ## Objective
-        Add test coverage to core project logic identified during build transition.
+        Add test coverage to core project logic identified during Build transition.
 
         ## Tasks
         - [ ] [high] Test <file>: <function/behavior> description
@@ -156,7 +156,7 @@ jobs:
   ci:
     uses: looselyorganized/ci/.github/workflows/reusable-ci.yml@main
     with:
-      status: build
+      status: Build
       has-lint: true
       has-test: true
       has-build: true
@@ -176,7 +176,7 @@ jobs:
   ci:
     uses: looselyorganized/ci/.github/workflows/reusable-ci.yml@main
     with:
-      status: build
+      status: Build
       has-test: true
 ```
 
@@ -302,42 +302,42 @@ After all selected steps complete:
 
     Build transition complete for "<project-title>"
 
-      Status:     build
+      Status:     Build
       Tests:      f{NNN} — N files to cover. Run /lo:work f{NNN} to start.
       CI:         .github/workflows/ci.yml [created | skipped]
       Auto-merge: .github/workflows/auto-merge.yml [created | already exists | skipped]
       Protection: branch protection [enabled | skipped | requires Team plan] + auto-merge [enabled | skipped | requires Team plan]
       Docs:       README.md [created | already exists | skipped]
 
-### Mode 3: Transition to `open`
+### Mode 3: Transition to `Open`
 
-Arguments: `open`
-
-1. Read `.lo/PROJECT.md`, confirm current status
-2. Update `status: "open"` in frontmatter
-3. Update `.github/workflows/ci.yml`: change `status:` value to `open`. Do not modify other inputs.
-4. Report:
-
-        Status changed: <old-status> → open
-
-### Mode 4: Transition to `closed`
-
-Arguments: `closed`
+Arguments: `Open`
 
 1. Read `.lo/PROJECT.md`, confirm current status
-2. Update `status: "closed"` in frontmatter
-3. Update `.github/workflows/ci.yml`: change `status:` value to `closed`. Do not modify other inputs.
+2. Update `status: "Open"` in frontmatter
+3. Update `.github/workflows/ci.yml`: change `status:` value to `Open`. Do not modify other inputs.
 4. Report:
 
-        Status changed: <old-status> → closed
+        Status changed: <old-status> → Open
 
-### Mode 5: Transition to `explore`
+### Mode 4: Transition to `Closed`
 
-Arguments: `explore`
+Arguments: `Closed`
+
+1. Read `.lo/PROJECT.md`, confirm current status
+2. Update `status: "Closed"` in frontmatter
+3. Update `.github/workflows/ci.yml`: change `status:` value to `Closed`. Do not modify other inputs.
+4. Report:
+
+        Status changed: <old-status> → Closed
+
+### Mode 5: Transition to `Explore`
+
+Arguments: `Explore`
 
 1. Read `.lo/PROJECT.md`, confirm current status. This is a backward transition — confirm with user.
-2. Update `status: "explore"` in frontmatter
-3. Update `.github/workflows/ci.yml`: change `status:` value to `explore`. Do not modify other inputs.
+2. Update `status: "Explore"` in frontmatter
+3. Update `.github/workflows/ci.yml`: change `status:` value to `Explore`. Do not modify other inputs.
 4. Report:
 
-        Status changed: <old-status> → explore
+        Status changed: <old-status> → Explore

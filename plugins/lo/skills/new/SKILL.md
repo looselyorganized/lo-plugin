@@ -1,8 +1,8 @@
 ---
 name: new
-description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (hypotheses, stream, research, work, solutions), .gitkeep files, and an initial "project started" stream entry. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
+description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (hypotheses, stream, research, work, solutions), .gitkeep files, and optional stream initialization. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
 metadata:
-  version: 0.2.1
+  version: 0.3.0
   author: LORF
 ---
 
@@ -21,7 +21,7 @@ Scaffolds the `.lo/` directory convention in the current repository root.
 - NEVER overwrite an existing `.lo/` directory. If one exists, warn the user and stop.
 - All files use plain Markdown with YAML frontmatter. No MDX.
 - `PROJECT.md` is the only content file created at init. `BACKLOG.md` is created by `/lo:backlog` on first use.
-- If git history exists, backdate the "project started" entry to the first commit and run `/lo:stream` to backfill the stream. If no history, use today's date.
+- If git history exists, ask the user how to handle it (backfill, start fresh, or skip). If no history, ask for the first stream announcement.
 
 ## Workflow
 
@@ -119,10 +119,10 @@ Agent field mapping:
 Ask the user for the project's current status and state:
 
 **Status** (single select):
-- `explore` — Poking at an idea. Conversations, research, references. Nothing built yet.
-- `build` — Committed to making something. Code, demo, or prototype exists.
-- `open` — Inviting people in. Public, accepting feedback, telemetry running.
-- `closed` — Stopped working on it. Record stays up.
+- `Explore` — Vibing on an idea, building some demo software, doing initial exploratory research.
+- `Build` — Committed to developing production-ready software. Full CI/CD setup. Security hardening.
+- `Open` — Multi-tenant ready. Onboarding flows, access controls, and public-facing polish.
+- `Closed` — Stopped working on it. Record stays up.
 
 **State** (single select):
 - `public` — Publicly visible
@@ -168,7 +168,7 @@ Template structure:
 proj_id: "[generated-proj-id]"         # From Step 2f — do not edit
 title: "[NAME]"
 description: "[One-sentence description of what this project does.]"
-status: "[from Step 2e]"              # explore | build | open | closed
+status: "[from Step 2e]"              # Explore | Build | Open | Closed
 state: "[from Step 2e]"               # public | private
 topics:
   - [topic-1]
@@ -202,7 +202,7 @@ agents:                               # Populated from user selection in Step 2d
 
 #### Body section notes
 
-The project page parses the body by `## ` headings. Two headings get special rendering:
+The project page parses the body by `## ` headings. Three headings get special rendering:
 
 | Heading | Rendering | Format | Constraint |
 |---------|-----------|--------|------------|
@@ -214,7 +214,7 @@ The project page parses the body by `## ` headings. Two headings get special ren
 
 Any other `## ` headings render as generic prose sections. All sections are optional — omit any that aren't relevant yet.
 
-### Step 5: Populate Stream from Git History
+### Step 5: Initialize Stream
 
 Check if the repo has any commit history:
 
@@ -223,6 +223,8 @@ git log --oneline 2>/dev/null | head -1
 ```
 
 **If no commits exist (empty repo):**
+
+Ask the user to write the first stream announcement. Prompt them: "What's the first thing you want to say about this project?" Use their response as the body of the stream entry.
 
 Write `.lo/stream/YYYY-MM-DD-project-started.md` using today's date:
 
@@ -234,29 +236,20 @@ title: "Project initialized"
 commits: 0
 ---
 
-LO project structure created. Project tracking begins.
+[User's announcement text]
 ```
 
 **If commits exist:**
 
-1. Find the first commit date:
-   ```bash
-   git log --reverse --pretty=format:"%ad" --date=short | head -1
-   ```
+Ask the user how they want to handle existing git history:
 
-2. Write `.lo/stream/FIRST-COMMIT-DATE-project-started.md` using the first commit's date:
-   ```markdown
-   ---
-   type: "milestone"
-   date: "FIRST-COMMIT-DATE"
-   title: "Project initialized"
-   commits: 1
-   ---
+- **Backfill stream** — Run `/lo:stream` to scan all existing commits and generate stream entries for the full history.
+- **Start fresh** — Write a single "project started" entry dated to the first commit and ignore prior history.
+- **Skip** — Don't create any stream entries yet.
 
-   LO project structure created. Project tracking begins.
-   ```
-
-3. Run `/lo:stream` to scan the full git history and generate stream entries for all existing work. This backfills the stream so it reflects the project's actual history, not just the moment LO was added.
+If backfill: find the first commit date, write the "project started" entry backdated to it, then run `/lo:stream`.
+If start fresh: write the "project started" entry backdated to the first commit date only.
+If skip: leave `.lo/stream/` empty (created by Step 3's `mkdir -p`).
 
 ### Step 6: Write .gitkeep Files
 
@@ -283,9 +276,9 @@ jobs:
       status: <status-from-step-2e>
 ```
 
-Use the status value the user selected in Step 2e. If `build` or `open`, also detect capabilities and env vars (same detection logic as `/lo:status` Step B) and include `has-lint`, `has-test`, `has-build`, and env var inputs.
+Use the status value the user selected in Step 2e. If `Build` or `Open`, also detect capabilities and env vars (same detection logic as `/lo:status` Step B) and include `has-lint`, `has-test`, `has-build`, and env var inputs.
 
-If status is `explore` (the most common for new projects), only pass `status: explore` — no capability inputs needed since CI is dormant.
+If status is `Explore` (the most common for new projects), only pass `status: Explore` — no capability inputs needed since CI is dormant.
 
 ### Step 8: Confirm
 
@@ -304,10 +297,10 @@ Show the user what was created and what was auto-detected:
     agents: [user selections]
     body: [auto-filled sections or TODOs]
 
-  CI: .github/workflows/ci.yml (status: <status>, dormant until build/open)
+  CI: .github/workflows/ci.yml (status: <status>, dormant until Build/Open)
 
   hypotheses/
-  stream/YYYY-MM-DD-project-started.md
+  stream/ [show entry filename if created, or "(skipped)" if user chose skip]
   research/
   work/
   solutions/
@@ -336,7 +329,7 @@ Next steps:
 Before finishing, verify:
 - [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter (including `proj_id` as first field)
 - [ ] All subdirectories exist
-- [ ] Stream entry has correct date in both filename and frontmatter (first commit date or today)
+- [ ] Stream entry (if user chose backfill or start fresh) has correct date in both filename and frontmatter
 - [ ] `.gitkeep` files in hypotheses/, research/, work/, solutions/
 - [ ] `.github/workflows/ci.yml` exists with correct status
 - [ ] No files outside the expected structure

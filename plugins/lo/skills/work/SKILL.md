@@ -105,13 +105,13 @@ If they stay: note this so `/lo:ship` knows there's no feature branch.
 
 Read `.lo/PROJECT.md` status field:
 
-- **`explore`** — Do not mention tests. Speed is the priority.
-- **`build`** — When writing implementation code with testable logic, write tests alongside it. If `.github/workflows/test.yml` exists, ensure new test files are covered by the workflow. If the workflow doesn't exist yet, suggest running `/lo:status build` to generate it.
-- **`open`** — Tests are expected for all testable code. Flag any testable logic without tests.
+- **`Explore`** — Do not mention tests. Speed is the priority.
+- **`Build`** — When writing implementation code with testable logic, write tests alongside it. If `.github/workflows/ci.yml` exists, ensure new test files are covered by the workflow. If the workflow doesn't exist yet, suggest running `/lo:status Build` to generate it.
+- **`Open`** — Tests are expected for all testable code. Flag any testable logic without tests.
 
 **What counts as testable logic:** Functions with business logic, parsers, validators, data transformations, state machines, API handlers. **Not testable:** Config, types, UI layout, markdown, thin wrappers.
 
-**Test gap check:** Before executing, scan the plan tasks for test-related work. If status is `build` or `open` and the plan contains testable logic but no test tasks, flag this to the user: "This plan has no test tasks but the project is in [build/open] status. Add tests to the plan, or proceed without?" Do not block — let the user decide.
+**Test gap check:** Before executing, scan the plan tasks for test-related work. If status is `Build` or `Open` and the plan contains testable logic but no test tasks, flag this to the user: "This plan has no test tasks but the project is in [Build/Open] status. Add tests to the plan, or proceed without?" Do not block — let the user decide.
 
 This check informs execution behavior — it does not block work.
 
@@ -240,7 +240,7 @@ When the task is done:
 
 ## How Work Reads Plans
 
-Plan files are created by `/lo:plan`. Execute numbered files (`001-*.md`, `002-*.md`) in order, lowest-numbered incomplete plan first. Parse frontmatter for `status` (skip `done`), task checkboxes for progress, `[parallel]` for concurrency, and `(depends on N, M)` for ordering.
+Plan files are created by `/lo:plan`. Execute numbered files (`001-*.md`, `002-*.md`) in order, lowest-numbered incomplete plan first. Parse frontmatter for `status` (skip `done`), task checkboxes for progress, `[parallel]` for concurrency, and `(depends on N, M)` for ordering. Skip the `done/` subdirectory — it contains archived work from `/lo:ship`.
 
 See `/lo:plan`'s `references/plan-format-contract.md` for the full format specification.
 

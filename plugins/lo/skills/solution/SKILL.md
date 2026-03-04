@@ -2,7 +2,7 @@
 name: solution
 description: Captures reusable knowledge in .lo/solutions/ after completing work. Prompts for what was learned, what's reusable, and writes a structured solution file. Can be invoked standalone or triggered by lo:ship. Use when user says "capture solution", "what did I learn", "save this knowledge", "document solution", "/solution", or when prompted after shipping.
 metadata:
-  version: 0.2.1
+  version: 0.3.0
   author: LORF
 ---
 
@@ -27,7 +27,7 @@ When a solution comes from a shipped feature, the `from` field links back to the
 
 - `.lo/` directory MUST exist. If it doesn't, tell the user to run `/lo:new` first.
 - If `.lo/solutions/` doesn't exist, create it.
-- Solutions are about **reusable knowledge**, not project-specific observations. If it's only relevant to this one instance, suggest a stream entry instead.
+- Solutions are about **reusable knowledge**, not project-specific details. If it's only relevant to this one instance, let the user know it may not be worth capturing as a solution.
 - Filename convention: `s{NNN}-topic-slug.md` (ID prefix, kebab-case slug, 2-5 words)
 - Every solution MUST have an `id` in frontmatter matching the filename prefix.
 - If appending to an existing solution, keep the same ID — don't create a new one.
@@ -60,7 +60,7 @@ Ask three questions (adapt phrasing to context):
 3. **When would you use this again?** — Under what conditions would future-you want to know this?
 
 If answers sound project-specific rather than reusable, gently redirect:
-"This sounds specific to [feature]. Would it be better as a stream entry? If there's a reusable pattern buried in here, let's extract just that part."
+"This sounds specific to [feature]. Is there a reusable pattern buried in here? If so, let's extract just that part as a solution."
 
 ### Step 4: Write the Solution
 
