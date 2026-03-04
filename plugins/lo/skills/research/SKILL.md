@@ -1,6 +1,6 @@
 ---
 name: research
-description: Generates a structured LO research article with proper frontmatter, editorial headings, narrative prose, and image placement notes. Takes file(s) as input and walks the user through creating a research document following the Loosely Organized editorial style. Use when user says "write research", "create research article", "draft research", "new research doc", "write up findings", or "/lo:research".
+description: Captures research findings and discoveries in .lo/research/ during deep work sessions. Also publishes research to the platform via pub mode. Use when user says "write research", "create research article", "draft research", "capture findings", or "/lo:research". Use pub mode with "/lo:research pub <project>" to combine findings into a platform MDX article.
 metadata:
   version: 0.2.1
   author: LORF
@@ -21,8 +21,7 @@ Walks the user through creating a structured research article for `.lo/research/
 - `.lo/` directory MUST exist. If it doesn't, tell the user to run `/lo:new` first.
 - All files are plain Markdown with YAML frontmatter. No MDX.
 - Filename convention: `{slug}.md` (kebab-case, descriptive)
-- Research articles in `.lo/research/` are project-scoped. They are accessed through the parent project's page — there is no standalone `/research` route on the website.
-- Default status is `draft`. Only the user can promote to `review` or `published`.
+- Research files in `.lo/research/` are raw materials — findings captured during deep work. Publishing to the platform is a separate step via `pub` mode.
 
 ## Editorial Style
 
@@ -145,7 +144,6 @@ date: "YYYY-MM-DD"
 topics:
   - [topic-1]
   - [topic-2]
-status: "draft"
 ---
 
 [Full article content following the editorial style guidelines above]
@@ -161,22 +159,16 @@ Guidelines for generation:
 ### Step 6: Confirm
 
 ```
-Research article created: .lo/research/{slug}.md
+Research captured: .lo/research/{slug}.md
 
   Title: [title]
   Topics: [topics]
-  Status: draft
   Sections: [count]
   Image placeholders: [count]
 
-This article belongs to the [project name] project.
-It will appear on the project's page when the status is updated to "published".
-
 Next steps:
-  - Review and edit the draft
-  - Add actual images where placeholders are marked
-  - Update status to "review" when ready for feedback
-  - Update status to "published" when finalized
+  - Continue capturing findings as you work
+  - When ready to publish, run /lo:research pub from the platform repo
 ```
 
 ## Reference
