@@ -1,7 +1,7 @@
 # Research Document Frontmatter Contract
 
-> From the .lo/ Convention Spec v2.0.0
-> Updated 2026-02-23 — research articles are project-scoped, no standalone /research route.
+> From the .lo/ Convention Spec
+> Updated 2026-03-04 — research files are raw materials captured during deep work. Publishing happens in the platform repo.
 
 ## Filename Convention
 
@@ -13,42 +13,45 @@
 
 ## Required Fields
 
-```yaml
----
-title: "Article Title"           # Descriptive, specific
-date: "2026-02-19"              # Creation or last update (YYYY-MM-DD)
-topics:                          # 2-5 topic tags
-  - topic-one
-  - topic-two
-status: "draft"                  # draft | review | published
----
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `title` | string | Descriptive title for the findings |
+| `date` | date | Creation or last update (YYYY-MM-DD) |
+| `topics` | string[] | 2-5 topic tags for categorization |
+
+## Optional Fields
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `title` | string | Descriptive article title |
-| `date` | date | Creation or last significant update (YYYY-MM-DD) |
-| `topics` | string[] | Topic tags for categorization |
-| `status` | enum | `draft` \| `review` \| `published` |
+| `published_as` | string | Slug of the platform MDX article this was published into. Set by `/lo:research pub`. |
 
-## Status Semantics
+## Example
 
-| Status | Meaning | Visibility |
-|--------|---------|------------|
-| `draft` | Work in progress | Project detail page only |
-| `review` | Ready for feedback | May appear in project page "research" section |
-| `published` | Finalized | Visible on the project page as a complete research article |
-
-## Status Transitions
-
+```yaml
+---
+title: "Distributed Locking for Multi-Agent Systems"
+date: "2026-01-20"
+topics:
+  - distributed-systems
+  - redis
+---
 ```
-draft → review → published
-draft → published (skip review if confident)
-published → draft (pull back for revisions)
+
+## Example (after publishing)
+
+```yaml
+---
+title: "Distributed Locking for Multi-Agent Systems"
+date: "2026-01-20"
+topics:
+  - distributed-systems
+  - redis
+published_as: "distributed-locking-for-agents"
+---
 ```
 
 ## Where Research Lives
 
-Research articles are project-scoped. They live in `.lo/research/` within their parent project's repo and are accessed through the project's detail page on the website. There is no standalone `/research` route.
+Research files are raw materials — findings, observations, and analysis captured during deep work sessions. They live in `.lo/research/` within their parent project's repo.
 
-When synced to Supabase via the webhook pipeline, research docs land in the `research_docs` table with a foreign key (`content_slug`) linking them to their parent project.
+To publish research as an article on the platform, use `/lo:research pub` from the platform repo. This combines one or more research files into an MDX article.
