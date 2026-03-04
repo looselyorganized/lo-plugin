@@ -21,7 +21,7 @@ Turns backlog items into actionable implementation plans. Brainstorms design, wr
 - The `.lo/` directory must exist — if it doesn't, tell the user to run `/lo:new` first.
 - Brainstorm before planning features. Jumping straight to a plan skips design exploration, which leads to rework.
 - This skill designs — it does not execute. Redirect to `/lo:work` when the user wants to start building.
-- Save plans to `.lo/work/f{NNN}-slug/` or `.lo/work/t{NNN}-slug/` using the format in `references/plan-format-contract.md`.
+- Plans always go in `.lo/work/f{NNN}-slug/` or `.lo/work/t{NNN}-slug/` — never `docs/plans/` or anywhere else. Use the format in `references/plan-format-contract.md`.
 - Remove the feature from BACKLOG.md when creating a work directory — the work dir is now the source of truth for in-progress work.
 
 ## Modes

@@ -59,7 +59,7 @@ If backlog is empty, suggest adding items.
 Arguments: `task "description"`
 
 1. Read current BACKLOG.md
-2. Determine next task ID: scan for highest `t{NNN}`, increment
+2. Determine next task ID: scan BACKLOG.md, `.lo/work/` dirs, and git log for highest `t{NNN}`, increment (IDs are never reused)
 3. Append a new checkbox under `## Tasks`: `- [ ] t{NNN} description`
 4. Update `updated:` date
 5. Confirm: `t{NNN}: "description"`
@@ -71,7 +71,7 @@ If no description provided, prompt for one.
 Arguments: `feature "name"`
 
 1. Read current BACKLOG.md
-2. Determine next feature ID: scan for highest `f{NNN}`, increment
+2. Determine next feature ID: scan BACKLOG.md, `.lo/work/` dirs, and git log for highest `f{NNN}`, increment (IDs are never reused)
 3. Ask for a 1-2 sentence description if not provided
 4. Append under `## Features`:
 
