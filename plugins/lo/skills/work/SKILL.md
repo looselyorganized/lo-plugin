@@ -117,15 +117,17 @@ This check informs execution behavior — it does not block work.
 
 ### Step 4: Execute
 
+**All execution uses worktrees.** Every level creates a worktree for isolation — this keeps the user's working directory clean and prevents partial work from polluting the feature branch.
+
 Choose parallelization level based on the plan's task structure:
 
 #### Level 1 — Sequential
 
-Simple tasks or tasks with dependencies between all steps. Execute one at a time on the feature branch, report progress after each.
+Simple tasks or tasks with dependencies between all steps. Execute one at a time in a worktree, merge to feature branch after each task completes.
 
 ```
-feat/f003-auth (feature branch)
-  └── agent executes task 1, then 2, then 3, then 4
+feat/f003-auth (feature branch) ← merge target
+  └── worktree → task 1 → merge → task 2 → merge → task 3 → merge → task 4 → merge
 ```
 
 #### Level 2 — Subagents
@@ -240,7 +242,7 @@ When the task is done:
 
 ## How Work Reads Plans
 
-Plan files are created by `/lo:plan`. Execute numbered files (`001-*.md`, `002-*.md`) in order, lowest-numbered incomplete plan first. Parse frontmatter for `status` (skip `done`), task checkboxes for progress, `[parallel]` for concurrency, and `(depends on N, M)` for ordering. Skip the `done/` subdirectory — it contains archived work from `/lo:ship`.
+Plan files are created by `/lo:plan`. Execute numbered files (`001-*.md`, `002-*.md`) in order, lowest-numbered incomplete plan first. Parse frontmatter for `status` (skip `done`), task checkboxes for progress, `[parallel]` for concurrency, and `(depends on N, M)` for ordering.
 
 See `/lo:plan`'s `references/plan-format-contract.md` for the full format specification.
 
