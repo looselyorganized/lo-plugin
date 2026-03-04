@@ -31,7 +31,7 @@ Add the marketplace and install the plugin:
 
 Every LO project contains a `.lo/` directory at the repo root — the single source of truth for project metadata, backlog, hypotheses, stream entries, research, active work, and solutions.
 
-See [`docs/lo-spec.md`](docs/lo-spec.md) for the full specification.
+See [`lo-spec.md`](lo-spec.md) for the full specification.
 
 ## Development
 
