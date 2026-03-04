@@ -128,7 +128,17 @@ Ask the user for the project's current status and state:
 - `public` — Publicly visible
 - `private` — Private / internal only
 
-#### 2f: Auto-fill from Codebase
+#### 2f: Generate proj_id
+
+Generate a stable project identifier for this project. This value is written into PROJECT.md frontmatter and used as the universal ID across the platform.
+
+```bash
+echo "proj_$(uuidgen | tr '[:upper:]' '[:lower:]')"
+```
+
+Save the output (e.g., `proj_166345da-d821-4b3a-abbc-e3a439925e85`) — you will use it in Step 4.
+
+#### 2g: Auto-fill from Codebase
 
 If a codebase exists (not an empty repo), scan it to pre-populate body sections:
 
@@ -155,6 +165,7 @@ Template structure:
 
 ```markdown
 ---
+proj_id: "[generated-proj-id]"         # From Step 2f — do not edit
 title: "[NAME]"
 description: "[One-sentence description of what this project does.]"
 status: "[from Step 2e]"              # explore | build | open | closed
@@ -285,6 +296,7 @@ Show the user what was created and what was auto-detected:
 .lo/ directory created:
 
   PROJECT.md
+    proj_id: [generated]
     status: [user selection]
     state: [user selection]
     repo: [detected or placeholder]
@@ -325,7 +337,7 @@ Next steps:
 ## Validation
 
 Before finishing, verify:
-- [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter
+- [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter (including `proj_id` as first field)
 - [ ] All subdirectories exist
 - [ ] Stream entry has correct date in both filename and frontmatter (first commit date or today)
 - [ ] `.gitkeep` files in hypotheses/, notes/, research/, work/, solutions/
@@ -337,5 +349,7 @@ Before finishing, verify:
 - [ ] `.lo/solutions/.gitkeep` exists
 
 ## Frontmatter Reference
+
+`proj_id` is **required** and **auto-generated** by this skill (Step 2f). It must be the first field in PROJECT.md frontmatter. Format: `proj_` + lowercase UUID v4 (e.g., `proj_166345da-d821-4b3a-abbc-e3a439925e85`). Never manually assign or reuse a proj_id.
 
 For the full frontmatter contracts for all file types, consult `references/frontmatter-contracts.md`.
