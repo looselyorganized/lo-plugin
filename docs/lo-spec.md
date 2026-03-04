@@ -387,16 +387,16 @@ The Edge Function identifies which project to update by matching `(repo_owner, r
 | Query | Table(s) | Index Used |
 |-------|----------|------------|
 | List all public projects | `project_content` | `status` |
-| Project detail page | `project_content` JOIN `hypotheses` JOIN `project_stream` JOIN `project_contributors` JOIN `research_docs` | PK + FK indexes |
+| Project detail page | `project_content` JOIN `hypotheses` JOIN `project_stream` JOIN `project_contributors` | PK + FK indexes |
 | Filter by topic | `project_content` | GIN on `topics` (add if needed) |
 | Project + telemetry | `project_content` JOIN `projects` ON `content_slug` | PK on both |
 | Stream feed (all projects) | `project_stream` | `(date DESC)` |
-| Published research | `research_docs` | `status` |
+| Published research | MDX files in platform repo (filtered by `project` frontmatter) | N/A (file-based) |
 
 ### Performance Notes
 
 - Project list page is a single query on `project_content` (no joins needed for the card view).
-- Project detail page does 5 parallel queries (one per table) rather than a single mega-join. Simpler, and Supabase handles parallel queries well.
+- Project detail page does 4 parallel queries (one per table) rather than a single mega-join. Simpler, and Supabase handles parallel queries well.
 - JSONB containment queries (`topics @> '["redis"]'`) are fast enough at LO's scale (~10-50 projects). Add a GIN index on `topics` if it becomes a bottleneck.
 - `synced_at` enables HTTP `If-Modified-Since` caching and ISR revalidation.
 
