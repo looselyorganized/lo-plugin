@@ -176,10 +176,9 @@ Everything converges on a directory:
 ├── BACKLOG.md          # Features and tasks (created by /lo:backlog)
 ├── hypotheses/         # Testable claims with evidence
 ├── stream/             # Curated milestones and updates
-├── research/           # Structured research articles
+├── research/           # Raw materials from deep work sessions
 ├── work/               # Active feature directories with plans
-├── solutions/          # Reusable knowledge from completed work
-└── notes/              # Scratch space
+└── solutions/          # Reusable knowledge from completed work
 ```
 
 Every file is plain Markdown with YAML frontmatter. No custom formats. No databases. No config files beyond what's needed. A human can read any file with `cat`. An agent can parse any file with standard tooling. The website reads this directory — via GitHub webhooks into Supabase — and populates project pages automatically. The `.lo/` convention is both the internal work system and the external publishing pipeline.
