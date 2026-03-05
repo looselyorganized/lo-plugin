@@ -2,7 +2,7 @@
 name: backlog
 description: Manages the LO project backlog in .lo/BACKLOG.md. Registry for features and tasks — view, add, update. Not for planning or execution — use /lo:plan to design, /lo:work to build. Use when user says "backlog", "add task", "add feature", "update backlog", "view backlog", "/backlog", "/task", or "/feature". For starting features use /lo:plan. For executing work use /lo:work. For completing/shipping use /lo:ship.
 metadata:
-  version: 0.3.0
+  version: 0.3.1
   author: LORF
 ---
 

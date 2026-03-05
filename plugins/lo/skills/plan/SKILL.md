@@ -2,7 +2,7 @@
 name: plan
 description: Designs and plans features or tasks before execution. Brainstorms requirements, creates structured implementation plans, and saves them to .lo/work/. Not for execution — use /lo:work to build. Use when user says "plan this", "start feature", "brainstorm", "design this", "let's plan", "/plan", or "/lo:plan".
 metadata:
-  version: 0.3.0
+  version: 0.3.1
   author: LORF
 ---
 

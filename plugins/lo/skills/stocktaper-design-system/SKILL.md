@@ -4,7 +4,7 @@ description: Implements the StockTaper / Loosely Organized Research Facility des
 license: MIT
 metadata:
   author: Loosely Organized
-  version: 0.3.0
+  version: 0.3.1
 ---
 
 # StockTaper Design System

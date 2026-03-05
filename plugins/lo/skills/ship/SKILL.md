@@ -2,7 +2,7 @@
 name: ship
 description: Quality pipeline for shipping completed work. Full pipeline (tests, review, commit, push, PR) on feature branches. Light pipeline (tests, security, commit, mark done) on main. Not for planning or execution — use /lo:plan to design and /lo:work to build first. Cleans up work dirs and prompts for stream/solution capture. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "push and PR", "done with", "mark done", "/ship", or when work execution is complete.
 metadata:
-  version: 0.3.0
+  version: 0.3.1
   author: LORF
 ---
 
