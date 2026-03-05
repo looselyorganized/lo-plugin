@@ -306,10 +306,9 @@ Show the user what was created and what was auto-detected:
   solutions/
 
 Next steps:
-  1. Review .lo/PROJECT.md — verify auto-filled content, fill any [TODO] placeholders
-  2. Use /lo:backlog to set up your backlog
-  3. Use /lo:hypothesis to log your first hypothesis
-  4. Use /lo:publish from the platform repo to publish research
+  1. Scan the repo for TODO/FIXME/HACK comments and unfinished work, then add each as a task or feature in BACKLOG.md via /lo:backlog
+  2. Use /lo:hypothesis to log your first hypothesis
+  3. Use /lo:publish from the platform repo to publish research
 ```
 
 ## Directory Structure Reference
