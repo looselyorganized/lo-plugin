@@ -26,7 +26,7 @@ Examples:
 
 ## When Called Without Args
 
-If someone runs `/lo:publish` or `/lo:research` with no args:
+If someone runs `/lo:publish` with no args:
 ```
 Usage: /lo:publish <project> [slugs or description]
 
