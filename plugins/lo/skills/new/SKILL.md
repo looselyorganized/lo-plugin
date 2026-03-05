@@ -309,7 +309,7 @@ Next steps:
   1. Review .lo/PROJECT.md — verify auto-filled content, fill any [TODO] placeholders
   2. Use /lo:backlog to set up your backlog
   3. Use /lo:hypothesis to log your first hypothesis
-  4. Use /lo:research to start a research doc
+  4. Use /lo:publish from the platform repo to publish research
 ```
 
 ## Directory Structure Reference

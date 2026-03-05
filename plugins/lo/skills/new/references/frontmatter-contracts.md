@@ -199,9 +199,9 @@ Raw materials captured during deep work. Filename convention: `{slug}.md`.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `published_as` | string | Platform article slug (set by `/lo:research pub`) |
+| `published_as` | string | Platform article slug (set by `/lo:publish`) |
 
-Research files are raw materials — findings captured during deep work. To publish as an article, use `/lo:research pub` from the platform repo.
+Research files are raw materials — findings captured during deep work. To publish as an article, use `/lo:publish` from the platform repo.
 
 ### Example
 
