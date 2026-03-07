@@ -84,7 +84,36 @@ This is mandatory for features. The brainstorming skill will:
 - Propose 2-3 approaches with trade-offs
 - Present design for user approval
 
-**Do not proceed to Step 5 until brainstorming is complete and the user has approved the design.**
+**Do not proceed to Step 4.5 until brainstorming is complete and the user has approved the design.**
+
+### Step 4.5: Write EARS Requirements (Optional)
+
+After brainstorming, evaluate whether the feature needs formal requirements before planning. Offer EARS if the feature involves:
+
+- **Multiple subsystems** (e.g., GH Action + service + schema)
+- **External interfaces or APIs**
+- **State machines or lifecycle flows**
+- **Multiple actors** (users, agents, services)
+
+If any apply, ask:
+
+    This feature has [multiple subsystems / external interfaces / state transitions].
+    Write EARS requirements before planning? (Recommended for complex features, skip for simple ones)
+
+    1. Write EARS requirements (recommended)
+    2. Skip — go straight to planning
+
+**Do not proceed until the user answers.**
+
+If the user chooses EARS:
+
+1. Read `references/ears-guide.md` for the full EARS pattern reference, template, and naming conventions
+2. Explore the codebase to understand each subsystem's boundaries and interfaces
+3. Write requirements to `.lo/work/f{NNN}-slug/ears-requirements.md` using the EARS template
+4. Present the requirements to the user for review and approval
+5. Once approved, proceed to Step 5 — the implementation plan should reference EARS requirement IDs (e.g., `REQ-A01`) in task descriptions
+
+If the user skips, proceed directly to Step 5.
 
 ### Step 5: Choose Planning Approach
 
@@ -179,10 +208,16 @@ When invoked as `/lo:plan` with no arguments:
     Removes f003 from backlog (work dir is source of truth)
     Checks .lo/solutions/ for relevant prior art
     Invokes brainstorming → explores design → user approves
+
+    This feature has multiple subsystems (auth middleware, login endpoint, signup endpoint, session management).
+    Write EARS requirements before planning? (Recommended for complex features, skip for simple ones)
+
+    User picks EARS → writes ears-requirements.md with REQ-A01..REQ-A04
     Asks: Plan mode or quick plan?
-    User picks quick plan → saves 001-auth-flow.md
+    User picks quick plan → saves 001-auth-flow.md (tasks reference REQ-A01, REQ-A02, etc.)
 
     Plan saved: .lo/work/f003-user-auth/001-auth-flow.md
+    EARS: .lo/work/f003-user-auth/ears-requirements.md
     Ready to start building? Type /lo:work to begin.
 
 ### Planning a task (quick)

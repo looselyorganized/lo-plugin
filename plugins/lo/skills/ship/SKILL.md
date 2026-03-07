@@ -11,7 +11,7 @@ metadata:
 Runs the quality pipeline to ship completed work. Each gate must pass before proceeding. Stops and reports if any gate fails.
 
 Two modes based on branch context:
-- **Full pipeline** (feature/fix branch): tests → simplify → security → commit → push → PR → clean up → wrap-up
+- **Full pipeline** (feature/fix branch): EARS audit → tests → simplify → security → commit → push → PR → clean up → wrap-up
 - **Light pipeline** (main branch, tasks only): tests → security → commit → mark done → wrap-up
 
 ## When to Use
@@ -46,6 +46,36 @@ Two modes based on branch context:
 
 2. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
 3. **Identify the item:** Map branch name (e.g., `feat/f003-auth-system` or `fix/t005-slug`) to the feature/task ID. On main, ask the user which backlog item this work completes. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
+
+### Gate 1.5: EARS Requirements Audit
+
+*Only runs if `ears-requirements.md` exists in the work directory.*
+
+Check `.lo/work/f{NNN}-slug/ears-requirements.md`. If present:
+
+1. Parse all `REQ-*` requirement IDs and their statements
+2. For each requirement, verify it was addressed by the implementation:
+   - Check plan task references (tasks that cite `REQ-*` IDs and are marked `[x]`)
+   - Scan changed files (`git diff --name-only main...HEAD`) for behavior matching the requirement
+   - Mark each requirement as: **covered**, **partial**, or **uncovered**
+3. Report:
+
+        EARS audit: ears-requirements.md
+          REQ-T01: covered ✓
+          REQ-T02: covered ✓
+          REQ-A01: covered ✓
+          REQ-A02: partial — missing retry logic
+          REQ-X01: uncovered — no auth between services
+
+        Coverage: 18/22 covered, 2 partial, 2 uncovered
+
+4. **Uncovered or partial requirements:**
+   - Ask the user for each: **implement now**, **defer to next iteration**, or **out of scope** (with rationale)
+   - If "implement now" → stop pipeline, redirect to `/lo:work`
+   - If "defer" or "out of scope" → note the decision, proceed to Gate 2
+   - Update `ears-requirements.md` status to `updated` and add a `## Deferred` section listing deferred REQ-* IDs with rationale
+
+This gate is informational for partial/uncovered items — it surfaces gaps but lets the user decide. It does NOT auto-fail the pipeline.
 
 ### Gate 2: Run Tests
 
@@ -160,6 +190,7 @@ Detect item type from ID prefix and handle accordingly:
 **Full pipeline** (feature/fix branch):
 
     Ship complete: f{NNN} "<name>"
+      EARS:     [N/N covered | skipped (no EARS)]
       Tests:    passed (N tests)
       Simplify: [N changes | clean]
       Security: clean (static + vuln sweep)
@@ -197,6 +228,7 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     Identifies item: f003 "User Authentication"
 
     Gate 1: Pre-flight ✓
+    Gate 1.5: EARS — 22/22 requirements covered ✓
     Gate 2: Tests — 47 passed ✓
     Gate 3: Simplify — 2 suggestions applied ✓
     Gate 4: Security — clean ✓
