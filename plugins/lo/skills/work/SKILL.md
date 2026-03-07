@@ -57,26 +57,35 @@ Tell user the feature directory exists but needs plans. Redirect to `/lo:plan f{
 
     Which feature?
 
-### Step 2: Read the Plan
+### Step 2: Read the Plan and EARS Contract
 
 Read the current plan file (lowest-numbered incomplete plan):
 
 1. Parse the plan's tasks, dependencies, and parallelization markers
-2. Determine execution strategy based on task structure
-3. Present a summary:
+2. **Check for EARS contract:** Look for `ears-requirements.md` in the work directory (`.lo/work/f{NNN}-slug/ears-requirements.md`). If it exists:
+   - Read it and parse all `REQ-*` requirement IDs
+   - This is the **ground truth** for what the implementation must do
+   - Surface it alongside the plan summary
+3. Determine execution strategy based on task structure
+4. Present a summary:
 
         Working on: f003 auth-system
         Plan: 001-<phase-name>.md
+        EARS: ears-requirements.md (22 requirements across 4 subsystems)
 
         Tasks:
-          1. [description] — sequential
-          2. [description] — can parallel with 3
-          3. [description] — can parallel with 2
-          4. [description] — depends on 2, 3
+          1. [description] (REQ-T01, REQ-T02) — sequential
+          2. [description] (REQ-A01, REQ-A02) — can parallel with 3
+          3. [description] (REQ-S01, REQ-S02) — can parallel with 2
+          4. [description] (REQ-X01, REQ-X02) — depends on 2, 3
 
         Strategy: [sequential | subagents | agent teams]
 
+   If no EARS file exists, omit the EARS line — not all features use EARS.
+
 Wait for user confirmation before executing.
+
+**EARS during execution:** When tasks reference `REQ-*` IDs, use the EARS document as the spec for what the code should do. The requirement statement defines the expected behavior — implement to satisfy it. If a requirement is ambiguous or conflicts with what you find in the codebase, stop and ask the user before proceeding.
 
 ### Step 3: Set Up Isolation
 
@@ -188,6 +197,8 @@ When a plan phase completes:
 - If another phase exists → ask whether to continue
 - If no more phases → report completion, suggest `/lo:ship`
 
+**EARS checkpoint (final phase only):** If `ears-requirements.md` exists and all phases are complete, do a quick coverage scan — list any `REQ-*` IDs that weren't referenced by any plan task. Report uncovered requirements to the user before suggesting `/lo:ship`. This is informational, not blocking — the user decides whether uncovered requirements need work or were intentionally deferred.
+
 Do NOT automatically proceed to shipping.
 
 ---
@@ -245,6 +256,10 @@ When the task is done:
 Plan files are created by `/lo:plan`. Execute numbered files (`001-*.md`, `002-*.md`) in order, lowest-numbered incomplete plan first. Parse frontmatter for `status` (skip `done`), task checkboxes for progress, `[parallel]` for concurrency, and `(depends on N, M)` for ordering.
 
 See `/lo:plan`'s `references/plan-format-contract.md` for the full format specification.
+
+### EARS Contract (Optional)
+
+If `ears-requirements.md` exists in the work directory alongside the plans, read it before execution starts. When tasks reference `REQ-*` IDs, the EARS document defines expected behavior — use it as the spec and implement to satisfy each requirement. At final phase completion, check coverage of all `REQ-*` IDs. Not all features have EARS — skip if the file doesn't exist.
 
 ## Error Handling
 
