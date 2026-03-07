@@ -1,5 +1,5 @@
 ---
-updated: 2026-02-26
+updated: 2026-03-07
 ---
 
 ## Features
@@ -12,6 +12,12 @@ Status: done -> 2026-02-25
 Move lo-plugin to standalone repo at `looselyorganized/lo-plugin` with stocktaper design system, updated lo-spec, and clean install URL.
 Status: done -> 2026-02-25
 
+### f003 — GitHub Automation Sync
+Script-driven reconciliation of all GitHub automation (CodeRabbit, CodeQL, CI, auto-merge, branch protection) based on PROJECT.md status. Zero manual steps on `/lo:new` or `/lo:status` transitions.
+Status: active -> .lo/work/f003-github-automation-sync/
+
 ## Tasks
 
-_No open tasks._
+- [ ] t001 Audit /work
+- [ ] t002 Ship feature needs to delete /work directories once done and remove from BACKLOG.md
+- [ ] t003 Fix where /plan sends plans — must follow .lo convention
