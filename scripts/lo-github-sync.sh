@@ -67,6 +67,8 @@ fi
 if [[ "$NO_BUILD" == "true" ]]; then HAS_BUILD=false; fi
 
 SUPABASE_URL=""
+# Only extract publishable (anon) keys — never service_role or secret keys.
+# Publishable keys are safe to commit; they're public by design.
 SUPABASE_KEY=""
 for envfile in .env.example .env.template .env.local.example env.d.ts; do
   if [[ -f "$envfile" ]]; then

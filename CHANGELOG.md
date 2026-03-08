@@ -16,7 +16,7 @@ All notable changes to this project are documented in this file.
 - Stream entry: v0.3.2 milestone
 
 ### Changed
-- Ship skill now **status-aware** — Explore/Closed commits and pushes direct to main; Build/Open commits to feature branch for release coordination via `/lo:release ship` (major architectural change)
+- Ship skill now **status-aware** — Explore/Closed ships via PR to main; Build/Open commits to feature branch for release coordination via `/lo:release ship` (major architectural change)
 - Plan skill tracks feature lifecycle in backlog (`backlog` → `active` → `done`) instead of removing features at plan time
 - Work skill reads EARS contract alongside plans, surfaces `REQ-*` IDs in task summaries, and branches off release branches when detected
 - Status skill replaced inline CI/branch-protection generation with `lo-github-sync.sh` calls — dramatically simplified

@@ -3,7 +3,7 @@ name: ship
 description: Quality pipeline for shipping completed work. Behavior adapts to project status — Explore/Closed creates a branch, commits, and opens a PR targeting main; Build/Open commits to feature branch for release coordination. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "done with", "mark done", "/ship", or when work execution is complete.
 metadata:
   version: 0.3.2
-  authr: LORF
+  author: LORF
 ---
 
 # LO Ship Pipeline
