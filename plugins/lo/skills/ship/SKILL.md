@@ -33,7 +33,7 @@ Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **br
 
 ### Gate 1: Pre-flight
 
-1. **Read project status:** Read `.lo/PROJECT.md` frontmatter `status` field. This determines pipeline behavior at Gates 6-7.
+1. **Read project status:** Read `.lo/PROJECT.md` frontmatter `status` field. This determines pipeline behavior at Gates 7-8.
 
    | Status | Pipeline mode |
    |--------|--------------|
@@ -50,13 +50,13 @@ Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **br
          2. Quick ship — tests + security + commit on main, mark done (for small tasks)
 
      If they choose option 1, create the branch and proceed with full pipeline.
-     If they choose option 2, proceed with **light pipeline** (Gates 1-5, skip 6-7, then Gate 8-9).
+     If they choose option 2, proceed with **light pipeline** (Gates 1, 3, 5, 6, 8, 9).
      Light pipeline is only available for tasks (`t{NNN}`). If the user is shipping a feature on main, recommend option 1.
 
 3. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
 4. **Identify the item:** Map branch name (e.g., `feat/f003-auth-system` or `fix/t005-slug`) to the feature/task ID. On main, ask the user which backlog item this work completes. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
 
-### Gate 1.5: EARS Requirements Audit
+### Gate 2: EARS Requirements Audit
 
 *Only runs if `ears-requirements.md` exists in the work directory.*
 
@@ -81,12 +81,12 @@ Check `.lo/work/f{NNN}-slug/ears-requirements.md`. If present:
 4. **Uncovered or partial requirements:**
    - Ask the user for each: **implement now**, **defer to next iteration**, or **out of scope** (with rationale)
    - If "implement now" → stop pipeline, redirect to `/lo:work`
-   - If "defer" or "out of scope" → note the decision, proceed to Gate 2
+   - If "defer" or "out of scope" → note the decision, proceed to Gate 3
    - Update `ears-requirements.md` status to `updated` and add a `## Deferred` section listing deferred REQ-* IDs with rationale
 
 This gate is informational for partial/uncovered items — it surfaces gaps but lets the user decide. It does NOT auto-fail the pipeline.
 
-### Gate 2: Run Tests
+### Gate 3: Run Tests
 
 Detect the project's test runner (package.json scripts, Cargo.toml, pyproject.toml, etc.) and run tests.
 
@@ -94,7 +94,7 @@ Detect the project's test runner (package.json scripts, Cargo.toml, pyproject.to
 - **Fail:** Stop. Report failures. Do not continue.
 - **No tests:** Warn user, ask whether to proceed without tests.
 
-### Gate 3: Code Simplification
+### Gate 4: Code Simplification
 
 *Full pipeline only. Skip for light pipeline.*
 
@@ -103,7 +103,7 @@ Detect the project's test runner (package.json scripts, Cargo.toml, pyproject.to
 3. If simplifications found → present them, ask whether to apply
 4. If clean → proceed
 
-### Gate 4: Security Review
+### Gate 5: Security Review
 
 Two-phase security gate. Both phases must pass.
 
@@ -137,14 +137,14 @@ For each file, think through how an attacker could exploit the code. Consider th
   Do not continue past critical or high severity issues. Medium/low issues: warn and ask user whether to proceed.
 - **Clean:** Proceed.
 
-### Gate 5: Commit
+### Gate 6: Commit
 
 1. Stage changes: `git add` relevant files (avoid blindly adding all)
 2. Draft commit message based on item ID and name
 3. Present for user approval
 4. Commit
 
-### Gate 6: Push
+### Gate 7: Push
 
 *Full pipeline only. Skip for light pipeline.*
 
@@ -174,18 +174,6 @@ Report:
     To merge: run /lo:release ship when the release is ready.
 
 If push fails, stop and report.
-
-### Gate 7: Create Pull Request
-
-*Explore/Closed only. Skip for Build/Open (release handles this) and light pipeline.*
-
-**Explore/Closed:** This gate is skipped — the merge already happened in Gate 6.
-
-**Build/Open:** This gate is skipped entirely. The feature branch is pushed for backup but the PR and merge happen through `/lo:release ship`. Report:
-
-    Feature branch pushed. No PR created — /lo:release ship handles the merge to main.
-
-This separation ensures releases control when code reaches main.
 
 ### Gate 8: Clean Up
 
@@ -285,12 +273,12 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     Identifies item: f003 "User Authentication"
 
     Gate 1: Pre-flight — Explore, fast mode ✓
-    Gate 1.5: EARS — 22/22 requirements covered ✓
-    Gate 2: Tests — 47 passed ✓
-    Gate 3: Simplify — 2 suggestions applied ✓
-    Gate 4: Security — clean ✓
-    Gate 5: Commit — abc1234 "feat(f003): user authentication" ✓
-    Gate 6: Merged to main, pushed ✓
+    Gate 2: EARS — 22/22 requirements covered ✓
+    Gate 3: Tests — 47 passed ✓
+    Gate 4: Simplify — 2 suggestions applied ✓
+    Gate 5: Security — clean ✓
+    Gate 6: Commit — abc1234 "feat(f003): user authentication" ✓
+    Gate 7: Merged to main, pushed ✓
     Gate 8: Clean up — .lo/work/f003-user-auth/ removed ✓
     Gate 9: Wrap-up ✓
 
@@ -306,12 +294,12 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     Identifies item: f003 "User Authentication"
 
     Gate 1: Pre-flight — Build, release mode ✓
-    Gate 1.5: EARS — 22/22 requirements covered ✓
-    Gate 2: Tests — 47 passed ✓
-    Gate 3: Simplify — clean ✓
-    Gate 4: Security — clean ✓
-    Gate 5: Commit — abc1234 "feat(f003): user authentication" ✓
-    Gate 6: Pushed origin/feat/f003-user-auth (backup, no PR) ✓
+    Gate 2: EARS — 22/22 requirements covered ✓
+    Gate 3: Tests — 47 passed ✓
+    Gate 4: Simplify — clean ✓
+    Gate 5: Security — clean ✓
+    Gate 6: Commit — abc1234 "feat(f003): user authentication" ✓
+    Gate 7: Pushed origin/feat/f003-user-auth (backup, no PR) ✓
     Gate 8: Work artifacts preserved for changelog ✓
     Gate 9: Wrap-up ✓
 
@@ -327,9 +315,9 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     User picks quick ship → identifies t005 "Update dependency versions"
 
     Gate 1: Pre-flight ✓
-    Gate 2: Tests — 47 passed ✓
-    Gate 4: Security — clean ✓
-    Gate 5: Commit — def5678 "chore(t005): update dependency versions" ✓
+    Gate 3: Tests — 47 passed ✓
+    Gate 5: Security — clean ✓
+    Gate 6: Commit — def5678 "chore(t005): update dependency versions" ✓
     Gate 8: Done — t005 marked complete in backlog ✓
     Gate 9: Wrap-up ✓
 

@@ -203,7 +203,7 @@ Use all three sources to write a richer changelog — not just commit message cl
     git commit -m "docs: changelog for <version>"
     ```
 
-### Gate 2.5: Update README (Optional)
+### Gate 3: Update README (Optional)
 
 Ask the user:
 
@@ -230,7 +230,7 @@ If yes:
 
 5. If user skips or README is already current → proceed
 
-### Gate 3: Merge to Main
+### Gate 4: Merge to Main
 
 ```bash
 git checkout main
@@ -239,19 +239,19 @@ git merge <version> --no-ff -m "release: <version>"
 
 If merge conflicts occur, stop and report. Do not force.
 
-### Gate 4: Tag
+### Gate 5: Tag
 
 ```bash
 git tag -a v<version> -m "v<version>"
 ```
 
-### Gate 5: Push
+### Gate 6: Push
 
 ```bash
 git push origin main --tags
 ```
 
-### Gate 6: Clean Up
+### Gate 7: Clean Up
 
 Now that the changelog is written and merged, clean up all release artifacts.
 
@@ -290,12 +290,13 @@ git commit -m "chore: clean up work artifacts for v<version>"
 git push origin main
 ```
 
-### Gate 7: Report
+### Gate 8: Report
 
     Release shipped: v<version>
 
       Tag:       v<version>
       Changelog: CHANGELOG.md updated
+      README:    [updated | skipped]
       Branch:    <version> merged to main and deleted
       Cleaned:   N work directories removed, N branches deleted
       Backlog:   N tasks marked done
@@ -361,8 +362,7 @@ Release wraps the version lifecycle. Plan/work/ship stay focused on features and
 
     User: /lo:release ship
 
-    Gate 1: Pre-flight — on branch 0.3.2, clean tree ✓
-    Gate 1: Tests — 47 passed ✓
+    Gate 1: Pre-flight — on branch 0.3.2, clean tree, tests pass, CI pass ✓
     Gate 2: Changelog generated ✓
 
     Changelog for 0.3.2:
@@ -373,15 +373,17 @@ Release wraps the version lifecycle. Plan/work/ship stay focused on features and
 
     ### Changed
     - Work skill reads EARS alongside plans
-    - Ship skill audits EARS coverage at Gate 1.5
+    - Ship skill audits EARS coverage at Gate 2
 
     Looks good?
 
     User: yes
 
-    Gate 3: Merged to main ✓
-    Gate 4: Tagged v0.3.2 ✓
-    Gate 5: Pushed main + tags ✓
-    Gate 6: Branch 0.3.2 deleted ✓
+    Gate 3: README — skipped (already current) ✓
+    Gate 4: Merged to main ✓
+    Gate 5: Tagged v0.3.2 ✓
+    Gate 6: Pushed main + tags ✓
+    Gate 7: Clean up — 2 work dirs removed, 3 branches deleted ✓
+    Gate 8: Report ✓
 
     Release shipped: v0.3.2
