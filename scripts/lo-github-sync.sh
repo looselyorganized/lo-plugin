@@ -33,7 +33,7 @@ if [[ ! -f ".lo/PROJECT.md" ]]; then
   exit 1
 fi
 
-STATUS=$(grep -m1 '^status:' .lo/PROJECT.md | sed 's/status:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | tr '[:upper:]' '[:lower:]' | xargs)
+STATUS=$(grep -m1 '^status:' .lo/PROJECT.md | sed 's/status:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | sed 's/#.*//' | tr '[:upper:]' '[:lower:]' | xargs)
 if [[ -z "$STATUS" ]]; then
   echo "Could not parse status from .lo/PROJECT.md"
   exit 1
@@ -141,7 +141,7 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  ci:
+  pipeline:
     uses: looselyorganized/ci/.github/workflows/reusable-ci.yml@main
     with:
       status: ${STATUS}"
@@ -164,7 +164,7 @@ on:
   pull_request:
     branches: [main]
 jobs:
-  ci:
+  pipeline:
     uses: looselyorganized/ci/.github/workflows/reusable-ci.yml@main
     with:
       status: ${STATUS}"
@@ -304,7 +304,7 @@ reconcile_branch_protection() {
 
       if [[ "$CI_MANAGED" == "true" ]]; then
         local JOB=$CI_JOB_NAME
-        [[ -z "$JOB" ]] && JOB="ci"
+        [[ -z "$JOB" ]] && JOB="pipeline"
         [[ "$HAS_TEST" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Unit Tests\"}")
         [[ "$HAS_BUILD" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Build\"}")
       else
