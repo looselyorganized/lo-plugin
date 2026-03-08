@@ -179,19 +179,13 @@ Behavior depends on project status (determined in Gate 1):
 
 **Explore/Closed (fast mode):**
 
-Push directly to main:
-
-```bash
-git push origin main
-```
+Push directly to main: `git push origin main`
 
 **Build/Open (release mode):**
 
 Push the feature branch only. Do NOT merge to main — `/lo:release ship` handles that.
 
-```bash
-git push -u origin <feature-branch>
-```
+Run: `git push -u origin <feature-branch>`
 
 If push fails, stop and report.
 
