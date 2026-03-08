@@ -309,6 +309,7 @@ reconcile_branch_protection() {
       if [[ "$CI_MANAGED" == "true" ]]; then
         local JOB=$CI_JOB_NAME
         [[ -z "$JOB" ]] && JOB="pipeline"
+        CHECKS_ARRAY+=("{\"context\": \"${JOB} / Gate\"}")
         [[ "$HAS_TEST" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Unit Tests\"}")
         [[ "$HAS_BUILD" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Build\"}")
       else
