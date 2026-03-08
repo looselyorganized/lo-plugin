@@ -178,13 +178,36 @@ Behavior depends on project status (determined in Gate 1):
 
 **Explore/Closed (fast mode):**
 
-Push directly to main. If on a feature branch, merge to main first, then push:
+🔒 Never merge locally to main or push directly to main. Always go through a PR.
 
-```bash
-git checkout main
-git merge <branch-name> --no-ff -m "feat(<item-id>): <name>"
-git push origin main
-```
+1. Push the feature branch:
+
+    ```bash
+    git push -u origin <branch-name>
+    ```
+
+2. Open a PR targeting main:
+
+    ```bash
+    gh pr create --base main --head <branch-name> \
+      --title "feat(<item-id>): <name>" \
+      --body "Shipped via /lo:ship"
+    ```
+
+3. Enable auto-merge:
+
+    ```bash
+    gh pr merge <PR-NUMBER> --auto --squash
+    ```
+
+4. Wait for the PR to merge. The merge is fully autonomous — CI runs, CodeRabbit reviews, cr-agent fixes any CodeRabbit feedback (up to 3 rounds), auto-merge fires when approved. Poll `gh pr view <PR-NUMBER> --json state -q '.state'` every 30 seconds. Do NOT timeout — the pipeline is autonomous. If CI fails, stop and report.
+
+5. After merge, pull main:
+
+    ```bash
+    git checkout main
+    git pull origin main
+    ```
 
 **Build/Open (release mode):**
 
@@ -239,7 +262,7 @@ Do NOT delete work dirs or update BACKLOG.md. `/lo:release ship` needs these art
 
     Shipped: <f{NNN}|t{NNN}> "<name>"
 
-    Merged to main and pushed.
+    PR: <url> (merged via auto-merge)
     Cleaned: .lo/work/<slug>/ removed
 
     Update the stream? Run /lo:stream to capture this milestone.
@@ -265,7 +288,9 @@ Do NOT delete work dirs or update BACKLOG.md. `/lo:release ship` needs these art
       Simplify: [N changes | clean]
       Security: clean (static + vuln sweep)
       Commit:   <hash> "<message>"
-      Merged:   to main, pushed
+      PR:       <url> (auto-merge, squash)
+      CI:       passed
+      Merged:   PR merged to main
       Cleaned:  .lo/work/f{NNN}-slug/ removed
 
 **Build/Open — release mode** (feature/fix branch):
@@ -315,7 +340,7 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     Gate 4: Simplify — 2 suggestions applied ✓
     Gate 5: Security — clean ✓
     Gate 6: Commit — abc1234 "feat(f003): user authentication" ✓
-    Gate 7: Merged to main, pushed ✓
+    Gate 7: PR #42 opened, auto-merge enabled — CI passed, merged ✓
     Gate 8: Clean up — .lo/work/f003-user-auth/ removed ✓
     Gate 9: Wrap-up ✓
 
