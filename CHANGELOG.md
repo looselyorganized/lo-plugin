@@ -7,7 +7,7 @@ All notable changes to this project are documented in this file.
 ### Added
 - `/lo:release` skill — versioned release management with release branches, changelog generation, and git tags
 - EARS requirements as optional contract in plan → work → ship chain — formal requirements for complex features with `REQ-*` IDs referenced through planning and execution
-- `lo-github-sync.sh` — script-driven reconciliation of all GitHub automation (CodeRabbit, CodeQL, CI, auto-merge, branch protection) based on PROJECT.md status (f003)
+- `lo-github-sync.sh` — script-driven reconciliation of all GitHub automation (CodeRabbit, CI, auto-merge, branch protection) based on PROJECT.md status (f003)
 - CI verification gate in `/lo:release ship` — ensures integrated branch passes CI before merging
 - README staleness check in ship pipeline
 - `TaskCreate` progress tracking across ship, release ship, and work pipelines — live task dashboards during gate execution

@@ -72,6 +72,9 @@ At pipeline start, create a task list using `TaskCreate` so the user sees live p
 
 3. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
 4. **Identify the item:** Map branch name (e.g., `feat/f003-auth-system` or `fix/t005-slug`) to the feature/task ID. On main, ask the user which backlog item this work completes. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask. Then resolve the working directory: `WORK_DIR=.lo/work/<item-id>-slug/` (e.g., `.lo/work/f003-user-auth/` or `.lo/work/t005-update-deps/`). Both `f{NNN}` and `t{NNN}` item directories are supported.
+
+   **Quick-ship branch creation (option 2 only):** Immediately after identifying the item, create and check out the ship branch: `git checkout -b ship/<item-id>` (e.g., `ship/t005-slug`). All subsequent steps — cleanup, commit, push — happen on this branch, not on main.
+
 5. **Determine diff base:** Find the integration base for this branch. Use the branch it was cut from (e.g., `main`, `0.3.2`). Store this as `DIFF_BASE` and use it for all `git diff` operations in the pipeline instead of hardcoding `main`.
 
 ### Gate 2: EARS Requirements Audit
@@ -199,8 +202,8 @@ Behavior depends on project status (determined in Gate 1):
 
 **Explore/Closed (fast mode):**
 
-Create a ship branch and open a PR targeting main:
-1. If not already on a ship branch, create one: `git checkout -b ship/<item-id>` (e.g., `ship/f003-user-auth` or `ship/t005-slug`)
+Create a ship branch (if not already on one) and open a PR targeting main:
+1. If not already on a ship branch, create one: `git checkout -b ship/<item-id>` (e.g., `ship/f003-user-auth` or `ship/t005-slug`). For quick-ship (option 2), this was already done in Gate 1 — skip this step.
 2. Push the branch: `git push -u origin <ship-branch>`
 3. Open a PR targeting main: `gh pr create --base main --title "<commit message title>" --body "<brief item summary>"`
 4. Stop if PR gates fail. Do not merge manually — follow the repository's PR/auto-merge policy.

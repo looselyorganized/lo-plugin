@@ -82,15 +82,23 @@ done
 CI_MANAGED=false
 CI_EXISTS=false
 CI_JOB_NAME=""
-if [[ -f ".github/workflows/ci.yml" ]]; then
-  CI_EXISTS=true
-  if grep -q 'looselyorganized/ci/.github/workflows/reusable-ci.yml' .github/workflows/ci.yml; then
-    CI_MANAGED=true
-    CI_JOB_NAME=$(grep -E '^\s+\w+:' .github/workflows/ci.yml | grep -B1 'uses:' | head -1 | sed 's/[: ]//g' || echo "ci")
-  else
-    CI_JOB_NAME="custom"
+
+get_ci_metadata() {
+  CI_MANAGED=false
+  CI_EXISTS=false
+  CI_JOB_NAME=""
+  if [[ -f ".github/workflows/ci.yml" ]]; then
+    CI_EXISTS=true
+    if grep -q 'looselyorganized/ci/.github/workflows/reusable-ci.yml' .github/workflows/ci.yml; then
+      CI_MANAGED=true
+      CI_JOB_NAME=$(grep -E '^\s+\w+:' .github/workflows/ci.yml | grep -B1 'uses:' | head -1 | sed 's/[: ]//g' || echo "ci")
+    else
+      CI_JOB_NAME="custom"
+    fi
   fi
-fi
+}
+
+get_ci_metadata
 
 echo ""
 echo "lo-github-sync: ${OWNER}/${REPO} (status: ${STATUS}, active: ${ACTIVE})"
@@ -290,6 +298,9 @@ reconcile_auto_merge_setting
 
 # ── GitHub API: Branch Protection ────────────────────────────────────
 
+# Refresh CI metadata — reconcile_ci may have created/rewritten ci.yml
+get_ci_metadata
+
 reconcile_branch_protection() {
   if [[ "$HAS_REMOTE" == "false" ]]; then
     skipped "Branch protection          no remote"
@@ -305,9 +316,9 @@ reconcile_branch_protection() {
     local CHECKS="[]"
     local CHECK_DESC="1 reviewer"
 
-    if [[ "$CI_EXISTS" == "true" ]]; then
-      local CHECKS_ARRAY=()
+    local CHECKS_ARRAY=()
 
+    if [[ "$CI_EXISTS" == "true" ]]; then
       if [[ "$CI_MANAGED" == "true" ]]; then
         local JOB=$CI_JOB_NAME
         [[ -z "$JOB" ]] && JOB="pipeline"
@@ -317,7 +328,7 @@ reconcile_branch_protection() {
       else
         while IFS= read -r job_name; do
           [[ -n "$job_name" ]] && CHECKS_ARRAY+=("{\"context\": \"${job_name}\"}")
-        done < <(grep -E '^\s+[a-zA-Z_-]+:' .github/workflows/ci.yml | grep -v 'uses:\|name:\|on:\|branches:\|jobs:' | sed 's/[: ]//g' | head -5)
+        done < <(awk '/^jobs:/{found=1; next} found && /^[[:space:]]+[A-Za-z0-9_-]+:/{name=$1; sub(/:$/,"",name); print name; count++; if(count>=5) exit} found && /^[^[:space:]]/{exit}' .github/workflows/ci.yml)
       fi
 
       if [[ ${#CHECKS_ARRAY[@]} -gt 0 ]]; then
