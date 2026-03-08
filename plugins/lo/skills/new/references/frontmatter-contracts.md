@@ -103,54 +103,6 @@ Current multi-agent setups have no coordination layer. Agents overwrite each oth
 
 ---
 
-## hypotheses/*.md — Hypothesis Files
-
-One file per hypothesis. Filename convention: `h{NNN}-{slug}.md` (e.g., `h001-redis-locking.md`).
-
-### Required Fields
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | Unique within project, matches filename prefix, e.g. `"h001"` |
-| `statement` | string | The hypothesis being tested |
-| `status` | enum | `proposed` \| `testing` \| `validated` \| `invalidated` \| `revised` |
-| `date` | date | Date of last status change (YYYY-MM-DD) |
-
-### Optional Fields
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `revisesId` | string | Links to a prior hypothesis this revises |
-
-### Status Transitions
-
-```
-proposed → testing → validated
-                   → invalidated
-                   → revised (creates new hypothesis with revisesId pointing back)
-```
-
-### Example
-
-```yaml
----
-id: "h001"
-statement: "Redis distributed locks with TTL expiration are sufficient for file-level mutual exclusion in multi-agent systems"
-status: "validated"
-date: "2026-02-15"
----
-
-## Evidence
-
-Load testing with 8 concurrent agents showed zero lock collisions over 10,000 operations.
-
-## Notes
-
-TTL of 30s proved optimal — long enough for file operations, short enough to recover from agent crashes.
-```
-
----
-
 ## stream/*.md — Project Stream Entries
 
 Chronological log. Filename convention: `YYYY-MM-DD-{slug}.md`.
