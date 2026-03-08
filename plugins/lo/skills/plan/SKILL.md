@@ -22,7 +22,7 @@ Turns backlog items into actionable implementation plans. Brainstorms design, wr
 - Brainstorm before planning features. Jumping straight to a plan skips design exploration, which leads to rework.
 - This skill designs — it does not execute. Redirect to `/lo:work` when the user wants to start building.
 - Plans always go in `.lo/work/f{NNN}-slug/` or `.lo/work/t{NNN}-slug/` — never `docs/plans/` or anywhere else. Use the format in `references/plan-format-contract.md`.
-- Remove the feature from BACKLOG.md when creating a work directory — the work dir is now the source of truth for in-progress work.
+- Update the feature status to `active` in BACKLOG.md when creating a work directory. Features stay in the backlog through their full lifecycle (`backlog` → `active` → `done`).
 
 ## Modes
 
@@ -48,13 +48,13 @@ Arguments: `f{NNN}` or feature name (fuzzy match against BACKLOG.md)
 
 1. Derive directory name: `f{NNN}-slug` (kebab-case from feature name, prefixed with ID)
 2. Create `.lo/work/f{NNN}-slug/` directory
-3. Remove the feature entry from BACKLOG.md (the work dir is now the source of truth)
+3. Update feature status in BACKLOG.md: `Status: active -> .lo/work/f{NNN}-slug/`
 4. Update `updated:` date in BACKLOG.md
 5. Confirm:
 
         Feature activated: f{NNN} "<name>"
         Work directory: .lo/work/f{NNN}-slug/
-        Removed from backlog (work dir is source of truth)
+        Backlog status: active
 
 ### Step 3: Check Solutions for Prior Art
 
@@ -86,7 +86,36 @@ This is mandatory for features. The brainstorming skill will:
 
 **Do not proceed to Step 5 until brainstorming is complete and the user has approved the design.**
 
-### Step 5: Choose Planning Approach
+### Step 5: Write EARS Requirements (Optional)
+
+After brainstorming, evaluate whether the feature needs formal requirements before planning. Offer EARS if the feature involves:
+
+- **Multiple subsystems** (e.g., GH Action + service + schema)
+- **External interfaces or APIs**
+- **State machines or lifecycle flows**
+- **Multiple actors** (users, agents, services)
+
+If any apply, ask:
+
+    This feature has [multiple subsystems / external interfaces / state transitions].
+    Write EARS requirements before planning? (Recommended for complex features, skip for simple ones)
+
+    1. Write EARS requirements (recommended)
+    2. Skip — go straight to planning
+
+**Do not proceed until the user answers.**
+
+If the user chooses EARS:
+
+1. Read `references/ears-guide.md` for the full EARS pattern reference, template, and naming conventions
+2. Explore the codebase to understand each subsystem's boundaries and interfaces
+3. Write requirements to `.lo/work/f{NNN}-slug/ears-requirements.md` using the EARS template
+4. Present the requirements to the user for review and approval
+5. Once approved, update the EARS frontmatter `status:` from `draft` to `approved` and proceed to Step 6 — the implementation plan should reference EARS requirement IDs (e.g., `REQ-A01`) in task descriptions
+
+If the user skips, proceed directly to Step 6.
+
+### Step 6: Choose Planning Approach
 
 After brainstorming, ask the user:
 
@@ -112,13 +141,13 @@ After brainstorming, ask the user:
 2. The writing-plans skill produces detailed, bite-sized tasks with file paths and code
 3. Save output to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format
 
-### Step 6: Save Plan
+### Step 7: Save Plan
 
 Save the plan to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format. For multi-phase features, create separate numbered files (`002-*.md`, `003-*.md`).
 
 See `references/plan-format-contract.md` for the full format specification — required frontmatter fields, task syntax (`[parallel]`, `(depends on N, M)`), and status transitions.
 
-### Step 7: Bridge to Execution
+### Step 8: Bridge to Execution
 
     Plan saved: .lo/work/f{NNN}-slug/001-<phase-slug>.md
 
@@ -176,13 +205,19 @@ When invoked as `/lo:plan` with no arguments:
 
     Agent reads BACKLOG.md → finds f003 "User Authentication" (status: backlog)
     Creates .lo/work/f003-user-auth/
-    Removes f003 from backlog (work dir is source of truth)
+    Updates backlog: f003 status → active -> .lo/work/f003-user-auth/
     Checks .lo/solutions/ for relevant prior art
     Invokes brainstorming → explores design → user approves
+
+    This feature has multiple subsystems (auth middleware, login endpoint, signup endpoint, session management).
+    Write EARS requirements before planning? (Recommended for complex features, skip for simple ones)
+
+    User picks EARS → writes ears-requirements.md with REQ-A01..REQ-A04
     Asks: Plan mode or quick plan?
-    User picks quick plan → saves 001-auth-flow.md
+    User picks quick plan → saves 001-auth-flow.md (tasks reference REQ-A01, REQ-A02, etc.)
 
     Plan saved: .lo/work/f003-user-auth/001-auth-flow.md
+    EARS: .lo/work/f003-user-auth/ears-requirements.md
     Ready to start building? Type /lo:work to begin.
 
 ### Planning a task (quick)

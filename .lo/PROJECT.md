@@ -19,12 +19,11 @@ agents:
     role: "AI coding agent (Claude Code)"
 ---
 
-Claude Code plugin that implements the LO work system for Loosely Organized projects. Provides skills covering the full work lifecycle: backlog management, hypothesis tracking, research, plan execution, knowledge capture, stream updates, and a shipping pipeline with quality gates. Includes the StockTaper design system for building UI.
+Claude Code plugin that implements the LO work system for Loosely Organized projects. Provides skills covering the full work lifecycle: backlog management, research, plan execution, knowledge capture, stream updates, and a shipping pipeline with quality gates. Includes the StockTaper design system for building UI.
 
 ## Capabilities
 
 - **Backlog Management** — Feature and task tracking with priority ordering and feature IDs
-- **Hypothesis Tracking** — Quick-capture hypothesis logging with structured frontmatter
 - **Research** — Structured research articles with editorial headings and narrative prose
 - **Plan Execution** — Dispatches work from .lo/work/ plans using direct execution or parallel agents
 - **Knowledge Capture** — Reusable solution files documenting what was learned after shipping
