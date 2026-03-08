@@ -293,7 +293,7 @@ reconcile_branch_protection() {
   fi
 
   local CURRENT_STATUS
-  CURRENT_STATUS=$(gh api "repos/${OWNER}/${REPO}/branches/main/protection" --jq '.required_pull_request_reviews.required_approving_review_count' 2>/dev/null || echo "none")
+  CURRENT_STATUS=$(gh api "repos/${OWNER}/${REPO}/branches/main/protection" --jq '.required_pull_request_reviews.required_approving_review_count // "none"' 2>/dev/null || echo "none")
 
   if [[ "$ACTIVE" == "true" ]]; then
     local CHECKS="[]"
