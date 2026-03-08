@@ -203,6 +203,33 @@ Use all three sources to write a richer changelog — not just commit message cl
     git commit -m "docs: changelog for <version>"
     ```
 
+### Gate 2.5: Update README (Optional)
+
+Ask the user:
+
+    Update README.md for this release? (Recommended if features changed)
+
+    1. Yes — review and update
+    2. Skip
+
+If yes:
+
+1. Read current `README.md` and `.lo/PROJECT.md`
+2. Check if the README reflects the current state of the project:
+   - New features/capabilities added this release → missing from README?
+   - Install instructions still accurate?
+   - Usage examples still current?
+   - Version references need updating?
+3. Present proposed changes to the user for approval
+4. If changes approved, commit:
+
+    ```bash
+    git add README.md
+    git commit -m "docs: update README for v<version>"
+    ```
+
+5. If user skips or README is already current → proceed
+
 ### Gate 3: Merge to Main
 
 ```bash
