@@ -111,7 +111,7 @@ If the user chooses EARS:
 2. Explore the codebase to understand each subsystem's boundaries and interfaces
 3. Write requirements to `.lo/work/f{NNN}-slug/ears-requirements.md` using the EARS template
 4. Present the requirements to the user for review and approval
-5. Once approved, proceed to Step 6 — the implementation plan should reference EARS requirement IDs (e.g., `REQ-A01`) in task descriptions
+5. Once approved, update the EARS frontmatter `status:` from `draft` to `approved` and proceed to Step 6 — the implementation plan should reference EARS requirement IDs (e.g., `REQ-A01`) in task descriptions
 
 If the user skips, proceed directly to Step 6.
 

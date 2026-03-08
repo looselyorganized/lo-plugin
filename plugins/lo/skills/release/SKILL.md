@@ -254,7 +254,7 @@ If push or PR creation fails, stop and report.
 
 The PR merge is fully autonomous — CI runs, CodeRabbit reviews, and cr-agent fixes any CodeRabbit feedback automatically (up to 3 rounds). Auto-merge fires when both CI and CodeRabbit approve.
 
-Poll until the PR reaches a terminal state. Do NOT set a timeout — the autonomous pipeline handles everything.
+Poll until the PR reaches a terminal state. Set a maximum wait of 15 minutes (30 polls at 30s intervals). If the PR hasn't merged by then, stop and hand back the PR URL for the user to follow up async.
 
 ```bash
 gh pr view <PR-NUMBER> --json state -q '.state'
@@ -325,12 +325,17 @@ Now that the changelog is written and merged, clean up all release artifacts.
 
     List the branches being deleted and confirm before proceeding.
 
-**Commit the cleanup:**
+**Commit the cleanup via PR (do not push directly to main):**
 
 ```bash
+git checkout -b chore/cleanup-v<version>
 git add .lo/
 git commit -m "chore: clean up work artifacts for v<version>"
-git push origin main
+git push -u origin chore/cleanup-v<version>
+gh pr create --base main --head chore/cleanup-v<version> \
+  --title "chore: clean up work artifacts for v<version>" \
+  --body "Post-release cleanup for v<version>"
+gh pr merge --auto --squash
 ```
 
 ### Gate 7: Report

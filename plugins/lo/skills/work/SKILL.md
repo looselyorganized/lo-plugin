@@ -63,8 +63,8 @@ Read the current plan file (lowest-numbered incomplete plan):
 
 1. Parse the plan's tasks, dependencies, and parallelization markers
 2. **Check for EARS contract:** Look for `ears-requirements.md` in the work directory (`.lo/work/f{NNN}-slug/ears-requirements.md`). If it exists:
-   - Read it and parse all `REQ-*` requirement IDs
-   - This is the **ground truth** for what the implementation must do
+   - Read its frontmatter `status:` field. Only use it as ground truth if `status: approved`. If `draft` or `updated`, warn the user and ask whether to proceed with an unapproved contract or skip EARS.
+   - Parse all `REQ-*` requirement IDs
    - Surface it alongside the plan summary
 3. Determine execution strategy based on task structure
 4. Present a summary:
@@ -263,7 +263,7 @@ See `/lo:plan`'s `references/plan-format-contract.md` for the full format specif
 
 ### EARS Contract (Optional)
 
-If `ears-requirements.md` exists in the work directory alongside the plans, read it before execution starts. When tasks reference `REQ-*` IDs, the EARS document defines expected behavior — use it as the spec and implement to satisfy each requirement. At final phase completion, check coverage of all `REQ-*` IDs. Not all features have EARS — skip if the file doesn't exist.
+If `ears-requirements.md` exists in the work directory alongside the plans, read its frontmatter `status:` field first. Only use it as the spec if `status: approved` — reject `draft` or `updated` docs (warn user, ask to approve or skip). When tasks reference `REQ-*` IDs, the EARS document defines expected behavior — implement to satisfy each requirement. At final phase completion, check coverage of all `REQ-*` IDs. Not all features have EARS — skip if the file doesn't exist.
 
 ## Error Handling
 

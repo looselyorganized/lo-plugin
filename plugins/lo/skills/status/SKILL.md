@@ -129,7 +129,7 @@ Create a backlog feature and work plan:
 Run the sync script to reconcile all GitHub automation for the new status:
 
 ```bash
-/Users/bigviking/Documents/github/projects/lo/lo-plugin/scripts/lo-github-sync.sh --fix
+"$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix
 ```
 
 If the project has a `build` script in package.json, ask the user:
@@ -142,7 +142,7 @@ If the project has a `build` script in package.json, ask the user:
 If the user says no, run with `--no-build`:
 
 ```bash
-/Users/bigviking/Documents/github/projects/lo/lo-plugin/scripts/lo-github-sync.sh --fix --no-build
+"$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix --no-build
 ```
 
 The script reads the just-updated PROJECT.md status and reconciles:

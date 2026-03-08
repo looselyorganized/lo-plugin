@@ -14,7 +14,7 @@ Status: done -> 2026-02-25
 
 ### f003 — GitHub Automation Sync
 Script-driven reconciliation of all GitHub automation (CodeRabbit, CodeQL, CI, auto-merge, branch protection) based on PROJECT.md status. Zero manual steps on `/lo:new` or `/lo:status` transitions.
-Status: backlog
+Status: done -> 2026-03-07
 
 ### f004 — Emoji Visual Anchors in Token Streams
 Add strategic emoji markers to skill files at critical decision points — stop gates (🛑), warnings (⚠️), hard constraints (🔒), pass/fail (✅/❌) — to improve agent instruction-following and scanability.
@@ -22,7 +22,7 @@ Status: active -> .lo/work/f004-emoji-visual-anchors/
 
 ### f005 — Optimize Stream for Large Milestones
 Refocus the stream skill to capture significant milestones rather than granular commit groups — fewer, higher-signal entries that tell the project's story.
-Status: backlog
+Status: done -> 2026-03-07
 
 ## Tasks
 

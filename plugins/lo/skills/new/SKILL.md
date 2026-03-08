@@ -263,7 +263,7 @@ Write empty `.gitkeep` files in directories that start empty:
 Run the sync script to set up GitHub automation appropriate for the project's initial status:
 
 ```bash
-/Users/bigviking/Documents/github/projects/lo/lo-plugin/scripts/lo-github-sync.sh --fix
+"$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix
 ```
 
 For new `Explore` projects (the common case), this creates:
