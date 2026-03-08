@@ -23,7 +23,6 @@ Add the marketplace and install the plugin:
 | status | `/lo:status` | Manage project lifecycle transitions (explore → build → open → closed) |
 | new | `/lo:new` | Scaffold `.lo/` directory |
 | stream | `/lo:stream` | Update `.lo/stream/` with milestones and updates |
-| hypothesis | `/lo:hypothesis` | Create testable hypotheses |
 | publish | `/lo:publish` | Publish research articles to the platform from `.lo/research/` material |
 | stocktaper-design-system | — | StockTaper / LO design system tokens, components, and layout patterns |
 
@@ -35,7 +34,7 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 
 **Source-of-truth principle:** The `.lo/` directory in the project repo is canonical. The website never reads from the filesystem directly. Supabase is a cache of `.lo/` content, kept in sync by webhooks. If Supabase and `.lo/` disagree, `.lo/` wins (re-sync fixes it).
 
-**Why not MDX in the website repo?** Project content belongs with the project code. When an agent works on a project, it can update the brief, log a hypothesis, or add a stream entry in the same commit as the code change. The website repo stays focused on presentation.
+**Why not MDX in the website repo?** Project content belongs with the project code. When an agent works on a project, it can update the brief or add a stream entry in the same commit as the code change. The website repo stays focused on presentation.
 
 ### Directory Structure
 
@@ -43,9 +42,6 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 .lo/
 ├── PROJECT.md            # Brief, metadata, agent declarations
 ├── BACKLOG.md            # Feature and task backlog
-├── hypotheses/           # One file per hypothesis
-│   ├── h001-redis-locking.md
-│   └── h002-crdt-state.md
 ├── stream/               # Milestones, updates, notes
 │   ├── 2026-01-15-project-started.md
 │   ├── 2026-02-15-prototype-deployed.md
@@ -105,36 +101,6 @@ relatedContent:                  # optional, cross-references to website content
 - `topics` must be a non-empty array of strings
 - `agents[].name` and `agents[].role` are required if `agents` is present
 - `relatedContent[].type` must be `research` or `thoughts`
-
-### `hypotheses/*.md` — Hypothesis Files
-
-One file per hypothesis. Hypotheses track the research questions and bets a project is testing.
-
-**Filename convention:** `h{NNN}-{slug}.md` (e.g., `h001-redis-locking.md`). The numeric prefix ensures stable ordering; the slug is for human readability.
-
-**Frontmatter contract:**
-
-```yaml
----
-id: "h001"                       # Unique within the project, matches filename prefix
-statement: "Redis distributed locks with TTL expiration are sufficient for file-level mutual exclusion in multi-agent systems"
-status: "validated"              # proposed | testing | validated | invalidated | revised
-date: "2026-02-15"              # Date of last status change
-revisesId: "h000"               # optional — links to a prior hypothesis this revises
----
-```
-
-**Body:** Notes, evidence, observations, test results. Free-form Markdown. This is where the reasoning lives.
-
-**Required fields:** `id`, `statement`, `status`, `date`
-**Optional fields:** `revisesId`
-
-**Status transitions:**
-```
-proposed → testing → validated
-                   → invalidated
-                   → revised (creates new hypothesis with revisesId pointing back)
-```
 
 ### `stream/*.md` — Project Stream Entries
 
@@ -232,7 +198,7 @@ Research articles are published separately via `/lo:publish` from the platform r
 To add your project to LO, create a `.lo/` directory at your repo root:
 
 ```bash
-mkdir -p .lo/hypotheses .lo/stream .lo/research
+mkdir -p .lo/stream .lo/research
 ```
 
 Create `.lo/project.md`:
@@ -252,7 +218,7 @@ Your project brief goes here. What is this? Why does it exist?
 What problem does it solve? What's the current state?
 ```
 
-That's the minimum. Add hypotheses, stream entries, and research docs as the project evolves. The webhook will sync everything to the website automatically.
+That's the minimum. Add stream entries and research docs as the project evolves. The webhook will sync everything to the website automatically.
 
 ## Development
 

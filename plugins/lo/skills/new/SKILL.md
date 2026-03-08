@@ -1,6 +1,6 @@
 ---
 name: new
-description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (hypotheses, stream, research, work, solutions), .gitkeep files, and optional stream initialization. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
+description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (stream, research, work, solutions), .gitkeep files, and optional stream initialization. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
 metadata:
   version: 0.3.2
   author: LORF
@@ -151,7 +151,7 @@ Present all auto-filled content to the user for review/editing before writing. M
 ### Step 3: Create Directory Structure
 
 ```bash
-mkdir -p .lo/hypotheses .lo/stream .lo/research .lo/work .lo/solutions
+mkdir -p .lo/stream .lo/research .lo/work .lo/solutions
 ```
 
 ### Step 4: Write PROJECT.md
@@ -254,7 +254,6 @@ If skip: leave `.lo/stream/` empty (created by Step 3's `mkdir -p`).
 ### Step 6: Write .gitkeep Files
 
 Write empty `.gitkeep` files in directories that start empty:
-- `.lo/hypotheses/.gitkeep`
 - `.lo/research/.gitkeep`
 - `.lo/work/.gitkeep`
 - `.lo/solutions/.gitkeep`
@@ -294,7 +293,6 @@ Show the user what was created and what was auto-detected:
 
   GitHub automation: lo-github-sync applied (see output above)
 
-  hypotheses/
   stream/ [show entry filename if created, or "(skipped)" if user chose skip]
   research/
   work/
@@ -302,8 +300,7 @@ Show the user what was created and what was auto-detected:
 
 Next steps:
   1. Scan the repo for TODO/FIXME/HACK comments and unfinished work, then add each as a task or feature in BACKLOG.md via /lo:backlog
-  2. Use /lo:hypothesis to log your first hypothesis
-  3. Use /lo:publish from the platform repo to publish research
+  2. Use /lo:publish from the platform repo to publish research
 ```
 
 ## Directory Structure Reference
@@ -311,7 +308,6 @@ Next steps:
 ```
 .lo/
 ├── PROJECT.md
-├── hypotheses/
 ├── stream/
 ├── research/
 ├── work/
@@ -324,7 +320,7 @@ Before finishing, verify:
 - [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter (including `proj_id` as first field)
 - [ ] All subdirectories exist
 - [ ] Stream entry (if user chose backfill or start fresh) has correct date in both filename and frontmatter
-- [ ] `.gitkeep` files in hypotheses/, research/, work/, solutions/
+- [ ] `.gitkeep` files in research/, work/, solutions/
 - [ ] `.coderabbit.yaml` exists with correct reviews.enabled value
 - [ ] `.github/workflows/ci.yml` exists with correct status
 - [ ] No files outside the expected structure
