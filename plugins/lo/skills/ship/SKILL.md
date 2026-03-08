@@ -3,7 +3,7 @@ name: ship
 description: Quality pipeline for shipping completed work. Behavior adapts to project status — Explore/Closed commits and pushes to main, Build/Open commits to feature branch for release coordination. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "done with", "mark done", "/ship", or when work execution is complete.
 metadata:
   version: 0.3.2
-  author: LORF
+  authr: LORF
 ---
 
 # LO Ship Pipeline
