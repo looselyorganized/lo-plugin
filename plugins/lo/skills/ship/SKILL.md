@@ -100,8 +100,17 @@ Detect the project's test runner (package.json scripts, Cargo.toml, pyproject.to
 
 1. Identify changed files: `git diff --name-only main...HEAD`
 2. Review for: unnecessary complexity, dead code, verbose patterns, duplication
-3. If simplifications found → present them, ask whether to apply
-4. If clean → proceed
+3. **README check:** If the changes add new capabilities, endpoints, commands, or config — check if `README.md` describes them. If not, flag it:
+
+        README.md may need updating:
+          - New /lo:release skill added but not in README skills table
+          - EARS requirements workflow not documented
+
+        Update now, or skip?
+
+   This catches stale docs while the context is fresh, not weeks later at release time.
+4. If simplifications found → present them, ask whether to apply
+5. If clean → proceed
 
 ### Gate 5: Security Review
 

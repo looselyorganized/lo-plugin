@@ -19,5 +19,6 @@ Status: active -> .lo/work/f003-github-automation-sync/
 ## Tasks
 
 - [ ] t001 Audit /work
-- [ ] t002 Ship feature needs to delete /work directories once done and remove from BACKLOG.md
-- [ ] t003 Fix where /plan sends plans — must follow .lo convention
+- [x] t002 ~~Ship feature needs to delete /work directories once done and remove from BACKLOG.md~~ -> 2026-03-07
+- [x] t003 ~~Fix where /plan sends plans — must follow .lo convention~~ -> 2026-03-07
+- [ ] t004 Add epic to backlog command
