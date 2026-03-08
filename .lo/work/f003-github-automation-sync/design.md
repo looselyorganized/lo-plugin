@@ -13,12 +13,13 @@ Standardize all GitHub automation (CodeRabbit, CodeQL, CI, auto-merge, branch pr
 
 | Automation | Explore | Build | Open | Closed |
 |-----------|---------|-------|------|--------|
-| CodeRabbit reviews | disabled | enabled | enabled | disabled |
-| CodeQL scanning | disabled | enabled | enabled | disabled |
-| CI checks (reusable) | dormant | active | active | dormant |
-| Auto-merge workflow | absent | present | present | absent |
+| CI checks (gate + tests + build*) | off | on | on | off |
+| CodeRabbit reviews | off | on | on | off |
 | Branch protection | none | 1 reviewer + checks | 1 reviewer + checks | none |
+| Auto-merge workflow | absent | present | present | absent |
 | Auto-merge repo setting | disabled | enabled | enabled | disabled |
+
+*Build job is optional — prompted during `/lo:status` Build transition. Recommended for projects that produce compiled artifacts (Next.js, static sites, bundled libraries). Not needed for APIs, scripts, or simple packages where tests already prove the code works. Lint dropped from CI (handled by Claude Code + CodeRabbit). CodeQL dropped (redundant with CodeRabbit at current scale).
 
 ## Architecture
 
@@ -33,7 +34,6 @@ Reads .lo/PROJECT.md status, determines target state, reconciles:
   - .coderabbit.yaml
   - .github/workflows/ci.yml (if managed)
   - .github/workflows/auto-merge.yml
-  - CodeQL default setup (GitHub API)
   - Branch protection (GitHub API)
   - Auto-merge repo setting (GitHub API)
 
@@ -46,7 +46,8 @@ With --fix: applies all changes
 **1. Read state**
 - Parse `status` from `.lo/PROJECT.md` frontmatter
 - Detect repo owner/name from `git remote get-url origin`
-- Detect CI capabilities from `package.json` scripts (`lint`, `test`, `build`)
+- Detect CI capabilities from `package.json` scripts (`test`, `build`) — lint is excluded from CI
+- `has-build` is auto-detected but the skill prompts the user to confirm (see Skill integration below)
 - Detect if ci.yml is managed (contains `looselyorganized/ci/.github/workflows/reusable-ci.yml`) or custom
 - Detect Supabase env vars from `.env.example` / `.env.local` / `env.d.ts`
 
@@ -72,11 +73,6 @@ With --fix: applies all changes
 - Active: create if missing
 - Inactive: delete if present
 
-#### CodeQL default setup (API)
-- Active: enable via `PATCH repos/{owner}/{repo}/code-scanning/default-setup` with `state: configured`
-- Inactive: disable via `state: not-configured`
-- Handle repos where Code Security isn't available (free plan private repos) gracefully
-
 #### Branch protection (API)
 - Active: enable with 1 required reviewer + detected CI check names
   - For managed CI: derive check names from calling job name + capabilities (e.g., `ci / Unit Tests`, `ci / Lint`)
@@ -95,7 +91,6 @@ lo-github-sync: <repo> (status: build)
   .coderabbit.yaml          reviews enabled    [ok | fixed]
   .github/workflows/ci.yml  build, has-test    [ok | fixed | custom]
   auto-merge.yml             present            [ok | fixed | created]
-  CodeQL                     configured         [ok | fixed | skipped]
   Branch protection          1 reviewer + test  [ok | fixed]
   Auto-merge setting         enabled            [ok | fixed]
 ```
@@ -108,12 +103,23 @@ After scaffolding `.lo/`, call `lo-github-sync.sh --fix`. New projects start as 
 #### `/lo:status`
 After updating PROJECT.md status, call `lo-github-sync.sh --fix`. The script reads the new status and reconciles everything. The skill doesn't need transition-specific logic for GitHub automation — the script handles it all.
 
+**Build transition prompt for `has-build`:** When transitioning to Build, if a `build` script is detected in package.json, the skill asks:
+
+```
+CI build check detected (bun run build). Include in CI?
+
+  1. Yes (recommended for Next.js, static sites, bundled libraries)
+  2. No (APIs, scripts, or packages where tests are sufficient)
+```
+
+If the user says no, pass `--no-build` to the script to skip `has-build` even though it's detected. For Open transitions or re-runs, the script uses whatever is already in ci.yml.
+
 #### `/lo:ship`
 No changes. Ship already calls `gh pr merge --auto --squash`. Auto-merge works because the repo setting and workflow are in place.
 
 ### Handling edge cases
 
-- **Private repos on free plan**: CodeQL and branch protection may not be available. Script checks and reports `skipped` instead of failing.
+- **Private repos on free plan**: Branch protection may not be available. Script checks and reports `skipped` instead of failing.
 - **No git remote**: Script skips API calls, only writes local files. Reports `skipped (no remote)`.
 - **Custom CI (nexus)**: Detected by absence of reusable workflow reference. Script leaves ci.yml alone but still reads it for check names when setting branch protection.
 - **Platform's `pipeline` job name**: Script reads the actual job name from ci.yml, doesn't assume `ci`.
@@ -127,14 +133,16 @@ No changes. Ship already calls `gh pr merge --auto --squash`. Auto-merge works b
 
 ## Immediate repo fixes needed
 
-| Repo | Status | What's wrong |
-|------|--------|-------------|
-| lo-plugin | build | Missing ci.yml, missing .coderabbit.yaml, no CodeQL |
-| nexus | build | Missing .coderabbit.yaml, no CodeQL |
-| platform | build | Missing .coderabbit.yaml, no CodeQL |
-| content-webhook | build | Missing auto-merge.yml, missing .coderabbit.yaml |
-| agent-dev-brief | open | Missing everything (CI, auto-merge, branch protection, .coderabbit.yaml, CodeQL) |
-| cr-agent | explore | Missing .coderabbit.yaml, CodeQL enabled (shouldn't be) |
-| claude-dashboard | explore | Missing ci.yml, missing .coderabbit.yaml |
-| telemetry-exporter | explore | `Explore` typo in ci.yml, missing .coderabbit.yaml |
-| yellowages | explore | Missing ci.yml, missing .coderabbit.yaml |
+| Repo | Status | Vis | What's wrong |
+|------|--------|-----|-------------|
+| lo-plugin | Build | pub | Missing ci.yml, missing .coderabbit.yaml |
+| nexus | Build | priv | Custom CI (ok), missing .coderabbit.yaml |
+| platform | Build | priv | Missing .coderabbit.yaml |
+| content-webhook | Build | pub | Missing auto-merge.yml, missing .coderabbit.yaml |
+| agent-dev-brief | Open | pub | Missing everything (CI, auto-merge, branch protection, .coderabbit.yaml) |
+| cr-agent | Explore | priv | Missing .coderabbit.yaml |
+| claude-dashboard | Explore | pub | Missing ci.yml, missing .coderabbit.yaml |
+| telemetry-exporter | Explore | priv | Case mismatch in ci.yml (`Explore` vs `explore`), missing .coderabbit.yaml |
+| yellowages | Explore | priv | Missing ci.yml, missing .coderabbit.yaml |
+
+Note: CodeQL removed from scope (redundant with CodeRabbit at current scale). Existing CodeQL configs on cr-agent and telemetry-exporter can be left as-is or manually disabled.

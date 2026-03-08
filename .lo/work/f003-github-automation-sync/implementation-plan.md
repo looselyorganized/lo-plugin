@@ -2,11 +2,13 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Single script (`lo-github-sync.sh`) that reconciles all GitHub automation (CodeRabbit, CodeQL, CI, auto-merge, branch protection) to match PROJECT.md status. Skills call it automatically. Zero manual steps.
+**Goal:** Single script (`lo-github-sync.sh`) that reconciles all GitHub automation (CodeRabbit, CI, auto-merge, branch protection) to match PROJECT.md status. Skills call it automatically. Zero manual steps.
 
 **Architecture:** Bash script reads `.lo/PROJECT.md` status, determines active (build/open) vs inactive (explore/closed), writes local config files and makes GitHub API calls to reconcile. Skills (`/lo:status`, `/lo:new`) call it after updating status. `--fix` applies changes, without it is dry-run.
 
 **Tech Stack:** Bash, gh CLI, yq-style grep parsing, GitHub REST API
+
+**Removed from scope:** CodeQL (redundant with CodeRabbit at current scale), lint CI job (handled by Claude Code + CodeRabbit).
 
 ---
 
@@ -27,10 +29,12 @@ set -euo pipefail
 #   With --fix: applies all changes
 
 FIX=false
+NO_BUILD=false
 for arg in "$@"; do
   case "$arg" in
     --fix) FIX=true ;;
-    *) echo "Unknown argument: $arg"; echo "Usage: lo-github-sync.sh [--fix]"; exit 1 ;;
+    --no-build) NO_BUILD=true ;;
+    *) echo "Unknown argument: $arg"; echo "Usage: lo-github-sync.sh [--fix] [--no-build]"; exit 1 ;;
   esac
 done
 
@@ -80,15 +84,16 @@ if git remote get-url origin &>/dev/null; then
 fi
 
 # ── Detect CI capabilities from package.json ──────────────────────────────
-HAS_LINT=false
 HAS_TEST=false
 HAS_BUILD=false
 if [[ -f "package.json" ]]; then
   SCRIPTS=$(cat package.json | grep -A 100 '"scripts"' | grep -B 0 '}' -m1 | head -20 || true)
-  if echo "$SCRIPTS" | grep -q '"lint"'; then HAS_LINT=true; fi
   if echo "$SCRIPTS" | grep -q '"test"'; then HAS_TEST=true; fi
   if echo "$SCRIPTS" | grep -q '"build"'; then HAS_BUILD=true; fi
 fi
+
+# Override: --no-build suppresses build even if detected
+if [[ "$NO_BUILD" == "true" ]]; then HAS_BUILD=false; fi
 
 # ── Detect Supabase env vars ──────────────────────────────────────────────
 SUPABASE_URL=""
@@ -237,8 +242,6 @@ jobs:
     uses: looselyorganized/ci/.github/workflows/reusable-ci.yml@main
     with:
       status: ${STATUS}"
-    if [[ "$HAS_LINT" == "true" ]]; then TARGET="${TARGET}
-      has-lint: true"; fi
     if [[ "$HAS_TEST" == "true" ]]; then TARGET="${TARGET}
       has-test: true"; fi
     if [[ "$HAS_BUILD" == "true" ]]; then TARGET="${TARGET}
@@ -249,7 +252,6 @@ jobs:
       supabase-key: ${SUPABASE_KEY}"; fi
 
     local DESC="${STATUS}"
-    [[ "$HAS_LINT" == "true" ]] && DESC="${DESC}, lint"
     [[ "$HAS_TEST" == "true" ]] && DESC="${DESC}, test"
     [[ "$HAS_BUILD" == "true" ]] && DESC="${DESC}, build"
   else
@@ -394,65 +396,12 @@ git commit -m "feat(f003): add auto-merge workflow reconciliation"
 
 ---
 
-### Task 5: Add GitHub API reconciliation (CodeQL, branch protection, auto-merge setting)
+### Task 5: Add GitHub API reconciliation (branch protection, auto-merge setting)
 
 **Files:**
 - Modify: `scripts/lo-github-sync.sh`
 
-**Step 1: Add CodeQL reconciliation**
-
-```bash
-# ── CodeQL default setup (API) ────────────────────────────────────────────
-reconcile_codeql() {
-  if [[ "$HAS_REMOTE" == "false" ]]; then
-    skipped "CodeQL                     no remote"
-    return
-  fi
-
-  # Check current state
-  local CURRENT_STATE
-  CURRENT_STATE=$(gh api "repos/${OWNER}/${REPO}/code-scanning/default-setup" --jq '.state' 2>/dev/null || echo "unavailable")
-
-  if [[ "$CURRENT_STATE" == "unavailable" ]]; then
-    skipped "CodeQL                     not available (plan/permissions)"
-    return
-  fi
-
-  if [[ "$ACTIVE" == "true" ]]; then
-    if [[ "$CURRENT_STATE" == "configured" ]]; then
-      ok "CodeQL                     configured"
-      return
-    fi
-    if [[ "$FIX" == "true" ]]; then
-      gh api "repos/${OWNER}/${REPO}/code-scanning/default-setup" \
-        --method PATCH \
-        --input - <<< '{"state": "configured"}' >/dev/null 2>&1 \
-        && fixed "CodeQL                     configured" \
-        || err "CodeQL                     failed to configure"
-    else
-      dryrun "CodeQL                     needs configuration"
-    fi
-  else
-    if [[ "$CURRENT_STATE" == "not-configured" ]]; then
-      ok "CodeQL                     not configured"
-      return
-    fi
-    if [[ "$FIX" == "true" ]]; then
-      gh api "repos/${OWNER}/${REPO}/code-scanning/default-setup" \
-        --method PATCH \
-        --input - <<< '{"state": "not-configured"}' >/dev/null 2>&1 \
-        && fixed "CodeQL                     disabled" \
-        || err "CodeQL                     failed to disable"
-    else
-      dryrun "CodeQL                     needs disabling"
-    fi
-  fi
-}
-
-reconcile_codeql
-```
-
-**Step 2: Add auto-merge repo setting reconciliation**
+**Step 1: Add auto-merge repo setting reconciliation**
 
 ```bash
 # ── Auto-merge repo setting (API) ─────────────────────────────────────────
@@ -497,7 +446,7 @@ reconcile_auto_merge_setting() {
 reconcile_auto_merge_setting
 ```
 
-**Step 3: Add branch protection reconciliation**
+**Step 2: Add branch protection reconciliation**
 
 ```bash
 # ── Branch protection (API) ───────────────────────────────────────────────
@@ -523,7 +472,6 @@ reconcile_branch_protection() {
         # Managed CI: derive check names from job name + capabilities
         local JOB=$CI_JOB_NAME
         [[ -z "$JOB" ]] && JOB="ci"
-        [[ "$HAS_LINT" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Lint\"}")
         [[ "$HAS_TEST" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Unit Tests\"}")
         [[ "$HAS_BUILD" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Build\"}")
       else
@@ -597,7 +545,7 @@ reconcile_branch_protection() {
 reconcile_branch_protection
 ```
 
-**Step 4: Test against a build repo**
+**Step 3: Test against a build repo**
 
 ```bash
 cd /Users/bigviking/Documents/github/projects/lo/content-webhook
@@ -606,11 +554,11 @@ cd /Users/bigviking/Documents/github/projects/lo/content-webhook
 
 Expected: shows status for all 6 automations.
 
-**Step 5: Commit**
+**Step 4: Commit**
 
 ```bash
 git add scripts/lo-github-sync.sh
-git commit -m "feat(f003): add GitHub API reconciliation (CodeQL, protection, auto-merge)"
+git commit -m "feat(f003): add GitHub API reconciliation (protection, auto-merge)"
 ```
 
 ---
@@ -637,7 +585,6 @@ The script reads the just-updated PROJECT.md status and reconciles:
 - `.coderabbit.yaml` (reviews enabled/disabled)
 - `.github/workflows/ci.yml` (active/dormant, detected capabilities)
 - `.github/workflows/auto-merge.yml` (created/removed)
-- CodeQL default setup (enabled/disabled via API)
 - Branch protection (1 reviewer + checks / removed via API)
 - Auto-merge repo setting (enabled/disabled via API)
 
@@ -807,18 +754,7 @@ done
 
 Expected: all build/open repos show `reviewers: 1` with appropriate checks.
 
-**Step 2: Verify CodeQL**
-
-```bash
-for repo in lo-plugin nexus platform content-webhook agent-development-brief cr-agent claude-dashboard telemetry-exporter yellowages-for-agents; do
-  echo "=== $repo ==="
-  gh api "repos/looselyorganized/$repo/code-scanning/default-setup" --jq '.state' 2>/dev/null || echo "unavailable"
-done
-```
-
-Expected: build/open = `configured`, explore = `not-configured`.
-
-**Step 3: Verify CodeRabbit config**
+**Step 2: Verify CodeRabbit config**
 
 ```bash
 for repo in lo-plugin nexus platform content-webhook agent-development-brief cr-agent claude-dashboard telemetry-exporter yellowages-for-agents; do
