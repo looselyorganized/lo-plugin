@@ -203,34 +203,7 @@ Use all three sources to write a richer changelog — not just commit message cl
     git commit -m "docs: changelog for <version>"
     ```
 
-### Gate 3: Update README (Optional)
-
-Ask the user:
-
-    Update README.md for this release? (Recommended if features changed)
-
-    1. Yes — review and update
-    2. Skip
-
-If yes:
-
-1. Read current `README.md` and `.lo/PROJECT.md`
-2. Check if the README reflects the current state of the project:
-   - New features/capabilities added this release → missing from README?
-   - Install instructions still accurate?
-   - Usage examples still current?
-   - Version references need updating?
-3. Present proposed changes to the user for approval
-4. If changes approved, commit:
-
-    ```bash
-    git add README.md
-    git commit -m "docs: update README for v<version>"
-    ```
-
-5. If user skips or README is already current → proceed
-
-### Gate 4: Merge to Main
+### Gate 3: Merge to Main
 
 ```bash
 git checkout main
@@ -239,19 +212,19 @@ git merge <version> --no-ff -m "release: <version>"
 
 If merge conflicts occur, stop and report. Do not force.
 
-### Gate 5: Tag
+### Gate 4: Tag
 
 ```bash
 git tag -a v<version> -m "v<version>"
 ```
 
-### Gate 6: Push
+### Gate 5: Push
 
 ```bash
 git push origin main --tags
 ```
 
-### Gate 7: Clean Up
+### Gate 6: Clean Up
 
 Now that the changelog is written and merged, clean up all release artifacts.
 
@@ -290,13 +263,12 @@ git commit -m "chore: clean up work artifacts for v<version>"
 git push origin main
 ```
 
-### Gate 8: Report
+### Gate 7: Report
 
     Release shipped: v<version>
 
       Tag:       v<version>
       Changelog: CHANGELOG.md updated
-      README:    [updated | skipped]
       Branch:    <version> merged to main and deleted
       Cleaned:   N work directories removed, N branches deleted
       Backlog:   N tasks marked done
@@ -379,11 +351,10 @@ Release wraps the version lifecycle. Plan/work/ship stay focused on features and
 
     User: yes
 
-    Gate 3: README — skipped (already current) ✓
-    Gate 4: Merged to main ✓
-    Gate 5: Tagged v0.3.2 ✓
-    Gate 6: Pushed main + tags ✓
-    Gate 7: Clean up — 2 work dirs removed, 3 branches deleted ✓
-    Gate 8: Report ✓
+    Gate 3: Merged to main ✓
+    Gate 4: Tagged v0.3.2 ✓
+    Gate 5: Pushed main + tags ✓
+    Gate 6: Clean up — 2 work dirs removed, 3 branches deleted ✓
+    Gate 7: Report ✓
 
     Release shipped: v0.3.2
