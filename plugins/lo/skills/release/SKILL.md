@@ -143,7 +143,18 @@ When invoked with no args (`/lo:release`):
 
 1. Verify you're on a release branch (branch name is semver)
 2. Check working tree is clean
-3. Run tests — all must pass. If tests fail, stop.
+3. Run tests locally — all must pass. If tests fail, stop.
+4. **Verify CI passed on this branch.** Check GitHub Actions for the release branch:
+
+    ```bash
+    gh run list --branch <version> --limit 5
+    ```
+
+    - If CI passed → proceed
+    - If CI failed → stop. Report the failure. Fix before shipping.
+    - If no CI runs exist (no workflow configured, or Explore status) → warn and ask user whether to proceed without CI validation
+
+    This ensures the integrated result of all features on the release branch is validated — not just individual feature branches.
 
 ### Gate 2: Generate Changelog
 
