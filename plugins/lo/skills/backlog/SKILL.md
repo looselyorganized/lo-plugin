@@ -28,7 +28,7 @@ Features get `f{NNN}` IDs, tasks get `t{NNN}` — sequential, never reused. See 
 
 - The `.lo/` directory must exist — if it doesn't, tell the user to run `/lo:new` first.
 - If `.lo/BACKLOG.md` doesn't exist, create it from the default template (see `references/backlog-format-contract.md`).
-- Read the current backlog before making changes to avoid overwriting existing content.
+- ALWAYS re-read `.lo/BACKLOG.md` from disk on every invocation, even for view. Never rely on a previous read from conversation context — the file may have been modified by another session or skill.
 - Update the `updated:` date in frontmatter on every modification.
 - Every feature and task needs an ID. Format details are in `references/backlog-format-contract.md`.
 
