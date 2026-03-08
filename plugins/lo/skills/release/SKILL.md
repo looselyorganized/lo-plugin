@@ -158,13 +158,19 @@ When invoked with no args (`/lo:release`):
 
 ### Gate 2: Generate Changelog
 
-1. Gather all commits on this branch since it diverged from main:
+**Read work artifacts first.** `/lo:ship` in Build/Open preserves `.lo/work/` directories so the changelog has full context. Before generating, scan:
+
+1. **Work directories:** Read `.lo/work/*/` — plan files, EARS requirements, feature names
+2. **BACKLOG.md:** Active features and open tasks that were worked on
+3. **Git commits:** Gather all commits on this branch since it diverged from main:
 
     ```bash
     git log main..<version> --pretty=format:"%H|%ad|%s" --date=short
     ```
 
-2. Group commits into categories. Read each commit message and classify:
+Use all three sources to write a richer changelog — not just commit message classification, but what was actually built and why.
+
+4. Group commits into categories:
 
     | Prefix/pattern | Category |
     |---------------|----------|
@@ -176,21 +182,21 @@ When invoked with no args (`/lo:release`):
 
     Commits that don't match a pattern → `Changed`.
 
-3. Write or update `CHANGELOG.md` at repo root. See `references/changelog-format.md` for the format.
+5. Write or update `CHANGELOG.md` at repo root. See `references/changelog-format.md` for the format.
 
-4. Present the changelog entry to the user for review:
+6. Present the changelog entry to the user for review:
 
         Changelog for <version>:
 
         ### Added
-        - EARS requirements as optional contract in plan → work → ship chain
+        - EARS requirements as optional contract in plan → work → ship chain (f003)
 
         ### Changed
         - Updated work skill to read EARS alongside plans
 
         Looks good? Edit anything?
 
-5. Commit the changelog:
+7. Commit the changelog:
 
     ```bash
     git add CHANGELOG.md
@@ -220,6 +226,15 @@ git push origin main --tags
 
 ### Gate 6: Clean Up
 
+Now that the changelog is written and merged, clean up all release artifacts.
+
+**Work directories:**
+1. Scan `.lo/work/` for directories related to this release's features and tasks
+2. Delete each work directory (git history preserves everything)
+3. For features: already removed from BACKLOG.md at plan time — no update needed
+4. For tasks: mark done in BACKLOG.md (`- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`), update `updated:` date
+
+**Branches:**
 1. Delete the local release branch:
 
     ```bash
@@ -232,6 +247,22 @@ git push origin main --tags
     git push origin --delete <version>
     ```
 
+3. Delete remote feature branches that were merged into this release:
+
+    ```bash
+    git push origin --delete <feature-branch>
+    ```
+
+    List the branches being deleted and confirm before proceeding.
+
+**Commit the cleanup:**
+
+```bash
+git add .lo/
+git commit -m "chore: clean up work artifacts for v<version>"
+git push origin main
+```
+
 ### Gate 7: Report
 
     Release shipped: v<version>
@@ -239,6 +270,8 @@ git push origin main --tags
       Tag:       v<version>
       Changelog: CHANGELOG.md updated
       Branch:    <version> merged to main and deleted
+      Cleaned:   N work directories removed, N branches deleted
+      Backlog:   N tasks marked done
 
       Changelog entry:
         [summary of what was added/changed/fixed]

@@ -189,16 +189,24 @@ This separation ensures releases control when code reaches main.
 
 ### Gate 8: Clean Up
 
-Detect item type from ID prefix and handle accordingly:
+Behavior depends on project status:
 
-**For features (`f{NNN}`):**
+**Explore/Closed — clean up now:**
+
+Work artifacts are no longer needed. Clean up immediately.
+
+*For features (`f{NNN}`):*
 1. Delete `.lo/work/f{NNN}-slug/` entirely (git history preserves everything)
 2. Feature was already removed from BACKLOG.md at plan time — no backlog update needed
 
-**For tasks (`t{NNN}`):**
+*For tasks (`t{NNN}`):*
 1. Mark the task checkbox done in BACKLOG.md: `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`
 2. If `.lo/work/t{NNN}-slug/` exists, delete it
 3. Update `updated:` date in BACKLOG.md
+
+**Build/Open — leave artifacts for release:**
+
+Do NOT delete work dirs or update BACKLOG.md. `/lo:release ship` needs these artifacts to generate the changelog (plan files, EARS requirements, backlog entries). Release ship handles cleanup after the changelog is written.
 
 ### Gate 9: Wrap-up Prompts
 
@@ -217,9 +225,9 @@ Detect item type from ID prefix and handle accordingly:
     Shipped: <f{NNN}|t{NNN}> "<name>"
 
     Branch: origin/<branch-name> (pushed)
-    Cleaned: .lo/work/<slug>/ removed
+    Work artifacts preserved for /lo:release ship changelog.
 
-    This feature is on the release branch. Run /lo:release ship to finalize the release.
+    Run /lo:release ship when the release is ready.
     Anything reusable worth capturing? Run /lo:solution, or "no" to skip.
 
 ## Pipeline Summary
@@ -244,7 +252,7 @@ Detect item type from ID prefix and handle accordingly:
       Security: clean (static + vuln sweep)
       Commit:   <hash> "<message>"
       Pushed:   origin/<branch> (backup, no PR)
-      Cleaned:  .lo/work/f{NNN}-slug/ removed
+      Work:     artifacts preserved for changelog
       Next:     /lo:release ship to finalize
 
 **Light pipeline** (main branch, tasks):
@@ -304,11 +312,11 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     Gate 4: Security — clean ✓
     Gate 5: Commit — abc1234 "feat(f003): user authentication" ✓
     Gate 6: Pushed origin/feat/f003-user-auth (backup, no PR) ✓
-    Gate 8: Clean up — .lo/work/f003-user-auth/ removed ✓
+    Gate 8: Work artifacts preserved for changelog ✓
     Gate 9: Wrap-up ✓
 
     Shipped: f003 "User Authentication"
-    Branch pushed. Run /lo:release ship to finalize the release.
+    Branch pushed. Work artifacts preserved. Run /lo:release ship to finalize.
 
 ### Light pipeline (task on main)
 
