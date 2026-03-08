@@ -85,6 +85,8 @@ Read the current plan file (lowest-numbered incomplete plan):
 
 Wait for user confirmation before executing.
 
+**Progress tracking:** After the user confirms, create a task list using `TaskCreate` — one task per plan task. Mark each `in_progress` when starting, `completed` when done. This gives the user a live dashboard of execution progress. For multi-phase features, create tasks for the current phase only — add the next phase's tasks at the phase boundary.
+
 **EARS during execution:** When tasks reference `REQ-*` IDs, use the EARS document as the spec for what the code should do. The requirement statement defines the expected behavior — implement to satisfy it. If a requirement is ambiguous or conflicts with what you find in the codebase, stop and ask the user before proceeding.
 
 ### Step 3: Set Up Isolation
@@ -94,8 +96,11 @@ Wait for user confirmation before executing.
 Check `git branch --show-current` and `git status`, then recommend:
 
 - Already on a feature branch (e.g., `feat/f003-*`) → recommend staying
+- On a release branch (branch name matches semver like `0.3.2`) → branch off it
 - On main, clean working tree → recommend new branch
 - On main, dirty working tree → recommend new branch (stash or commit first)
+
+**Release branch detection:** If the current branch matches a semver pattern (e.g., `0.3.2`, `1.0.0`), you're on a release branch. Feature branches must be created from it — not from main. This ensures feature work lands on the release branch when `/lo:ship` merges back.
 
 Present:
 
@@ -107,10 +112,10 @@ Present:
 
 **Do not proceed until the user answers.**
 
-If they pick a new branch: `git checkout -b feat/f{NNN}-slug`
+If they pick a new branch: `git checkout -b feat/f{NNN}-slug` (from current branch — release branch if active, main otherwise)
 If they stay: note this so `/lo:ship` knows there's no feature branch.
 
-### Step 3.5: Check Project Status for Test Expectations
+### Step 4: Check Project Status for Test Expectations
 
 Read `.lo/PROJECT.md` status field:
 
@@ -124,24 +129,22 @@ Read `.lo/PROJECT.md` status field:
 
 This check informs execution behavior — it does not block work.
 
-### Step 4: Execute
-
-**All execution uses worktrees.** Every level creates a worktree for isolation — this keeps the user's working directory clean and prevents partial work from polluting the feature branch.
+### Step 5: Execute
 
 Choose parallelization level based on the plan's task structure:
 
 #### Level 1 — Sequential
 
-Simple tasks or tasks with dependencies between all steps. Execute one at a time in a worktree, merge to feature branch after each task completes.
+Simple tasks or tasks with dependencies between all steps. Work directly on the feature branch — no worktrees needed.
 
 ```
-feat/f003-auth (feature branch) ← merge target
-  └── worktree → task 1 → merge → task 2 → merge → task 3 → merge → task 4 → merge
+feat/f003-auth (feature branch)
+  → task 1 → commit → task 2 → commit → task 3 → commit → task 4 → commit
 ```
 
 #### Level 2 — Subagents
 
-Independent tasks within a phase. Each subagent gets its own worktree. The main agent coordinates merges on the feature branch.
+Independent tasks within a phase. Each subagent gets its own worktree for isolation. The main agent coordinates merges on the feature branch.
 
 ```
 feat/f003-auth (feature branch) ← main agent coordinates here
@@ -176,7 +179,7 @@ For dispatch protocols, merge procedures, error handling, and worktree cleanup d
 
 **Transparency requirement:** Always tell the user how many parallel tracks are running, what each is doing, when they complete, and if any fail.
 
-### Step 5: Track Progress
+### Step 6: Track Progress
 
 As tasks complete:
 1. Mark done in the plan file: `- [x] Task description`
@@ -191,7 +194,7 @@ As tasks complete:
         Next phase: 002-<phase-name> (if exists)
         Continue? Or ship with /lo:ship?
 
-### Step 6: Phase Boundary
+### Step 7: Phase Boundary
 
 When a plan phase completes:
 - If another phase exists → ask whether to continue
@@ -216,7 +219,7 @@ Tasks are smaller than features — they don't need formal plans. `/lo:work t{NN
 ### Step 2: Check for a Plan
 
 Check if `.lo/work/t{NNN}-slug/` exists with plan files:
-- **Plan exists:** Follow the feature execution flow (Steps 2-6 above) using the task's plan
+- **Plan exists:** Follow the Feature Execution flow (Steps 2-7 above) using the task's plan
 - **No plan:** Continue to direct execution below
 
 ### Step 3: Set Up Isolation
@@ -241,6 +244,7 @@ If they chose worktree: use the EnterWorktree tool
 Execute the task directly. If the task description provides enough context, implement it. If the scope is unclear or the task requires decisions, ask the user before proceeding. Tasks are typically small enough for sequential execution — no subagents needed.
 
 ### Step 5: Completion
+
 
 When the task is done:
 

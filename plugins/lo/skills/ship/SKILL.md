@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Quality pipeline for shipping completed work. Behavior adapts to project status — Explore/Closed ships fast to main, Build/Open commits to feature branch for release coordination. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "push and PR", "done with", "mark done", "/ship", or when work execution is complete.
+description: Quality pipeline for shipping completed work. Behavior adapts to project status — Explore/Closed ships fast to main, Build/Open commits to feature branch for release coordination. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "done with", "mark done", "/ship", or when work execution is complete.
 metadata:
   version: 0.3.2
   author: LORF
@@ -19,7 +19,7 @@ Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **br
 ## When to Use
 
 - User invokes `/lo:ship`
-- User says "ship it", "ready to merge", "push and PR", "ready to ship", "done with", "mark done"
+- User says "ship it", "ready to merge", "ready to ship", "done with", "mark done"
 - Work has been completed via `/lo:work`
 
 ## Critical Rules
@@ -28,6 +28,23 @@ Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **br
 - If any gate fails, stop and report what needs fixing. Continuing past a failure defeats the purpose of the pipeline.
 - Prompt for stream update and solution capture after shipping — but respect "no" as an answer.
 - Identify items by their `f{NNN}` or `t{NNN}` ID throughout the pipeline.
+
+## Progress Tracking
+
+At pipeline start, create a task list using `TaskCreate` so the user sees live progress. One task per gate. Mark each `in_progress` when starting, `completed` when passed. If a gate fails, mark it `failed` and stop.
+
+**Full pipeline tasks:**
+1. Pre-flight
+2. EARS audit
+3. Run tests
+4. Code simplification
+5. Security review
+6. Commit
+7. Push
+8. Clean up
+9. Wrap-up
+
+**Light pipeline tasks:** Gates 1, 3, 5, 6, 8, 9 only.
 
 ## Pipeline
 
@@ -171,7 +188,16 @@ git push origin main
 
 **Build/Open (release mode):**
 
-Push the feature branch for backup, but do NOT merge to main or create a PR:
+Merge the feature branch into the release branch, then push both:
+
+```bash
+git checkout <release-branch>
+git merge <feature-branch> --no-ff -m "feat(<item-id>): <name>"
+git push origin <release-branch>
+git push -u origin <feature-branch>   # backup
+```
+
+If not on a release branch (e.g., working directly on a version branch), just push:
 
 ```bash
 git push -u origin <branch-name>
@@ -179,8 +205,9 @@ git push -u origin <branch-name>
 
 Report:
 
-    Pushed: origin/<branch-name> (backup)
-    To merge: run /lo:release ship when the release is ready.
+    Merged: <feature-branch> → <release-branch>
+    Pushed: origin/<release-branch>, origin/<feature-branch> (backup)
+    To finalize: run /lo:release ship when the release is ready.
 
 If push fails, stop and report.
 
@@ -194,7 +221,8 @@ Work artifacts are no longer needed. Clean up immediately.
 
 *For features (`f{NNN}`):*
 1. Delete `.lo/work/f{NNN}-slug/` entirely (git history preserves everything)
-2. Feature was already removed from BACKLOG.md at plan time — no backlog update needed
+2. Update feature status in BACKLOG.md: `Status: done -> YYYY-MM-DD`
+3. Update `updated:` date in BACKLOG.md
 
 *For tasks (`t{NNN}`):*
 1. Mark the task checkbox done in BACKLOG.md: `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`

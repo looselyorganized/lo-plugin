@@ -300,7 +300,6 @@ Show the user what was created and what was auto-detected:
 
 Next steps:
   1. Scan the repo for TODO/FIXME/HACK comments and unfinished work, then add each as a task or feature in BACKLOG.md via /lo:backlog
-  2. Use /lo:publish from the platform repo to publish research
 ```
 
 ## Directory Structure Reference
