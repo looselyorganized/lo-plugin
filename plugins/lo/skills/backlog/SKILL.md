@@ -47,6 +47,7 @@ Read `.lo/BACKLOG.md` and display a summary:
     Features:
       f001 [backlog] Feature Name — short description
       f002 [active]  Feature Name -> .lo/work/f002-feature-name/
+      f003 [done]    Feature Name -> 2026-03-01
 
     Tasks:
       [ ] t001 Task description

@@ -84,7 +84,8 @@ Confirm:
     Release started: <version>
     Branch: <version>
 
-    Work on this branch. Features and tasks land here via /lo:plan → /lo:work → /lo:ship.
+    All work branches from here. /lo:work creates feature branches off this release branch,
+    and /lo:ship merges them back into it. Main is untouched until /lo:release ship.
     When ready to finalize: /lo:release ship
 
 ### Step 4: Update Version References
@@ -138,6 +139,20 @@ When invoked with no args (`/lo:release`):
 ## Shipping a Release
 
 `/lo:release ship` finalizes the current release: generates changelog, merges to main, tags.
+
+### Progress Tracking
+
+At pipeline start, create a task list using `TaskCreate` so the user sees live progress. One task per gate:
+
+1. Pre-flight (tests + CI)
+2. Generate changelog
+3. Merge to main
+4. Tag
+5. Push
+6. Clean up
+7. Report
+
+Mark each `in_progress` when starting, `completed` when passed. If a gate fails, mark it `failed` and stop.
 
 ### Gate 1: Pre-flight
 
@@ -231,7 +246,7 @@ Now that the changelog is written and merged, clean up all release artifacts.
 **Work directories:**
 1. Scan `.lo/work/` for directories related to this release's features and tasks
 2. Delete each work directory (git history preserves everything)
-3. For features: already removed from BACKLOG.md at plan time — no update needed
+3. For features: update status in BACKLOG.md to `Status: done -> YYYY-MM-DD`, update `updated:` date
 4. For tasks: mark done in BACKLOG.md (`- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`), update `updated:` date
 
 **Branches:**
@@ -277,6 +292,7 @@ git push origin main
         [summary of what was added/changed/fixed]
 
     Next: /lo:stream to capture this as a milestone.
+    Anything reusable worth capturing? Run /lo:solution, or "no" to skip.
 
 ---
 

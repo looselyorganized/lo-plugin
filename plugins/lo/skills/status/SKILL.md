@@ -1,6 +1,6 @@
 ---
 name: status
-description: Manages project lifecycle transitions. Updates PROJECT.md status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Use when user says "status", "change status", "move to build", "go to open", "close project", "/status", or "/lo:status".
+description: Manages project lifecycle transitions. Updates PROJECT.md status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Use when user says "status", "change status", "move to explore", "move to build", "go to open", "close project", "/status", or "/lo:status".
 metadata:
   version: 0.3.2
   author: LORF
@@ -33,7 +33,7 @@ Backward transitions are allowed (e.g., `Open` → `Build` if rework is needed) 
 
 ## Modes
 
-Detect mode from arguments. `/lo:status` with no args → show current status. `/lo:status Build` → transition to Build. `/lo:status Open` → transition to Open. `/lo:status Closed` → transition to Closed.
+Detect mode from arguments. `/lo:status` with no args → show current status. `/lo:status Explore` → transition to Explore. `/lo:status Build` → transition to Build. `/lo:status Open` → transition to Open. `/lo:status Closed` → transition to Closed.
 
 ### Mode 1: Show Status
 
