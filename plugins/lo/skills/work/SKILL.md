@@ -57,37 +57,26 @@ Tell user the feature directory exists but needs plans. Redirect to `/lo:plan f{
 
     Which feature?
 
-### Step 2: Read the Plan and EARS Contract
+### Step 2: Read the Plan
 
 Read the current plan file (lowest-numbered incomplete plan):
 
 1. Parse the plan's tasks, dependencies, and parallelization markers
-2. **Check for EARS contract:** Look for `ears-requirements.md` in the work directory (`.lo/work/f{NNN}-slug/ears-requirements.md`). If it exists:
-   - Read it and parse all `REQ-*` requirement IDs
-   - This is the **ground truth** for what the implementation must do
-   - Surface it alongside the plan summary
-3. Determine execution strategy based on task structure
-4. Present a summary:
+2. Determine execution strategy based on task structure
+3. Present a summary:
 
         Working on: f003 auth-system
         Plan: 001-<phase-name>.md
-        EARS: ears-requirements.md (22 requirements across 4 subsystems)
 
         Tasks:
-          1. [description] (REQ-T01, REQ-T02) — sequential
-          2. [description] (REQ-A01, REQ-A02) — can parallel with 3
-          3. [description] (REQ-S01, REQ-S02) — can parallel with 2
-          4. [description] (REQ-X01, REQ-X02) — depends on 2, 3
+          1. [description] — sequential
+          2. [description] — can parallel with 3
+          3. [description] — can parallel with 2
+          4. [description] — depends on 2, 3
 
         Strategy: [sequential | subagents | agent teams]
 
-   If no EARS file exists, omit the EARS line — not all features use EARS.
-
 Wait for user confirmation before executing.
-
-**Progress tracking:** After the user confirms, create a task list using `TaskCreate` — one task per plan task. Mark each `in_progress` when starting, `completed` when done. This gives the user a live dashboard of execution progress. For multi-phase features, create tasks for the current phase only — add the next phase's tasks at the phase boundary.
-
-**EARS during execution:** When tasks reference `REQ-*` IDs, use the EARS document as the spec for what the code should do. The requirement statement defines the expected behavior — implement to satisfy it. If a requirement is ambiguous or conflicts with what you find in the codebase, stop and ask the user before proceeding.
 
 ### Step 3: Set Up Isolation
 
@@ -96,11 +85,8 @@ Wait for user confirmation before executing.
 Check `git branch --show-current` and `git status`, then recommend:
 
 - Already on a feature branch (e.g., `feat/f003-*`) → recommend staying
-- On a release branch (branch name matches semver like `0.3.2`) → branch off it
 - On main, clean working tree → recommend new branch
 - On main, dirty working tree → recommend new branch (stash or commit first)
-
-**Release branch detection:** If the current branch matches a semver pattern (e.g., `0.3.2`, `1.0.0`), you're on a release branch. Feature branches must be created from it — not from main. This ensures feature work lands on the release branch when `/lo:ship` merges back.
 
 Present:
 
@@ -112,10 +98,10 @@ Present:
 
 **Do not proceed until the user answers.**
 
-If they pick a new branch: `git checkout -b feat/f{NNN}-slug` (from current branch — release branch if active, main otherwise)
+If they pick a new branch: `git checkout -b feat/f{NNN}-slug`
 If they stay: note this so `/lo:ship` knows there's no feature branch.
 
-### Step 4: Check Project Status for Test Expectations
+### Step 3.5: Check Project Status for Test Expectations
 
 Read `.lo/PROJECT.md` status field:
 
@@ -129,22 +115,24 @@ Read `.lo/PROJECT.md` status field:
 
 This check informs execution behavior — it does not block work.
 
-### Step 5: Execute
+### Step 4: Execute
+
+**All execution uses worktrees.** Every level creates a worktree for isolation — this keeps the user's working directory clean and prevents partial work from polluting the feature branch.
 
 Choose parallelization level based on the plan's task structure:
 
 #### Level 1 — Sequential
 
-Simple tasks or tasks with dependencies between all steps. Work directly on the feature branch — no worktrees needed.
+Simple tasks or tasks with dependencies between all steps. Execute one at a time in a worktree, merge to feature branch after each task completes.
 
 ```
-feat/f003-auth (feature branch)
-  → task 1 → commit → task 2 → commit → task 3 → commit → task 4 → commit
+feat/f003-auth (feature branch) ← merge target
+  └── worktree → task 1 → merge → task 2 → merge → task 3 → merge → task 4 → merge
 ```
 
 #### Level 2 — Subagents
 
-Independent tasks within a phase. Each subagent gets its own worktree for isolation. The main agent coordinates merges on the feature branch.
+Independent tasks within a phase. Each subagent gets its own worktree. The main agent coordinates merges on the feature branch.
 
 ```
 feat/f003-auth (feature branch) ← main agent coordinates here
@@ -179,7 +167,7 @@ For dispatch protocols, merge procedures, error handling, and worktree cleanup d
 
 **Transparency requirement:** Always tell the user how many parallel tracks are running, what each is doing, when they complete, and if any fail.
 
-### Step 6: Track Progress
+### Step 5: Track Progress
 
 As tasks complete:
 1. Mark done in the plan file: `- [x] Task description`
@@ -194,13 +182,11 @@ As tasks complete:
         Next phase: 002-<phase-name> (if exists)
         Continue? Or ship with /lo:ship?
 
-### Step 7: Phase Boundary
+### Step 6: Phase Boundary
 
 When a plan phase completes:
 - If another phase exists → ask whether to continue
 - If no more phases → report completion, suggest `/lo:ship`
-
-**EARS checkpoint (final phase only):** If `ears-requirements.md` exists and all phases are complete, do a quick coverage scan — list any `REQ-*` IDs that weren't referenced by any plan task. Report uncovered requirements to the user before suggesting `/lo:ship`. This is informational, not blocking — the user decides whether uncovered requirements need work or were intentionally deferred.
 
 Do NOT automatically proceed to shipping.
 
@@ -219,7 +205,7 @@ Tasks are smaller than features — they don't need formal plans. `/lo:work t{NN
 ### Step 2: Check for a Plan
 
 Check if `.lo/work/t{NNN}-slug/` exists with plan files:
-- **Plan exists:** Follow the Feature Execution flow (Steps 2-7 above) using the task's plan
+- **Plan exists:** Follow the feature execution flow (Steps 2-6 above) using the task's plan
 - **No plan:** Continue to direct execution below
 
 ### Step 3: Set Up Isolation
@@ -245,7 +231,6 @@ Execute the task directly. If the task description provides enough context, impl
 
 ### Step 5: Completion
 
-
 When the task is done:
 
     Task complete: t{NNN} "<description>"
@@ -260,10 +245,6 @@ When the task is done:
 Plan files are created by `/lo:plan`. Execute numbered files (`001-*.md`, `002-*.md`) in order, lowest-numbered incomplete plan first. Parse frontmatter for `status` (skip `done`), task checkboxes for progress, `[parallel]` for concurrency, and `(depends on N, M)` for ordering.
 
 See `/lo:plan`'s `references/plan-format-contract.md` for the full format specification.
-
-### EARS Contract (Optional)
-
-If `ears-requirements.md` exists in the work directory alongside the plans, read it before execution starts. When tasks reference `REQ-*` IDs, the EARS document defines expected behavior — use it as the spec and implement to satisfy each requirement. At final phase completion, check coverage of all `REQ-*` IDs. Not all features have EARS — skip if the file doesn't exist.
 
 ## Error Handling
 

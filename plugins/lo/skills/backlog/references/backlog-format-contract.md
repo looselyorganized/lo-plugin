@@ -16,7 +16,7 @@ The project backlog lives at `.lo/BACKLOG.md`. It is the single registry for fea
 |---------|--------|-------------|
 | Heading | `### f{NNN} — Feature Name` | Feature ID + display name |
 | Description | Free text below heading | 1-2 sentence summary |
-| Status | `Status: backlog` / `Status: active -> .lo/work/f{NNN}-slug/` / `Status: done -> YYYY-MM-DD` | Current lifecycle state |
+| Status | `Status: backlog` or `Status: active -> .lo/work/f{NNN}-slug/` | Current lifecycle state |
 
 ## Task Checkbox Syntax
 
@@ -34,10 +34,8 @@ The project backlog lives at `.lo/BACKLOG.md`. It is the single registry for fea
 
 ## Status Values
 
-- **Features:** `backlog` | `active -> .lo/work/f{NNN}-slug/` | `done -> YYYY-MM-DD`
-- `/lo:plan` sets status to `active` when creating a work directory
-- `/lo:ship` sets status to `done` when shipping
-- Features stay in BACKLOG.md through their full lifecycle
+- **Features:** `backlog` | `active -> .lo/work/f{NNN}-slug/`
+- Shipped features are removed from BACKLOG.md by `/lo:ship`
 - **Tasks:** open (`- [ ]`) or done (`- [x]`)
 
 ## Validation Rules
@@ -79,14 +77,10 @@ updated: 2026-03-01
 
 ### f001 — Dashboard Redesign
 Rebuild the main dashboard with responsive layout and live data widgets.
-Status: done -> 2026-02-28
+Status: active -> .lo/work/f001-dashboard-redesign/
 
 ### f002 — User Authentication
 Add email/password login with session management.
-Status: active -> .lo/work/f002-user-auth/
-
-### f003 — API Rate Limiting
-Add rate limiting to public API endpoints.
 Status: backlog
 
 ## Tasks

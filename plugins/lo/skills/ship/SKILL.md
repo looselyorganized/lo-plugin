@@ -1,8 +1,8 @@
 ---
 name: ship
-description: Quality pipeline for shipping completed work. Behavior adapts to project status — Explore/Closed ships fast to main, Build/Open commits to feature branch for release coordination. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "done with", "mark done", "/ship", or when work execution is complete.
+description: Quality pipeline for shipping completed work. Full pipeline (tests, review, commit, push, PR) on feature branches. Light pipeline (tests, security, commit, mark done) on main. Not for planning or execution — use /lo:plan to design and /lo:work to build first. Cleans up work dirs and prompts for stream/solution capture. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "push and PR", "done with", "mark done", "/ship", or when work execution is complete.
 metadata:
-  version: 0.3.2
+  version: 0.3.1
   author: LORF
 ---
 
@@ -10,16 +10,14 @@ metadata:
 
 Runs the quality pipeline to ship completed work. Each gate must pass before proceeding. Stops and reports if any gate fails.
 
-Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **branch context**:
-
-- **Explore/Closed** — Ship fast. Commit, push to main, done. No PR ceremony, no release coordination.
-- **Build/Open** — Ship to feature branch. Commit + push branch (for backup), but do NOT create a PR or merge to main. That's `/lo:release ship`'s job.
+Two modes based on branch context:
+- **Full pipeline** (feature/fix branch): tests → simplify → security → commit → push → PR → clean up → wrap-up
 - **Light pipeline** (main branch, tasks only): tests → security → commit → mark done → wrap-up
 
 ## When to Use
 
 - User invokes `/lo:ship`
-- User says "ship it", "ready to merge", "ready to ship", "done with", "mark done"
+- User says "ship it", "ready to merge", "push and PR", "ready to ship", "done with", "mark done"
 - Work has been completed via `/lo:work`
 
 ## Critical Rules
@@ -29,35 +27,11 @@ Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **br
 - Prompt for stream update and solution capture after shipping — but respect "no" as an answer.
 - Identify items by their `f{NNN}` or `t{NNN}` ID throughout the pipeline.
 
-## Progress Tracking
-
-At pipeline start, create a task list using `TaskCreate` so the user sees live progress. One task per gate. Mark each `in_progress` when starting, `completed` when passed. If a gate fails, mark it `failed` and stop.
-
-**Full pipeline tasks:**
-1. Pre-flight
-2. EARS audit
-3. Run tests
-4. Code simplification
-5. Security review
-6. Commit
-7. Push
-8. Clean up
-9. Wrap-up
-
-**Light pipeline tasks:** Gates 1, 3, 5, 6, 8, 9 only.
-
 ## Pipeline
 
 ### Gate 1: Pre-flight
 
-1. **Read project status:** Read `.lo/PROJECT.md` frontmatter `status` field. This determines pipeline behavior at Gates 7-8.
-
-   | Status | Pipeline mode |
-   |--------|--------------|
-   | `Explore` / `Closed` | **Fast mode** — commit, push to main, done |
-   | `Build` / `Open` | **Release mode** — commit, push feature branch (backup), no PR. `/lo:release ship` handles the merge. |
-
-2. **Branch check:** Check `git branch --show-current`.
+1. **Branch check:** Check `git branch --show-current`.
    - If on a feature/fix branch → **full pipeline** (Gates 1-9).
    - If on main/master → ask the user:
 
@@ -67,43 +41,13 @@ At pipeline start, create a task list using `TaskCreate` so the user sees live p
          2. Quick ship — tests + security + commit on main, mark done (for small tasks)
 
      If they choose option 1, create the branch and proceed with full pipeline.
-     If they choose option 2, proceed with **light pipeline** (Gates 1, 3, 5, 6, 8, 9).
+     If they choose option 2, proceed with **light pipeline** (Gates 1-5, skip 6-7, then Gate 8-9).
      Light pipeline is only available for tasks (`t{NNN}`). If the user is shipping a feature on main, recommend option 1.
 
-3. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
-4. **Identify the item:** Map branch name (e.g., `feat/f003-auth-system` or `fix/t005-slug`) to the feature/task ID. On main, ask the user which backlog item this work completes. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
+2. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
+3. **Identify the item:** Map branch name (e.g., `feat/f003-auth-system` or `fix/t005-slug`) to the feature/task ID. On main, ask the user which backlog item this work completes. Cross-reference with `.lo/work/` directory and BACKLOG.md entry. If unclear, ask.
 
-### Gate 2: EARS Requirements Audit
-
-*Only runs if `ears-requirements.md` exists in the work directory.*
-
-Check `.lo/work/f{NNN}-slug/ears-requirements.md`. If present:
-
-1. Parse all `REQ-*` requirement IDs and their statements
-2. For each requirement, verify it was addressed by the implementation:
-   - Check plan task references (tasks that cite `REQ-*` IDs and are marked `[x]`)
-   - Scan changed files (`git diff --name-only main...HEAD`) for behavior matching the requirement
-   - Mark each requirement as: **covered**, **partial**, or **uncovered**
-3. Report:
-
-        EARS audit: ears-requirements.md
-          REQ-T01: covered ✓
-          REQ-T02: covered ✓
-          REQ-A01: covered ✓
-          REQ-A02: partial — missing retry logic
-          REQ-X01: uncovered — no auth between services
-
-        Coverage: 18/22 covered, 2 partial, 2 uncovered
-
-4. **Uncovered or partial requirements:**
-   - Ask the user for each: **implement now**, **defer to next iteration**, or **out of scope** (with rationale)
-   - If "implement now" → stop pipeline, redirect to `/lo:work`
-   - If "defer" or "out of scope" → note the decision, proceed to Gate 3
-   - Update `ears-requirements.md` status to `updated` and add a `## Deferred` section listing deferred REQ-* IDs with rationale
-
-This gate is informational for partial/uncovered items — it surfaces gaps but lets the user decide. It does NOT auto-fail the pipeline.
-
-### Gate 3: Run Tests
+### Gate 2: Run Tests
 
 Detect the project's test runner (package.json scripts, Cargo.toml, pyproject.toml, etc.) and run tests.
 
@@ -111,25 +55,16 @@ Detect the project's test runner (package.json scripts, Cargo.toml, pyproject.to
 - **Fail:** Stop. Report failures. Do not continue.
 - **No tests:** Warn user, ask whether to proceed without tests.
 
-### Gate 4: Code Simplification
+### Gate 3: Code Simplification
 
 *Full pipeline only. Skip for light pipeline.*
 
 1. Identify changed files: `git diff --name-only main...HEAD`
 2. Review for: unnecessary complexity, dead code, verbose patterns, duplication
-3. **README check:** If the changes add new capabilities, endpoints, commands, or config — check if `README.md` describes them. If not, flag it:
+3. If simplifications found → present them, ask whether to apply
+4. If clean → proceed
 
-        README.md may need updating:
-          - New /lo:release skill added but not in README skills table
-          - EARS requirements workflow not documented
-
-        Update now, or skip?
-
-   This catches stale docs while the context is fresh, not weeks later at release time.
-4. If simplifications found → present them, ask whether to apply
-5. If clean → proceed
-
-### Gate 5: Security Review
+### Gate 4: Security Review
 
 Two-phase security gate. Both phases must pass.
 
@@ -163,147 +98,75 @@ For each file, think through how an attacker could exploit the code. Consider th
   Do not continue past critical or high severity issues. Medium/low issues: warn and ask user whether to proceed.
 - **Clean:** Proceed.
 
-### Gate 6: Commit
+### Gate 5: Commit
 
 1. Stage changes: `git add` relevant files (avoid blindly adding all)
 2. Draft commit message based on item ID and name
 3. Present for user approval
 4. Commit
 
-### Gate 7: Push
+### Gate 6: Push
 
 *Full pipeline only. Skip for light pipeline.*
 
-Behavior depends on project status (determined in Gate 1):
-
-**Explore/Closed (fast mode):**
-
-🔒 Never merge locally to main or push directly to main. Always go through a PR.
-
-1. Push the feature branch:
-
-    ```bash
-    git push -u origin <branch-name>
-    ```
-
-2. Open a PR targeting main:
-
-    ```bash
-    gh pr create --base main --head <branch-name> \
-      --title "feat(<item-id>): <name>" \
-      --body "Shipped via /lo:ship"
-    ```
-
-3. Enable auto-merge:
-
-    ```bash
-    gh pr merge <PR-NUMBER> --auto --squash
-    ```
-
-4. Wait for the PR to merge. The merge is fully autonomous — CI runs, CodeRabbit reviews, cr-agent fixes any CodeRabbit feedback (up to 3 rounds), auto-merge fires when approved. Poll `gh pr view <PR-NUMBER> --json state -q '.state'` every 30 seconds. Do NOT timeout — the pipeline is autonomous. If CI fails, stop and report.
-
-5. After merge, pull main:
-
-    ```bash
-    git checkout main
-    git pull origin main
-    ```
-
-**Build/Open (release mode):**
-
-Merge the feature branch into the release branch, then push both:
-
-```bash
-git checkout <release-branch>
-git merge <feature-branch> --no-ff -m "feat(<item-id>): <name>"
-git push origin <release-branch>
-git push -u origin <feature-branch>   # backup
 ```
-
-If not on a release branch (e.g., working directly on a version branch), just push:
-
-```bash
 git push -u origin <branch-name>
 ```
 
-Report:
-
-    Merged: <feature-branch> → <release-branch>
-    Pushed: origin/<release-branch>, origin/<feature-branch> (backup)
-    To finalize: run /lo:release ship when the release is ready.
-
 If push fails, stop and report.
+
+### Gate 7: Create Pull Request
+
+*Full pipeline only. Skip for light pipeline.*
+
+Create PR with:
+- Title derived from item ID and name (e.g., "f003: Auth system" or "t005: Fix button color")
+- Body summarizing what was built and why
+- Reference to plan in `.lo/work/` if applicable
+
+After creating the PR, enable auto-merge:
+
+```
+gh pr merge <PR-NUMBER> --auto --squash
+```
+
+This allows the PR to merge automatically once CI passes and CodeRabbit approves. Report the PR URL.
 
 ### Gate 8: Clean Up
 
-Behavior depends on project status:
+Detect item type from ID prefix and handle accordingly:
 
-**Explore/Closed — clean up now:**
-
-Work artifacts are no longer needed. Clean up immediately.
-
-*For features (`f{NNN}`):*
+**For features (`f{NNN}`):**
 1. Delete `.lo/work/f{NNN}-slug/` entirely (git history preserves everything)
-2. Update feature status in BACKLOG.md: `Status: done -> YYYY-MM-DD`
-3. Update `updated:` date in BACKLOG.md
+2. Feature was already removed from BACKLOG.md at plan time — no backlog update needed
 
-*For tasks (`t{NNN}`):*
+**For tasks (`t{NNN}`):**
 1. Mark the task checkbox done in BACKLOG.md: `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`
 2. If `.lo/work/t{NNN}-slug/` exists, delete it
 3. Update `updated:` date in BACKLOG.md
 
-**Build/Open — leave artifacts for release:**
-
-Do NOT delete work dirs or update BACKLOG.md. `/lo:release ship` needs these artifacts to generate the changelog (plan files, EARS requirements, backlog entries). Release ship handles cleanup after the changelog is written.
-
 ### Gate 9: Wrap-up Prompts
-
-**Explore/Closed:**
 
     Shipped: <f{NNN}|t{NNN}> "<name>"
 
-    PR: <url> (merged via auto-merge)
+    PR: [url] (full pipeline only)
     Cleaned: .lo/work/<slug>/ removed
 
     Update the stream? Run /lo:stream to capture this milestone.
     Anything reusable worth capturing? Run /lo:solution, or "no" to skip.
 
-**Build/Open:**
-
-    Shipped: <f{NNN}|t{NNN}> "<name>"
-
-    Branch: origin/<branch-name> (pushed)
-    Work artifacts preserved for /lo:release ship changelog.
-
-    Run /lo:release ship when the release is ready.
-    Anything reusable worth capturing? Run /lo:solution, or "no" to skip.
-
 ## Pipeline Summary
 
-**Explore/Closed — fast mode** (feature/fix branch):
+**Full pipeline** (feature/fix branch):
 
     Ship complete: f{NNN} "<name>"
-      EARS:     [N/N covered | skipped (no EARS)]
       Tests:    passed (N tests)
       Simplify: [N changes | clean]
       Security: clean (static + vuln sweep)
       Commit:   <hash> "<message>"
-      PR:       <url> (auto-merge, squash)
-      CI:       passed
-      Merged:   PR merged to main
-      Cleaned:  .lo/work/f{NNN}-slug/ removed
-
-**Build/Open — release mode** (feature/fix branch):
-
-    Ship complete: f{NNN} "<name>"
-      EARS:     [N/N covered | skipped (no EARS)]
-      Tests:    passed (N tests)
-      Simplify: [N changes | clean]
-      Security: clean (static + vuln sweep)
-      Commit:   <hash> "<message>"
-      Pushed:   origin/<branch> (backup, no PR)
-      Work:     artifacts preserved for changelog
-      Next:     /lo:release ship to finalize
+      Push:     origin/<branch>
+      PR:       <url> (auto-merge enabled)
+      Cleaned: .lo/work/f{NNN}-slug/ removed
 
 **Light pipeline** (main branch, tasks):
 
@@ -326,47 +189,25 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
 
 ## Examples
 
-### Explore — fast mode (feature branch)
+### Full pipeline (feature branch)
 
     User: /lo:ship
 
-    Agent reads PROJECT.md → status: Explore
     Agent checks branch → on feat/f003-user-auth
     Identifies item: f003 "User Authentication"
 
-    Gate 1: Pre-flight — Explore, fast mode ✓
-    Gate 2: EARS — 22/22 requirements covered ✓
-    Gate 3: Tests — 47 passed ✓
-    Gate 4: Simplify — 2 suggestions applied ✓
-    Gate 5: Security — clean ✓
-    Gate 6: Commit — abc1234 "feat(f003): user authentication" ✓
-    Gate 7: PR #42 opened, auto-merge enabled — CI passed, merged ✓
+    Gate 1: Pre-flight ✓
+    Gate 2: Tests — 47 passed ✓
+    Gate 3: Simplify — 2 suggestions applied ✓
+    Gate 4: Security — clean ✓
+    Gate 5: Commit — abc1234 "feat(f003): user authentication" ✓
+    Gate 6: Push — origin/feat/f003-user-auth ✓
+    Gate 7: PR — github.com/org/repo/pull/42 (auto-merge enabled) ✓
     Gate 8: Clean up — .lo/work/f003-user-auth/ removed ✓
     Gate 9: Wrap-up ✓
 
     Shipped: f003 "User Authentication"
     Update the stream? Run /lo:stream to capture this milestone.
-
-### Build/Open — release mode (feature branch)
-
-    User: /lo:ship
-
-    Agent reads PROJECT.md → status: Build
-    Agent checks branch → on feat/f003-user-auth (on release branch 0.3.2)
-    Identifies item: f003 "User Authentication"
-
-    Gate 1: Pre-flight — Build, release mode ✓
-    Gate 2: EARS — 22/22 requirements covered ✓
-    Gate 3: Tests — 47 passed ✓
-    Gate 4: Simplify — clean ✓
-    Gate 5: Security — clean ✓
-    Gate 6: Commit — abc1234 "feat(f003): user authentication" ✓
-    Gate 7: Pushed origin/feat/f003-user-auth (backup, no PR) ✓
-    Gate 8: Work artifacts preserved for changelog ✓
-    Gate 9: Wrap-up ✓
-
-    Shipped: f003 "User Authentication"
-    Branch pushed. Work artifacts preserved. Run /lo:release ship to finalize.
 
 ### Light pipeline (task on main)
 
@@ -377,9 +218,9 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     User picks quick ship → identifies t005 "Update dependency versions"
 
     Gate 1: Pre-flight ✓
-    Gate 3: Tests — 47 passed ✓
-    Gate 5: Security — clean ✓
-    Gate 6: Commit — def5678 "chore(t005): update dependency versions" ✓
+    Gate 2: Tests — 47 passed ✓
+    Gate 4: Security — clean ✓
+    Gate 5: Commit — def5678 "chore(t005): update dependency versions" ✓
     Gate 8: Done — t005 marked complete in backlog ✓
     Gate 9: Wrap-up ✓
 

@@ -1,5 +1,5 @@
 ---
-updated: 2026-03-08
+updated: 2026-02-26
 ---
 
 ## Features
@@ -12,22 +12,6 @@ Status: done -> 2026-02-25
 Move lo-plugin to standalone repo at `looselyorganized/lo-plugin` with stocktaper design system, updated lo-spec, and clean install URL.
 Status: done -> 2026-02-25
 
-### f003 — GitHub Automation Sync
-Script-driven reconciliation of all GitHub automation (CodeRabbit, CodeQL, CI, auto-merge, branch protection) based on PROJECT.md status. Zero manual steps on `/lo:new` or `/lo:status` transitions.
-Status: done -> 2026-03-08
-
-### f004 — Emoji Visual Anchors in Token Streams
-Add strategic emoji markers to skill files at critical decision points — stop gates (🛑), warnings (⚠️), hard constraints (🔒), pass/fail (✅/❌) — to improve agent instruction-following and scanability.
-Status: active -> .lo/work/f004-emoji-visual-anchors/
-
-### f005 — Optimize Stream for Large Milestones
-Refocus the stream skill to capture significant milestones rather than granular commit groups — fewer, higher-signal entries that tell the project's story.
-Status: backlog
-
 ## Tasks
 
-- [x] t001 ~~Audit /work~~ -> 2026-03-07
-- [x] t002 ~~Ship feature needs to delete /work directories once done and remove from BACKLOG.md~~ -> 2026-03-07
-- [x] t003 ~~Fix where /plan sends plans — must follow .lo convention~~ -> 2026-03-07
-- [ ] t004 Add epic to backlog command
-- [ ] t005 Review /lo:new flow — validation redundancy, research dir scaffolding, overall coherence
+_No open tasks._
