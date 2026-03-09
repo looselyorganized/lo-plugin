@@ -122,7 +122,7 @@ When invoked with no args (`/lo:release`):
 ### Step 1: Pre-flight
 
 1. Verify you're on a release branch (branch name is semver)
-2. Check working tree is clean
+2. Check working tree is clean. If uncommitted changes exist, ask: "Uncommitted changes detected. Commit them before proceeding, or stop?"
 3. Run tests — all must pass. If tests fail, stop.
 
 ### Step 2: Generate Changelog
