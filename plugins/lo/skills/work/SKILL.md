@@ -1,9 +1,6 @@
 ---
 name: work
 description: Executes features (from plans) and tasks (directly) in .lo/work/. Handles branch isolation, worktree-based parallelization, and progress tracking. Not for planning — use /lo:plan to design first. Stops when complete — does not ship. Use when user says "start working", "let's build", "execute the plan", "work on", or "/work".
-metadata:
-  version: 0.3.1
-  author: LORF
 ---
 
 # LO Work Executor

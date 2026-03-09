@@ -1,9 +1,6 @@
 ---
 name: release
 description: Manages versioned releases with release branches, changelogs, and git tags. Creates release branches for new versions, generates changelogs from commits, and merges to main with a tag. Only active for projects in Build or Open status. Use when user says "new release", "start release", "release this", "cut a release", "ship release", "changelog", or "/lo:release".
-metadata:
-  version: 0.3.2
-  author: LORF
 ---
 
 # LO Release
@@ -90,10 +87,9 @@ Confirm:
 
 ### Step 4: Update Version References
 
-Update the version in all project version sources. For the lo-plugin, this means:
+Update the version in the project's version source. The canonical version lives in one place — don't duplicate it across files.
 
-1. `plugins/lo/.claude-plugin/plugin.json` → `"version": "<new-version>"`
-2. All `plugins/lo/skills/*/SKILL.md` → `version: <new-version>` in metadata
+For the lo-plugin: `plugins/lo/.claude-plugin/plugin.json` → `"version": "<new-version>"`
 
 For other projects, detect version sources:
 - `package.json` → `"version"`

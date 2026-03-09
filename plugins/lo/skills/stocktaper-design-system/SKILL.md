@@ -1,10 +1,6 @@
 ---
 name: stocktaper-design-system
 description: Implements the StockTaper / Loosely Organized Research Facility design system for building UI components, pages, and layouts. Use when the user asks to "build a component", "create a page", "add a section", "style this", "design a layout", "update the UI", "add a card", "create a form", "add dark mode", "fix dark mode", "theme toggle", mentions design tokens, or references the StockTaper visual language. Covers color tokens, typography (IBM Plex Mono), dark mode (CSS variable swap via next-themes), dashed-border aesthetic, component patterns, responsive grids, and MDX prose styling.
-license: MIT
-metadata:
-  author: Loosely Organized
-  version: 0.3.1
 ---
 
 # StockTaper Design System

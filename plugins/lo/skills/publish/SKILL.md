@@ -1,9 +1,6 @@
 ---
 name: publish
 description: Publishes research articles to the platform website. Takes raw material from a project's .lo/research/ directory (or a description), transforms it into a polished MDX article, and opens a PR on the platform repo. Use when user says "publish research", "write article", "publish to platform", or "/lo:publish". Must be run from the platform repo.
-metadata:
-  version: 0.3.1
-  author: LORF
 ---
 
 # LO Publish
