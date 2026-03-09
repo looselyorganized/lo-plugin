@@ -1,6 +1,15 @@
 ---
 name: plan
 description: Designs and plans features or tasks before execution. Brainstorms requirements, creates structured implementation plans, and saves them to .lo/work/. Not for execution — use /lo:work to build. Use when user says "plan this", "start feature", "brainstorm", "design this", "let's plan", "/plan", or "/lo:plan".
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
+  - Write
+  - Edit
+  - Agent
+  - Skill
 ---
 
 # LO Plan
@@ -128,7 +137,7 @@ After brainstorming, ask the user:
 
 **Plan mode path:**
 1. Use `EnterPlanMode` to enter plan mode
-2. Explore the codebase — identify files to touch, patterns to follow, dependencies
+2. Explore the codebase using the `scout` subagent — identify files to touch, patterns to follow, dependencies
 3. Write the plan to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format
 4. Present via `ExitPlanMode` for user approval
 5. If multi-phase, create additional plan files (`002-*.md`, `003-*.md`)

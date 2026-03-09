@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "cat .lo/PROJECT.md 2>/dev/null || true"
+      }
+    ]
+  }
+}

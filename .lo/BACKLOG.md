@@ -1,5 +1,5 @@
 ---
-updated: 2026-03-07
+updated: 2026-03-09
 ---
 
 ## Features
@@ -23,6 +23,10 @@ Status: active -> .lo/work/f004-emoji-visual-anchors/
 ### f005 — Optimize Stream for Large Milestones
 Refocus the stream skill to capture significant milestones rather than granular commit groups — fewer, higher-signal entries that tell the project's story.
 Status: done -> 2026-03-07
+
+### f006 — Plugin Redesign: Modern Primitives and Streamlined Workflow
+Redesign the LO plugin using Claude Code's latest capabilities (dynamic context injection, allowed-tools, custom subagents, hooks). Streamline skills based on learnings from GSD and Compound Engineering frameworks. Add /next entry point, simplify /plan /work /ship, add reviewer and scout subagents, add SessionStart hook. New .lo/ directory structure: WORK.md replaces BACKLOG.md, plans/ replaces work/, knowledge.md added.
+Status: active -> .lo/work/f006-plugin-redesign/
 
 ## Tasks
 

@@ -1,6 +1,11 @@
 ---
 name: solution
 description: Captures reusable knowledge in .lo/solutions/ after completing work. Prompts for what was learned, what's reusable, and writes a structured solution file. Can be invoked standalone or triggered by lo:ship. Use when user says "capture solution", "what did I learn", "save this knowledge", "document solution", "/solution", or when prompted after shipping.
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Write
 ---
 
 # LO Solution Capture
