@@ -119,7 +119,7 @@ When invoked with no args (`/lo:release`):
 /lo:release 0.4.0          → creates release branch, bumps version
   /lo:plan f003             → plans feature
   /lo:work f003             → executes plan
-  /lo:ship                  → ships feature to release branch
+  /lo:ship                  → pushes feature branch to origin/<feature-branch> (does not merge)
 /lo:ship                    → on release branch: changelog, cleanup, PR to main
   (PR merges via CI/auto-merge)
 /lo:ship tag                → tag v0.4.0, delete branch

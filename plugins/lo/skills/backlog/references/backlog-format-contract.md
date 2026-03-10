@@ -49,7 +49,7 @@ Tasks follow the same pattern as features. Description goes on the first line af
 | Done (no version) | `[done] YYYY-MM-DD` | Explore/Closed projects |
 | Done (versioned) | `[done](v0.4.0) YYYY-MM-DD` | Build/Open projects |
 
-The markdown link syntax serves double duty — it's both metadata and navigation in GitHub/editors.
+The Markdown link syntax serves double duty — it's both metadata and navigation in GitHub/editors.
 
 ## ID Convention
 

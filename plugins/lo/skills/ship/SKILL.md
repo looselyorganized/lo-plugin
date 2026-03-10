@@ -17,7 +17,7 @@ Ships completed work. Detects what to do from project status and branch name. On
 
 | Context | Behavior |
 |---------|----------|
-| Explore/Closed | Commit and push directly to main |
+| Explore/Closed | Merge to main (if needed) and push |
 | Build/Open + feature branch | Commit and push feature branch |
 | Build/Open + semver branch | **Release ship** — changelog, cleanup, PR to main, tag |
 
