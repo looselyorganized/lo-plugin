@@ -16,9 +16,9 @@ updated: 2026-03-09
   Script-driven reconciliation of all GitHub automation based on PROJECT.md status.
   [done](v0.3.2) 2026-03-07
 
-- [ ] f004 Emoji Visual Anchors in Token Streams
+- [x] f004 Emoji Visual Anchors in Token Streams
   Add strategic emoji markers to skill files at critical decision points.
-  [active](.lo/work/f004-emoji-visual-anchors/)
+  [done](v0.3.2) 2026-03-07
 
 - [x] f005 Optimize Stream for Large Milestones
   Refocus stream skill to capture significant milestones rather than granular commit groups.
