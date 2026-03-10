@@ -12,20 +12,20 @@ The project backlog lives at `.lo/BACKLOG.md`. It is the single registry for fea
 
 ## Feature Format
 
-Features and tasks use the same list-item pattern:
-
 ```markdown
 - [ ] f{NNN} Feature Name
   Description of the feature.
   status-line (optional; omit for backlog items)
 ```
 
+### Feature Elements
+
 | Element | Format | Description |
 |---------|--------|-------------|
 | Checkbox | `- [ ]` / `- [x]` | Open or completed |
 | ID | `f{NNN}` | Feature identifier |
 | Name | Free text after ID | Short display name |
-| Description | Indented line below | 1-2 sentence summary (optional for tasks) |
+| Description | Indented line below | 1-2 sentence summary (optional) |
 | Status | Indented line below description | Lifecycle state (see below) |
 
 ## Task Format
@@ -38,7 +38,16 @@ Features and tasks use the same list-item pattern:
   [done](v0.4.0) 2026-03-09
 ```
 
-Tasks follow the same pattern as features. Description goes on the first line after the ID. Status line is optional for backlog tasks (absence = backlog).
+Tasks use a simplified pattern where the first-line description after the ID serves as the task name; there is no separate Name field.
+
+### Task Elements
+
+| Element | Format | Description |
+|---------|--------|-------------|
+| Checkbox | `- [ ]` / `- [x]` | Open or completed |
+| ID | `t{NNN}` | Task identifier |
+| Description | Free text after ID | Acts as the task name |
+| Status | Indented line below | Lifecycle state (optional; absence = backlog) |
 
 ## Status Lines
 
@@ -61,7 +70,7 @@ The Markdown link syntax serves double duty — it's both metadata and navigatio
 ## Status Transitions
 
 - **Backlog → Active:** `/lo:plan` adds `[active](.lo/work/<id>-slug/)` when creating a work directory (`f{NNN}` for features, `t{NNN}` for tasks)
-- **Active → Done:** `/lo:ship` changes to `[done](v0.4.0) YYYY-MM-DD` (version included if available)
+- **Active → Done:** `/lo:ship` updates the status line; the format is determined by project type — Build/Open projects use the versioned form `[done](vX.Y.Z) YYYY-MM-DD`, while Explore/Closed projects use `[done] YYYY-MM-DD` (see Status Lines table above)
 - Features and tasks stay in BACKLOG.md through their full lifecycle — never deleted
 
 ## Validation Rules
