@@ -35,7 +35,7 @@ Features and tasks use the same list-item pattern:
   status-line (optional)
 
 - [x] t{NNN} Task description
-  [v0.4.0] 2026-03-09
+  [done](v0.4.0) 2026-03-09
 ```
 
 Tasks follow the same pattern as features. Description goes on the first line after the ID. Status line is optional for backlog tasks (absence = backlog).
