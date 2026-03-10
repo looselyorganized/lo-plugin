@@ -244,7 +244,7 @@ The closest community equivalent to LO is Jesse Vincent's `superpowers` collecti
 
 ### The Current Skill Map (11 Skills, v0.4.0)
 
-```
+```text
 /lo:new       → Scaffold .lo/ directory
 /lo:backlog   → Manage features and tasks
 /lo:plan      → Design before execution (mandatory brainstorming)
@@ -260,7 +260,7 @@ The closest community equivalent to LO is Jesse Vincent's `superpowers` collecti
 
 ### The Dependency Graph
 
-```
+```text
 new → (backlog | status)
 backlog → plan
 plan → work
@@ -392,7 +392,7 @@ If the user wants Agent Teams, they can enable them. The plugin shouldn't assume
 
 The deleted research skill should come back as a lightweight investigation framework:
 
-```
+```text
 /lo:research <topic>
 ```
 
@@ -409,7 +409,7 @@ No EARS requirements. No multi-phase planning. Just: investigate, synthesize, sa
 
 The Arize finding (+10.9% on repository-specific tasks from CLAUDE.md optimization) suggests a future skill:
 
-```
+```text
 /lo:optimize-context
 ```
 
