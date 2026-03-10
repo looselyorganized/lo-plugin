@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Quality pipeline for shipping completed work. Behavior adapts to project status — Explore/Closed commits and pushes directly to main; Build/Open commits to feature branch for release coordination. Stops if any gate fails. Use when user says "ship it", "ready to merge", "ship this", "done with", "mark done", "/ship", or when work execution is complete.
+description: Quality pipeline for shipping completed work. Detects context automatically — Explore/Closed pushes to main, Build/Open on a feature branch pushes the branch, Build/Open on a semver release branch finalizes the release (changelog, PR, tag). Use when user says "ship it", "ready to merge", "ship this", "done with", "mark done", "/ship", or when work is complete.
 allowed-tools:
   - Read
   - Glob
@@ -13,25 +13,25 @@ allowed-tools:
 
 # LO Ship Pipeline
 
-Runs the quality pipeline to ship completed work. Each gate must pass before proceeding. Stops and reports if any gate fails.
+Ships completed work. Detects what to do from project status and branch name. One command for everything.
 
-Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **branch context**:
-
-- **Explore/Closed** — Ship direct to main. Commit and push — no branch, no PR.
-- **Build/Open** — Ship to feature branch. Commit + push branch, but do NOT merge to main. That's `/lo:release ship`'s job.
+| Context | Behavior |
+|---------|----------|
+| Explore/Closed | Commit and push directly to main |
+| Build/Open + feature branch | Commit and push feature branch |
+| Build/Open + semver branch | **Release ship** — changelog, cleanup, PR to main, tag |
 
 ## When to Use
 
 - User invokes `/lo:ship`
-- User says "ship it", "ready to merge", "ready to ship", "done with", "mark done"
+- User says "ship it", "ready to merge", "done with"
 - Work has been completed via `/lo:work`
+- Ready to finalize a release (on the release branch)
 
 ## Critical Rules
 
-- Run every pipeline gate in order. Skipping a gate risks shipping broken or insecure code.
-- If any gate fails, stop and report what needs fixing.
-- Prompt for stream update and solution capture after shipping — but respect "no" as an answer.
-- Identify items by their `f{NNN}` ID throughout the pipeline.
+- Run every gate in order. If any gate fails, stop and report.
+- Prompt for stream update and solution capture after shipping — respect "no".
 
 ## Pipeline Gates
 
@@ -42,30 +42,33 @@ Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **br
 5. Commit + Push
 6. Wrap-up
 
+**Release ship** (semver branch) adds between gates 4 and 5:
+- Changelog generation
+- Work artifact cleanup
+
 ---
 
 ### Gate 1: Pre-flight
 
 1. **Read project status:** Read `.lo/PROJECT.md` frontmatter `status` field.
 
-   | Status | Pipeline mode |
-   |--------|--------------|
-   | `Explore` / `Closed` | **Fast mode** — commit and push directly to main |
-   | `Build` / `Open` | **Release mode** — commit, push feature branch. `/lo:release ship` handles the merge. |
+2. **Detect mode from branch:** Check `git branch --show-current`.
 
-2. **Branch check:** Check `git branch --show-current`.
-   - **Fast mode**: If on a feature/fix branch, merge it to main first. If already on main, proceed.
-   - **Release mode**: If on a feature/fix branch → proceed. If on main → ask user to create a branch first.
+   | Status | Branch | Mode |
+   |--------|--------|------|
+   | Explore/Closed | any | **Fast mode** — commit, push to main |
+   | Build/Open | feature/fix branch | **Feature mode** — commit, push branch |
+   | Build/Open | semver branch (e.g. `0.4.0`) | **Release mode** — full release pipeline |
 
 3. **Working tree status:** Check `git status`. If uncommitted changes, ask whether to include or stash.
 
-4. **Identify the item:** Map branch name (e.g., `feat/f003-auth-system`) to the feature ID. On main, ask the user which item this work completes. Cross-reference with `.lo/BACKLOG.md` Now section and `.lo/work/` directory.
+4. **Identify the item:** Map branch name to feature/task ID. Cross-reference with `.lo/BACKLOG.md` and `.lo/work/` directory. For release mode, the "item" is the release itself.
 
-5. **Determine diff base:** Find the integration base for this branch (`main`, `0.3.2`, etc.). Store as `DIFF_BASE` for all `git diff` operations.
+5. **Determine diff base:** Find the integration base (`main`, release branch, etc.). Store as `DIFF_BASE`.
 
 ### Gate 2: EARS Requirements Audit
 
-*Only runs if `ears-requirements.md` exists in the work directory (`.lo/work/f{NNN}-slug/ears-requirements.md`).*
+*Only runs if `ears-requirements.md` exists in the work directory.*
 
 1. Parse all `REQ-*` requirement IDs and their statements
 2. For each requirement, verify it was addressed:
@@ -73,13 +76,9 @@ Pipeline behavior depends on **project status** (from `.lo/PROJECT.md`) and **br
    - Scan changed files (`git diff --name-only $DIFF_BASE...HEAD`) for matching behavior
    - Mark each as: **covered**, **partial**, or **uncovered**
 3. Report coverage summary
-4. **Uncovered or partial requirements:**
-   - Ask the user: **implement now**, **defer**, or **out of scope**
-   - If "implement now" → stop pipeline, redirect to `/lo:work`
-   - If "defer" or "out of scope" → note the decision, proceed
-   - Update ears file status to `updated` and add a `## Deferred` section
+4. **Uncovered or partial:** Ask the user — implement now, defer, or out of scope.
 
-This gate is informational — it surfaces gaps but lets the user decide.
+*Skipped in release mode — individual features already passed EARS during their own ship.*
 
 ### Gate 3: Run Tests
 
@@ -87,76 +86,138 @@ Detect the project's test runner and run tests.
 
 - **Pass:** Report count, proceed.
 - **Fail:** Stop. Report failures. Do not continue.
-- **No tests:** Warn user, ask whether to proceed without tests.
+- **No tests:** Warn user, ask whether to proceed.
 
 ### Gate 4: Reviewer
 
-Invoke the `reviewer` subagent (defined in `.claude-plugin/agents/reviewer.md`) to review the diff for quality issues.
+Invoke the `reviewer` subagent (defined in `.claude-plugin/agents/reviewer.md`) to review the diff.
 
 1. Get the diff: `git diff $DIFF_BASE...HEAD`
-2. Dispatch the `reviewer` subagent using the Agent tool with `subagent_type: "reviewer"`, passing the diff and changed file list
-3. The reviewer checks for:
-   - **Secrets**: API keys, tokens, passwords, connection strings
-   - **Security**: injection, auth issues, OWASP top 10
-   - **Dead code**: unused imports, unreachable branches, commented-out blocks
-   - **Obvious bugs**: off-by-one, null derefs, missing error handling
-
+2. Dispatch the `reviewer` subagent, passing the diff and changed file list
+3. The reviewer checks for: secrets, security (OWASP), dead code, obvious bugs
 4. **CLEAN** → proceed
-5. **ISSUES FOUND** → present issues to user. Critical/high severity: stop. Medium/low: warn, ask whether to proceed.
+5. **ISSUES FOUND** → present to user. Critical/high: stop. Medium/low: warn, ask.
+
+### Release Mode: Changelog + Cleanup
+
+*Only runs when on a semver branch (release mode). Inserted between Gate 4 and Gate 5.*
+
+**Generate Changelog:**
+
+1. Read `.lo/work/*/` — plan files, EARS requirements, feature names
+2. Read BACKLOG.md — active features and tasks worked on
+3. Read commits: `git log main..<version> --pretty=format:"%H|%ad|%s" --date=short`
+4. Use all three sources to write a rich changelog — what was built and why, not just commit messages
+5. Group into categories:
+
+   | Prefix/pattern | Category |
+   |---------------|----------|
+   | `feat:`, `feat(*):` | Added |
+   | `fix:`, `fix(*):` | Fixed |
+   | `chore:`, `refactor:` | Changed |
+   | `docs:` | Documentation |
+   | `BREAKING CHANGE:`, `!:` | Breaking |
+
+6. Write or update `CHANGELOG.md`. Present entry for user review.
+7. Commit: `git commit -m "docs: changelog for <version>"`
+
+**Clean up work artifacts:**
+
+1. Scan `.lo/work/` for directories related to this release
+2. Delete each work directory (git history preserves everything)
+3. Update BACKLOG.md: features → `[done](v<version>) YYYY-MM-DD`, tasks → checked + `[done](v<version>) YYYY-MM-DD`
+4. Update `updated:` date in BACKLOG.md
+5. Commit: `git commit -m "chore: clean up work artifacts for v<version>"`
 
 ### Gate 5: Commit + Push
 
-**Commit:**
-1. Stage changes: `git add` relevant files (avoid blindly adding all)
+**Commit** (fast mode and feature mode only — release mode already committed above):
+1. Stage changes: `git add` relevant files
 2. Draft commit message based on item ID and name
 3. Present for user approval
 4. Commit
 
-**Push (Explore/Closed — fast mode):**
-1. If on a feature branch, merge to main first: `git checkout main && git merge <branch>`
-2. Push: `git push origin main`
+**Push:**
 
-**Push (Build/Open — release mode):**
-1. Push feature branch: `git push -u origin <feature-branch>`
-2. Do NOT merge to main — `/lo:release ship` handles that.
+| Mode | Action |
+|------|--------|
+| Fast mode | Merge to main if on feature branch, then `git push origin main` |
+| Feature mode | `git push -u origin <feature-branch>` |
+| Release mode | `git push -u origin <version>`, open PR: `gh pr create --base main --head <version> --title "release: v<version>" --body "<changelog summary>"`, enable auto-merge: `gh pr merge <PR> --auto --merge` |
+
+Use `--merge` (not `--squash`) for release PRs to preserve branch history.
 
 If push fails, stop and report.
 
 ### Gate 6: Wrap-up
 
-**Update BACKLOG.md:**
+**Fast mode (Explore/Closed):**
+- Mark done in BACKLOG.md (`[done] YYYY-MM-DD` — no version in Explore), delete `.lo/work/` directory, update dates
 
-*Explore/Closed:*
-- For features: update status in BACKLOG.md to `Status: done -> YYYY-MM-DD`
-- For tasks: mark done `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD`
-- Delete the work directory `.lo/work/f{NNN}-slug/` (git history preserves everything)
-- Update `updated:` date in BACKLOG.md
+**Feature mode (Build/Open + feature branch):**
+- Leave work directories and BACKLOG.md unchanged — release ship needs them for changelog
 
-*Build/Open:* Leave work directories and BACKLOG.md unchanged — `/lo:release ship` needs these artifacts for the changelog.
+**Release mode (Build/Open + semver branch):**
+- Cleanup already done above. Report PR URL and stop:
 
-**Prompt:**
+      Release PR opened: <url>
+      Auto-merge enabled — will merge when CI and reviews pass.
 
-    Shipped: f{NNN} "<name>"
+      After the PR merges, run: /lo:ship tag
 
-    [Explore/Closed]: Pushed to main
-    [Build/Open]: Branch: origin/<branch> (pushed)
+Do NOT poll or wait. The user resumes when the PR has merged.
+
+**Prompt (all modes):**
+
+    Shipped: <item> "<name>"
 
     Update the stream? Run /lo:stream to capture this milestone.
-    Anything reusable worth capturing? Run /lo:solution, or "no" to skip.
+    Anything reusable? Run /lo:solution, or "no" to skip.
+
+---
+
+## Tag (resume point)
+
+`/lo:ship tag` finishes a release after the PR has merged.
+
+```bash
+git checkout main
+git pull origin main
+git tag -a v<version> -m "v<version>"
+git push origin --tags
+```
+
+Delete the release branch:
+
+```bash
+git branch -d <version>
+git push origin --delete <version>
+```
+
+Report:
+
+    Release shipped: v<version>
+
+      Tag:       v<version>
+      Changelog: CHANGELOG.md updated
+      Cleaned:   work artifacts removed, branches deleted
+
+    Next: /lo:stream to capture this as a milestone.
+
+---
 
 ## Pipeline Summary
 
-**Explore/Closed — fast mode:**
+**Fast mode (Explore/Closed):**
 
     Ship complete: f{NNN} "<name>"
-      EARS:     [N/N covered | skipped]
       Tests:    passed (N tests)
       Reviewer: clean
       Commit:   <hash> "<message>"
       Pushed:   main
       Backlog:  marked done
 
-**Build/Open — release mode:**
+**Feature mode (Build/Open + feature branch):**
 
     Ship complete: f{NNN} "<name>"
       EARS:     [N/N covered | skipped]
@@ -164,26 +225,33 @@ If push fails, stop and report.
       Reviewer: clean
       Commit:   <hash> "<message>"
       Pushed:   origin/<branch>
-      Next:     /lo:release ship to finalize
+
+**Release mode (Build/Open + semver branch):**
+
+    Release: v<version>
+      Tests:     passed (N tests)
+      Reviewer:  clean
+      Changelog: generated
+      Cleanup:   N work dirs removed
+      PR:        #NNN opened, auto-merge enabled
+      After merge: /lo:ship tag
 
 ## Error Recovery
 
     Ship stopped at Gate N: <gate-name>
-    Item: f{NNN} "<name>"
+    Item: <item> "<name>"
+    Mode: [fast | feature | release]
     Issue: [what failed]
     Fix: [suggestion]
     After fixing, run /lo:ship again.
-
-Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
 
 ## Examples
 
 ### Explore — fast mode
 
-    User: /lo:ship
+    User: /lo:ship (on feat/f003-auth, project status: Explore)
 
     Gate 1: Pre-flight — Explore, fast mode ✓
-    Gate 2: EARS — 22/22 covered ✓
     Gate 3: Tests — 47 passed ✓
     Gate 4: Reviewer — clean ✓
     Gate 5: Commit + Push — abc1234, pushed to main ✓
@@ -191,11 +259,11 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
 
     Shipped: f003 "User Authentication"
 
-### Build/Open — release mode
+### Build/Open — feature mode
 
-    User: /lo:ship
+    User: /lo:ship (on feat/f003-auth, project status: Build)
 
-    Gate 1: Pre-flight — Build, release mode ✓
+    Gate 1: Pre-flight — Build, feature mode ✓
     Gate 2: EARS — 22/22 covered ✓
     Gate 3: Tests — 47 passed ✓
     Gate 4: Reviewer — clean ✓
@@ -203,4 +271,24 @@ Pipeline always restarts from Gate 1 (gates are cheap, ensures consistency).
     Gate 6: Wrap-up ✓
 
     Shipped: f003 "User Authentication"
-    Run /lo:release ship to finalize.
+
+### Build/Open — release mode
+
+    User: /lo:ship (on branch 0.4.0, project status: Build)
+
+    Gate 1: Pre-flight — Build, release mode ✓
+    Gate 3: Tests — 12 passed ✓
+    Gate 4: Reviewer — clean ✓
+    Changelog: generated, reviewed ✓
+    Cleanup: 2 work dirs removed, backlog updated ✓
+    Gate 5: Push + PR — #42 opened, auto-merge enabled ✓
+
+    After the PR merges, run: /lo:ship tag
+
+### Tagging after merge
+
+    User: /lo:ship tag
+
+    Tagged: v0.4.0
+    Branch 0.4.0 deleted (local + remote)
+    Release shipped: v0.4.0

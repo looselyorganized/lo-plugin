@@ -54,7 +54,7 @@ Arguments: `f{NNN}` or feature name (fuzzy match against BACKLOG.md)
 
 1. Derive directory name: `f{NNN}-slug` (kebab-case from feature name, prefixed with ID)
 2. Create `.lo/work/f{NNN}-slug/` directory
-3. Update feature status in BACKLOG.md: `Status: active -> .lo/work/f{NNN}-slug/`
+3. Update feature status in BACKLOG.md: add `[active](.lo/work/f{NNN}-slug/)` line under the feature
 4. Update `updated:` date in BACKLOG.md
 5. Confirm:
 
@@ -211,7 +211,7 @@ When invoked as `/lo:plan` with no arguments:
 
     Agent reads BACKLOG.md → finds f003 "User Authentication" (status: backlog)
     Creates .lo/work/f003-user-auth/
-    Updates backlog: f003 status → active -> .lo/work/f003-user-auth/
+    Updates backlog: adds [active](.lo/work/f003-user-auth/) under f003
     Checks .lo/solutions/ for relevant prior art
     Invokes brainstorming → explores design → user approves
 
