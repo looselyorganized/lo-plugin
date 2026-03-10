@@ -74,14 +74,14 @@ All notable changes to this project are documented in this file.
 - README staleness check in ship Gate 4
 
 ### Changed
-- Ship defers cleanup to /lo:release ship in Build/Open mode
+- Ship defers cleanup to /lo:ship in Build/Open mode
 - Work skill reads EARS alongside plans
 - Ship skill audits EARS coverage at Gate 2
 ```
 
 ## Rules
 
-1. **Newest version at the top.** Each `/lo:release ship` prepends a new version block.
+1. **Newest version at the top.** Each `/lo:ship` prepends a new version block.
 2. **Date format:** `YYYY-MM-DD`
 3. **Version format:** `[MAJOR.MINOR.PATCH]` in brackets
 4. **Categories** (only include categories that have entries):
@@ -98,7 +98,7 @@ All notable changes to this project are documented in this file.
 5. **Entry format:** One line per change (wrap long lines). Start with what changed, not how. Include backlog IDs when applicable: `(f003)`, `(t005)`.
 6. **One entry per feature/task.** Multiple commits implementing the same feature become a single changelog line. The changelog describes outcomes, not implementation steps.
 7. **Terse and factual.** No marketing copy, no filler. Same writing style as stream entries.
-8. **Generated, then edited.** `/lo:release ship` synthesizes from all three sources and presents a draft. The user reviews and edits before writing.
+8. **Generated, then edited.** `/lo:ship` synthesizes from all three sources and presents a draft. The user reviews and edits before writing.
 
 ## Commit Classification
 

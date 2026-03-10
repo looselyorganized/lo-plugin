@@ -96,9 +96,9 @@ Create a backlog feature and work plan:
 1. Determine next feature ID from `.lo/BACKLOG.md`
 2. Add to BACKLOG.md:
 
-        ### f{NNN} — Test Coverage
-        Retroactive test coverage for core project logic. Generated during Explore → Build transition.
-        Status: active -> .lo/work/f{NNN}-test-coverage/
+        - [ ] f{NNN} Test Coverage
+          Retroactive test coverage for core project logic. Generated during Explore → Build transition.
+          [active](.lo/work/f{NNN}-test-coverage/)
 
 3. Create `.lo/work/f{NNN}-test-coverage/001-test-coverage.md`:
 
