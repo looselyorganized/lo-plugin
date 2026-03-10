@@ -17,7 +17,7 @@ Features and tasks use the same list-item pattern:
 ```markdown
 - [ ] f{NNN} Feature Name
   Description of the feature.
-  status-line
+  status-line (optional; omit for backlog items)
 ```
 
 | Element | Format | Description |
@@ -42,12 +42,12 @@ Tasks follow the same pattern as features. Description goes on the first line af
 
 ## Status Lines
 
-| State | Format | Example |
-|-------|--------|---------|
-| Backlog | (no status line) | Just the checkbox + ID + name |
-| Active | `[active](.lo/work/<id>-slug/)` | Link to work directory (`f{NNN}` for features, `t{NNN}` for tasks) |
-| Done (no version) | `[done] YYYY-MM-DD` | Explore/Closed projects |
-| Done (versioned) | `[done](v0.4.0) YYYY-MM-DD` | Build/Open projects |
+| State | Checkbox | Format | Example |
+|-------|----------|--------|---------|
+| Backlog | `- [ ]` | (no status line) | Just the checkbox + ID + name |
+| Active | `- [ ]` | `[active](.lo/work/<id>-slug/)` | Link to work directory (`f{NNN}` for features, `t{NNN}` for tasks) |
+| Done (no version) | `- [x]` | `[done] YYYY-MM-DD` | Explore/Closed projects |
+| Done (versioned) | `- [x]` | `[done](v0.4.0) YYYY-MM-DD` | Build/Open projects |
 
 The Markdown link syntax serves double duty — it's both metadata and navigation in GitHub/editors.
 

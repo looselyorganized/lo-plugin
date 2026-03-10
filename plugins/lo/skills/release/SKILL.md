@@ -115,7 +115,7 @@ When invoked with no args (`/lo:release`):
 
 ## How Release Fits the Workflow
 
-```
+```text
 /lo:release 0.4.0          → creates release branch, bumps version
   /lo:plan f003             → plans feature
   /lo:work f003             → executes plan
