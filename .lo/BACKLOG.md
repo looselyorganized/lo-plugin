@@ -1,5 +1,5 @@
 ---
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 ## Features
@@ -28,6 +28,10 @@ updated: 2026-03-09
   Redesign using Claude Code's latest capabilities — subagents, hooks, allowed-tools, simplified pipelines.
   [done](v0.4.0) 2026-03-09
 
+- [ ] f007 Project Refresh
+  `/lo:refresh` skill that updates (not regenerates) README.md, CLAUDE.md, and other project files to reflect current state. Reads PROJECT.md, BACKLOG.md, and codebase context to patch stale sections. Called by `/lo:ship` as a final step, or manually anytime.
+  Status: backlog
+
 ## Tasks
 
 - [x] t001 Audit /work
@@ -38,3 +42,7 @@ updated: 2026-03-09
   [done](v0.3.2) 2026-03-07
 - [ ] t004 Add epic to backlog command
 - [ ] t005 Review /lo:new flow — validation redundancy, research dir scaffolding
+- [ ] t006 Fix PROJECT.md frontmatter key: generate `id: "proj_UUID"` not `proj_id: "proj_UUID"`
+- [ ] t007 Stream as single STREAM.md file in .lo/ root instead of individual files in .lo/stream/
+- [ ] t008 Audit files created on status change to Build — ensure proper CI/CD scaffolding
+- [ ] t009 Add private/public visibility toggle to /lo:status (or separate command)
