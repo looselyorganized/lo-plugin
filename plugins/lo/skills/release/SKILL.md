@@ -44,7 +44,10 @@ Starts versioned releases. Creates a release branch, bumps the version, and hand
 ### Step 1: Pre-flight
 
 1. Read `.lo/PROJECT.md` — verify status is `Build` or `Open`
-2. Read the project's version source to determine current version
+2. Find and read the project's version source:
+```bash
+grep -r '"version"' package.json plugin.json plugins/*/plugin.json .claude-plugin/plugin.json 2>/dev/null | head -5
+```
 3. Check `git status` — working tree must be clean
 4. Check current branch — must be on `main`
 
@@ -127,22 +130,22 @@ When invoked with no args (`/lo:release`):
 
 ## Examples
 
-### Starting a release
+<example name="starting-a-release">
+User: /lo:release bump minor
 
-    User: /lo:release bump minor
+Current version: 0.3.2 → Next minor: 0.4.0
+Release started: 0.4.0
+Branch: 0.4.0
+Version bumped in: plugin.json
 
-    Current version: 0.3.2 → Next minor: 0.4.0
-    Release started: 0.4.0
-    Branch: 0.4.0
-    Version bumped in: plugin.json
+Work on this branch. Finalize with /lo:ship.
+</example>
 
-    Work on this branch. Finalize with /lo:ship.
+<example name="showing-status">
+User: /lo:release
 
-### Showing status
-
-    User: /lo:release
-
-    Release in progress: 0.4.0
-    Branch: 0.4.0
-    Commits since branch: 5
-    Finalize with: /lo:ship
+Release in progress: 0.4.0
+Branch: 0.4.0
+Commits since branch: 5
+Finalize with: /lo:ship
+</example>

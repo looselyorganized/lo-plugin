@@ -1,13 +1,9 @@
 ---
-proj_id: "proj_d1fe04ef-cb5e-42de-a1f0-8bcadb9c469a"
+id: "proj_d1fe04ef-cb5e-42de-a1f0-8bcadb9c469a"
 title: "LO Plugin"
 description: "Claude Code plugin providing the LO work system — backlog, work execution, knowledge capture, shipping pipeline, and design system."
 status: "build"
 state: "public"
-topics:
-  - developer-tooling
-  - ai-collaboration
-  - work-management
 repo: "https://github.com/looselyorganized/lo-plugin"
 stack:
   - Markdown

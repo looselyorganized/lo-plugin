@@ -2,6 +2,30 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.4.1] — 2026-03-10
+
+### Added
+- Epic support in /lo:backlog — group related features under named epics (t004)
+- Private/public visibility toggle in /lo:status (t009)
+- Stream milestone creation integrated into release ship pipeline — entries created with full context before work artifact cleanup
+- Progress checklists in ship, stream, and work skills
+
+### Changed
+- Stream consolidated from .lo/stream/*.md files to single .lo/STREAM.md with XML entry format (t007)
+- Stream entries restricted to milestones only — "would you post this?" quality gate replaces update/note types
+- Stream XML format adopted across all 10 LO repos
+- Backlog done format simplified from `[done](v0.4.0)` hyperlink to plain `[done] v0.4.0` (t011)
+- PROJECT.md frontmatter key renamed from `proj_id` to `id` (t006)
+- /lo:new scaffolding updated — creates STREAM.md file instead of stream/ directory (t005)
+- All skills rewritten with Anthropic prompt engineering best practices — XML-isolated mode paths, critical blocks, scripted git commands
+- README updated to reflect current .lo/ convention
+
+### Removed
+- `topics` field from PROJECT.md frontmatter and /lo:new generation (t010)
+- `commits` and `feature_id` fields from stream entries
+- Stream `type` field (milestone/update/note) — all entries are milestones now
+- Individual stream entry files (.lo/stream/*.md)
+
 ## [0.4.0] — 2026-03-09
 
 ### Added

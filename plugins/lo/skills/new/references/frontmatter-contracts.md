@@ -15,11 +15,11 @@ The root file. One per project. Contains all metadata and the project brief.
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `id` | string | Auto-generated project identifier. Format: `proj_` + lowercase UUID v4. Never manually assign or reuse. |
 | `title` | string | Project title, e.g. `"Project: Nexus"` |
 | `description` | string | One-sentence description |
 | `status` | enum | `explore` \| `build` \| `open` \| `closed` |
 | `state` | enum | `public` \| `private` |
-| `topics` | string[] | Non-empty array for filtering/discovery |
 
 ### Optional Fields
 
@@ -34,7 +34,6 @@ The root file. One per project. Contains all metadata and the project brief.
 
 - `status` must be one of: `explore`, `build`, `open`, `closed`
 - `state` must be one of: `public`, `private`
-- `topics` must be a non-empty array of strings
 - `agents[].name` and `agents[].role` are required if `agents` is present
 - `stack` and `infrastructure` are distinct: stack = code (Bun, React, Hono), infrastructure = services (Supabase, Railway, Docker)
 
@@ -63,6 +62,7 @@ Any other `## ` headings render as generic prose sections. All sections are opti
 
 ```yaml
 ---
+id: "proj_166345da-d821-4b3a-abbc-e3a439925e85"
 title: "Project: Nexus"
 description: "A coordination server for multi-agent engineering teams."
 status: "build"
@@ -75,9 +75,6 @@ stack:
 infrastructure:
   - Railway
   - Supabase
-topics:
-  - distributed-systems
-  - agent-coordination
 agents:
   - name: "claude-code"
     role: "AI coding agent (Claude Code)"
@@ -103,34 +100,35 @@ Current multi-agent setups have no coordination layer. Agents overwrite each oth
 
 ---
 
-## stream/*.md — Project Stream Entries
+## STREAM.md — Project Stream
 
-Chronological log. Filename convention: `YYYY-MM-DD-{slug}.md`.
+Single file containing all milestones, newest first. File has `type: stream` frontmatter, entries use XML tags for reliable parsing. See `plugins/lo/skills/stream/references/stream-format.md` for full spec.
 
-### Required Fields
+### Entry Metadata Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `type` | enum | `update` \| `milestone` \| `note` |
-| `date` | date | Must match filename prefix (YYYY-MM-DD) |
-| `title` | string | Short title for the entry |
-
-### Type Semantics
-
-- `milestone` — Significant achievement or deliverable
-- `update` — Progress report, status change, design decision
-- `note` — Informal observation, thought, or reference
+| Field | Required | Type | Description |
+|-------|----------|------|-------------|
+| `date` | yes | date | YYYY-MM-DD |
+| `title` | yes | string | Short descriptive title (under 80 chars) |
+| `version` | no | string | Semver if this is a release milestone |
+| `research` | no | string | Comma-separated slugs of related research articles |
 
 ### Example
 
-```yaml
+```markdown
 ---
-type: "milestone"
-date: "2026-02-15"
-title: "Prototype deployed to Railway"
+type: stream
 ---
 
-First working deployment. API responds to health checks, WebSocket connections establish successfully. No persistence layer yet — all state is in-memory.
+<entry>
+date: 2026-02-15
+title: "Prototype deployed to Railway"
+version: "0.1.0"
+research: "railway-deployment,bun-http-server"
+<description>
+First working deployment. API responds to health checks, WebSocket connections establish successfully.
+</description>
+</entry>
 ```
 
 ---
@@ -145,7 +143,7 @@ Raw materials captured during deep work. Filename convention: `{slug}.md`.
 |-------|------|-------------|
 | `title` | string | Descriptive title |
 | `date` | date | Creation or last update date (YYYY-MM-DD) |
-| `topics` | string[] | Topic tags |
+| `topics` | string[] | Topic tags (used by platform for articles; not used in PROJECT.md) |
 
 ### Optional Fields
 

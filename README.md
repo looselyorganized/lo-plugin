@@ -22,7 +22,7 @@ Add the marketplace and install the plugin:
 | solution | `/lo:solution` | Capture reusable knowledge |
 | status | `/lo:status` | Manage project lifecycle transitions (explore → build → open → closed) |
 | new | `/lo:new` | Scaffold `.lo/` directory |
-| stream | `/lo:stream` | Update `.lo/stream/` with milestones and updates |
+| stream | `/lo:stream` | Update `.lo/STREAM.md` with milestones only |
 | publish | `/lo:publish` | Publish research articles to the platform from `.lo/research/` material |
 | stocktaper-design-system | — | StockTaper / LO design system tokens, components, and layout patterns |
 
@@ -42,10 +42,7 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 .lo/
 ├── PROJECT.md            # Brief, metadata, agent declarations
 ├── BACKLOG.md            # Feature and task backlog
-├── stream/               # Milestones, updates, notes
-│   ├── 2026-01-15-project-started.md
-│   ├── 2026-02-15-prototype-deployed.md
-│   └── 2026-02-17-load-test-results.md
+├── STREAM.md             # Milestones only (single file, newest first)
 ├── research/             # Research docs (draft → review → published)
 │   ├── distributed-locking.md
 │   └── institutional-memory.md
@@ -58,7 +55,7 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 
 All files use Markdown with YAML frontmatter (parsed by gray-matter). No MDX — `.lo/` content is plain Markdown to keep the contract simple and parseable by any tool.
 
-### `project.md` — Project Brief & Metadata
+### `PROJECT.md` — Project Brief & Metadata
 
 The root file. One per project. Contains all metadata and the project brief.
 
@@ -66,6 +63,7 @@ The root file. One per project. Contains all metadata and the project brief.
 
 ```yaml
 ---
+id: "proj_UUID"                  # auto-generated, never reused
 title: "Project: Nexus"
 description: "A coordination server for multi-agent engineering teams."
 status: "build"                  # explore | build | open | closed
@@ -75,57 +73,58 @@ stack:                           # optional, array of strings
   - Bun
   - Hono
   - Redis
-topics:                          # array of strings (for filtering/discovery)
-  - distributed-systems
-  - agent-coordination
+infrastructure:                  # optional, services layer
+  - Railway
+  - Supabase
 agents:                          # optional, array of agent declarations
   - name: "nexus-coordinator"
     role: "Coordination and task distribution"
-    email: "nexus@lo.dev"      # optional, for AgentMail
-relatedContent:                  # optional, cross-references to website content
-  - type: research
-    slug: distributed-locking-for-agents
-  - type: thoughts
-    slug: why-agents-need-locks
 ---
 ```
 
 **Body:** The project brief. Free-form Markdown describing what the project is, why it exists, architecture, capabilities, and current state. This replaces the body of `content/projects/{slug}/index.mdx`.
 
-**Required fields:** `title`, `description`, `status`, `state`, `topics`
-**Optional fields:** `repo`, `stack`, `agents`, `relatedContent`
+**Required fields:** `id`, `title`, `description`, `status`, `state`
+**Optional fields:** `repo`, `stack`, `infrastructure`, `agents`
 
 **Validation rules:**
 - `status` must be one of: `explore`, `build`, `open`, `closed`
 - `state` must be one of: `public`, `private`
-- `topics` must be a non-empty array of strings
 - `agents[].name` and `agents[].role` are required if `agents` is present
-- `relatedContent[].type` must be `research` or `thoughts`
+- `stack` and `infrastructure` are distinct: stack = code (Bun, React), infrastructure = services (Supabase, Railway)
 
-### `stream/*.md` — Project Stream Entries
+### `STREAM.md` — Project Stream
 
-Chronological log of updates, milestones, and notes. This is the project's activity feed.
+Single file containing milestones only, newest first. This is the project's milestone feed.
 
-**Filename convention:** `YYYY-MM-DD-{slug}.md` (e.g., `2026-02-15-prototype-deployed.md`). Date prefix enables chronological sorting by filename.
+**File format:** YAML frontmatter (`type: stream`), then entries using XML tags for reliable parsing. Newest first.
 
-**Frontmatter contract:**
-
-```yaml
+```markdown
 ---
-type: "milestone"                # update | milestone | note
-date: "2026-02-15"              # Must match filename prefix
+type: stream
+---
+
+<entry>
+date: 2026-02-15
 title: "Prototype deployed to Railway"
----
+version: "0.1.0"
+<description>
+First working deployment with Redis-backed coordination. API responds to health checks, WebSocket connections establish successfully.
+</description>
+</entry>
+
+<entry>
+date: 2026-01-15
+title: "Project initialized"
+<description>
+Initial project scaffolding and architecture decisions.
+</description>
+</entry>
 ```
 
-**Body:** Details of the update. Free-form Markdown.
+**Entry metadata fields:** `date` (required), `title` (required), `version` (optional, releases only), `research` (optional, comma-separated slugs)
 
-**Required fields:** `type`, `date`, `title`
-
-**Type semantics:**
-- `milestone` — Significant achievement or deliverable (first deploy, major feature complete, etc.)
-- `update` — Progress report, status change, design decision
-- `note` — Informal observation, thought, or reference
+**Body:** 1-3 sentences per entry inside `<description>` tags. Public-facing voice.
 
 ### `research/*.md` — Research Files
 
@@ -198,24 +197,38 @@ Research articles are published separately via `/lo:publish` from the platform r
 To add your project to LO, create a `.lo/` directory at your repo root:
 
 ```bash
-mkdir -p .lo/stream .lo/research
+mkdir -p .lo/research .lo/work .lo/solutions
+cat > .lo/STREAM.md <<'EOF'
+---
+type: stream
+---
+EOF
 ```
 
-Create `.lo/project.md`:
+Create `.lo/PROJECT.md`:
 
 ```markdown
 ---
+id: "proj_a1b2c3d4-e5f6-7890-abcd-ef1234567890"   # generate a new UUID v4 — must be unique
 title: "Your Project Name"
 description: "One-sentence description of what this project does."
 status: "explore"
 state: "public"
-topics:
-  - your-topic
-  - another-topic
 ---
 
 Your project brief goes here. What is this? Why does it exist?
 What problem does it solve? What's the current state?
+```
+
+> **Note:** The `id` field is auto-generated and must be unique. Generate a lowercase UUID v4 — do not copy the example value.
+
+Create `.lo/BACKLOG.md`:
+
+```markdown
+---
+type: backlog
+---
+
 ```
 
 That's the minimum. Add stream entries and research docs as the project evolves. The webhook will sync everything to the website automatically.

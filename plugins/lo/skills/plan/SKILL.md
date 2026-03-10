@@ -16,28 +16,48 @@ allowed-tools:
 
 Turns backlog items into actionable implementation plans. Brainstorms design, writes structured plans, and saves them to `.lo/work/` for execution by `/lo:work`.
 
+<critical>
+This skill designs — it does NOT execute. Never write implementation code. Redirect to /lo:work when the user wants to start building.
+</critical>
+
 ## When to Use
 
 - User invokes `/lo:plan`
 - User says "plan this", "start feature", "brainstorm", "design this"
-- User wants to graduate a feature from backlog to active work with a plan
-
-## Critical Rules
-
-- The `.lo/` directory must exist — if it doesn't, tell the user to run `/lo:new` first.
-- Brainstorm before planning features. Jumping straight to a plan skips design exploration, which leads to rework.
-- This skill designs — it does not execute. Redirect to `/lo:work` when the user wants to start building.
-- Plans always go in `.lo/work/f{NNN}-slug/` or `.lo/work/t{NNN}-slug/` — never `docs/plans/` or anywhere else. Use the format in `references/plan-format-contract.md`.
-- Update the feature status to `active` in BACKLOG.md when creating a work directory. Features stay in the backlog through their full lifecycle (`backlog` → `active` → `done`).
+- User wants to graduate a feature from backlog to active work
 
 ## Modes
 
 Detect from arguments:
-- `/lo:plan f003` or `/lo:plan "auth system"` → plan a feature
-- `/lo:plan t005` or `/lo:plan "fix button"` → plan a task
-- `/lo:plan` with no args → show plannable items from backlog
+- `/lo:plan f003` or `/lo:plan "auth system"` → **feature planning**
+- `/lo:plan t005` or `/lo:plan "fix button"` → **task planning**
+- `/lo:plan` with no args → **show plannable items**
 
-## Feature Planning Flow
+**If the argument matches a feature → follow Feature Planning below.**
+**If the argument matches a task → follow Task Planning below.**
+**If no args → show plannable items from backlog, then route based on selection.**
+
+---
+
+<feature-planning>
+## Feature Planning
+
+You are planning a **feature**. Features get brainstorming, optional EARS requirements, and structured plans.
+
+### Progress Checklist
+
+```
+Plan Progress:
+  Feature: [pending]
+  - [ ] Step 1: Identify feature
+  - [ ] Step 2: Create work directory
+  - [ ] Step 3: Check solutions for prior art
+  - [ ] Step 4: Brainstorm
+  - [ ] Step 5: EARS requirements (optional)
+  - [ ] Step 6: Choose planning approach
+  - [ ] Step 7: Save plan
+  - [ ] Step 8: Bridge to execution
+```
 
 ### Step 1: Identify the Feature
 
@@ -53,32 +73,38 @@ Arguments: `f{NNN}` or feature name (fuzzy match against BACKLOG.md)
 ### Step 2: Create Work Directory
 
 1. Derive directory name: `f{NNN}-slug` (kebab-case from feature name, prefixed with ID)
-2. Create `.lo/work/f{NNN}-slug/` directory
-3. Update feature status in BACKLOG.md: add `[active](.lo/work/f{NNN}-slug/)` line under the feature
-4. Update `updated:` date in BACKLOG.md
-5. Confirm:
 
-        Feature activated: f{NNN} "<name>"
-        Work directory: .lo/work/f{NNN}-slug/
-        Backlog status: active
+```bash
+mkdir -p .lo/work/f{NNN}-slug
+```
+
+2. Update feature status in BACKLOG.md: add `[active](.lo/work/f{NNN}-slug/)` line under the feature
+3. Update `updated:` date in BACKLOG.md
+4. Confirm:
+
+```
+Feature activated: f{NNN} "<name>"
+Work directory: .lo/work/f{NNN}-slug/
+Backlog status: active
+```
 
 ### Step 3: Check Solutions for Prior Art
 
 Scan `.lo/solutions/` for relevant institutional knowledge before brainstorming.
 
-1. List filenames in `.lo/solutions/` (cheap — just an `ls`)
-2. Check if any slugs are relevant to the feature being planned (fuzzy match on topic)
-3. If matches found, read only those files and surface a brief summary:
+1. List filenames in `.lo/solutions/`
+2. Check if any slugs are relevant (fuzzy match on topic)
+3. If matches found, surface a brief summary:
 
-        Prior art found:
-          2025-11-14-supabase-rls.md — Row-level security pattern for multi-tenant queries
-          2025-12-03-streaming-sse.md — SSE setup with edge functions
+```
+Prior art found:
+  s003-supabase-rls.md — Row-level security pattern for multi-tenant queries
+  s007-streaming-sse.md — SSE setup with edge functions
 
-        These will be fed into the brainstorming context.
+These will be fed into the brainstorming context.
+```
 
-4. If no matches → skip silently, no output needed
-
-Surface the solution summaries in the conversation before invoking the brainstorming skill. The skill reads conversation context, so it will naturally pick up the summaries. Present them as prior art the user should consider during design.
+4. If no matches → skip silently
 
 ### Step 4: Brainstorm
 
@@ -94,94 +120,128 @@ This is mandatory for features. The brainstorming skill will:
 
 ### Step 5: Write EARS Requirements (Optional)
 
-After brainstorming, evaluate whether the feature needs formal requirements before planning. Offer EARS if the feature involves:
-
-- **Multiple subsystems** (e.g., GH Action + service + schema)
-- **External interfaces or APIs**
-- **State machines or lifecycle flows**
-- **Multiple actors** (users, agents, services)
+Evaluate whether the feature needs formal requirements. Offer EARS if it involves:
+- Multiple subsystems
+- External interfaces or APIs
+- State machines or lifecycle flows
+- Multiple actors (users, agents, services)
 
 If any apply, ask:
 
-    This feature has [multiple subsystems / external interfaces / state transitions].
-    Write EARS requirements before planning? (Recommended for complex features, skip for simple ones)
+```
+This feature has [multiple subsystems / external interfaces / state transitions].
+Write EARS requirements before planning?
 
-    1. Write EARS requirements (recommended)
-    2. Skip — go straight to planning
+1. Write EARS requirements (recommended)
+2. Skip — go straight to planning
+```
 
 **Do not proceed until the user answers.**
 
+<ears-yes>
 If the user chooses EARS:
 
-1. Read `references/ears-guide.md` for the full EARS pattern reference, template, and naming conventions
-2. Explore the codebase to understand each subsystem's boundaries and interfaces
-3. Write requirements to `.lo/work/f{NNN}-slug/ears-requirements.md` using the EARS template
-4. Present the requirements to the user for review and approval
-5. Once approved, update the EARS frontmatter `status:` from `draft` to `approved` and proceed to Step 6 — the implementation plan should reference EARS requirement IDs (e.g., `REQ-A01`) in task descriptions
+1. Read `references/ears-guide.md` for the full pattern reference
+2. Explore the codebase to understand subsystem boundaries
+3. Write requirements to `.lo/work/f{NNN}-slug/ears-requirements.md`
+4. Present for user review and approval
+5. Once approved, update EARS frontmatter `status:` from `draft` to `approved`
+6. Proceed to Step 6 — plan tasks should reference EARS IDs (e.g., `REQ-A01`)
+</ears-yes>
 
+<ears-no>
 If the user skips, proceed directly to Step 6.
+</ears-no>
 
 ### Step 6: Choose Planning Approach
 
-After brainstorming, ask the user:
+```
+Design approved. How do you want to plan the implementation?
 
-    Design approved. How do you want to plan the implementation?
+1. Plan mode (recommended for complex/unfamiliar features)
+   Interactive — explores codebase, designs step-by-step, you approve before saving.
 
-    1. Plan mode (recommended for complex/unfamiliar features)
-       Interactive — explores codebase, designs step-by-step approach, you approve before saving.
-
-    2. Quick plan (good when you already know the shape)
-       Generates plan directly from the brainstorming output. Faster, less codebase exploration.
+2. Quick plan (good when you already know the shape)
+   Generates plan directly from brainstorming output. Faster, less exploration.
+```
 
 **Do not proceed until the user answers.**
 
-**Plan mode path:**
+<plan-mode>
+**Plan mode:**
+
 1. Use `EnterPlanMode` to enter plan mode
-2. Explore the codebase using the `scout` subagent — identify files to touch, patterns to follow, dependencies
+2. Explore the codebase using the `scout` subagent — identify files, patterns, dependencies
 3. Write the plan to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format
 4. Present via `ExitPlanMode` for user approval
 5. If multi-phase, create additional plan files (`002-*.md`, `003-*.md`)
+</plan-mode>
 
-**Quick plan path:**
+<quick-plan>
+**Quick plan:**
+
 1. Invoke `superpowers:writing-plans` to generate a structured implementation plan
 2. The writing-plans skill produces detailed, bite-sized tasks with file paths and code
 3. Save output to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format
+</quick-plan>
 
 ### Step 7: Save Plan
 
-Save the plan to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format. For multi-phase features, create separate numbered files (`002-*.md`, `003-*.md`).
+Save to `.lo/work/f{NNN}-slug/001-<phase-slug>.md`. For multi-phase features, create separate numbered files.
 
-See `references/plan-format-contract.md` for the full format specification — required frontmatter fields, task syntax (`[parallel]`, `(depends on N, M)`), and status transitions.
+See `references/plan-format-contract.md` for required frontmatter, task syntax (`[parallel]`, `(depends on N, M)`), and status transitions.
 
 ### Step 8: Bridge to Execution
 
-    Plan saved: .lo/work/f{NNN}-slug/001-<phase-slug>.md
+```
+Plan saved: .lo/work/f{NNN}-slug/001-<phase-slug>.md
 
-    Ready to start building? Type /lo:work to begin.
+Ready to start building? Type /lo:work to begin.
+```
 
-## Task Planning Flow
+</feature-planning>
 
-Tasks are smaller — they don't always need brainstorming or formal plans.
+---
 
-### `/lo:plan t{NNN}`
+<task-planning>
+## Task Planning
+
+You are planning a **task**. Tasks are smaller — they don't always need brainstorming or formal plans.
 
 1. Read BACKLOG.md, find the task
 2. Ask the user:
 
-        Planning: t{NNN} "<description>"
+```
+Planning: t{NNN} "<description>"
 
-        1. Quick plan — jot down a few steps, save to .lo/work/t{NNN}-slug/
-        2. Jump to /lo:work — skip planning, just start executing
+1. Quick plan — jot down a few steps, save to .lo/work/t{NNN}-slug/
+2. Jump to /lo:work — skip planning, just start executing
+```
 
-3. **Quick plan chosen:**
-   - Create `.lo/work/t{NNN}-slug/` directory
-   - Ask the user to describe the approach or generate steps from the task description
-   - Save a lightweight plan file to `.lo/work/t{NNN}-slug/001-task.md`
-   - Edit `.lo/BACKLOG.md` to replace the task's backlog entry status line with `[active](.lo/work/t{NNN}-slug/)` (preserve existing metadata and formatting)
-   - Bridge to `/lo:work`
+<task-quick-plan>
+**Quick plan chosen:**
 
-4. **Jump to /lo:work chosen:**
-   - Tell user to run `/lo:work t{NNN}` — work skill handles tasks without plans directly
+1. Create work directory:
+
+```bash
+mkdir -p .lo/work/t{NNN}-slug
+```
+
+2. Ask the user to describe the approach or generate steps from the task description
+3. Save a lightweight plan file to `.lo/work/t{NNN}-slug/001-task.md`
+4. Update BACKLOG.md: add `[active](.lo/work/t{NNN}-slug/)` status line
+5. Bridge to `/lo:work`
+</task-quick-plan>
+
+<task-jump>
+**Jump to /lo:work chosen:**
+
+Tell user to run `/lo:work t{NNN}` — work skill handles tasks without plans directly.
+</task-jump>
+
+</task-planning>
+
+---
 
 ## No-Args Mode
 
@@ -190,50 +250,47 @@ When invoked as `/lo:plan` with no arguments:
 1. Read BACKLOG.md
 2. Show items that could be planned:
 
-        What would you like to plan?
+```
+What would you like to plan?
 
-        Features (backlog):
-          f001 Auth system
-          f003 Dashboard redesign
+Features (backlog):
+  f001 Auth system
+  f003 Dashboard redesign
 
-        Tasks (open):
-          t002 Fix button color
-          t005 Update dependencies
+Tasks (open):
+  t002 Fix button color
+  t005 Update dependencies
 
-        Enter an ID:
+Enter an ID:
+```
 
-3. Route to feature or task planning flow based on selection.
+3. Route to Feature Planning or Task Planning based on selection.
 
 ## Examples
 
-### Planning a feature (full flow)
+<example name="feature-full-flow">
+User: /lo:plan f003
 
-    User: /lo:plan f003
+Step 1: Found f003 "User Authentication" (status: backlog)
+Step 2: Created .lo/work/f003-user-auth/, backlog updated
+Step 3: Found s003-supabase-rls.md as prior art
+Step 4: Brainstorming → user approves session-based auth design
+Step 5: Feature has multiple subsystems → user chooses EARS → wrote ears-requirements.md
+Step 6: User picks quick plan
+Step 7: Saved 001-auth-flow.md (tasks reference REQ-A01..REQ-A04)
 
-    Agent reads BACKLOG.md → finds f003 "User Authentication" (status: backlog)
-    Creates .lo/work/f003-user-auth/
-    Updates backlog: adds [active](.lo/work/f003-user-auth/) under f003
-    Checks .lo/solutions/ for relevant prior art
-    Invokes brainstorming → explores design → user approves
+Plan saved: .lo/work/f003-user-auth/001-auth-flow.md
+EARS: .lo/work/f003-user-auth/ears-requirements.md
+Ready to start building? Type /lo:work to begin.
+</example>
 
-    This feature has multiple subsystems (auth middleware, login endpoint, signup endpoint, session management).
-    Write EARS requirements before planning? (Recommended for complex features, skip for simple ones)
+<example name="task-quick">
+User: /lo:plan t005
 
-    User picks EARS → writes ears-requirements.md with REQ-A01..REQ-A04
-    Asks: Plan mode or quick plan?
-    User picks quick plan → saves 001-auth-flow.md (tasks reference REQ-A01, REQ-A02, etc.)
+Planning: t005 "Update dependency versions"
 
-    Plan saved: .lo/work/f003-user-auth/001-auth-flow.md
-    EARS: .lo/work/f003-user-auth/ears-requirements.md
-    Ready to start building? Type /lo:work to begin.
+1. Quick plan
+2. Jump to /lo:work
 
-### Planning a task (quick)
-
-    User: /lo:plan t005
-
-    Planning: t005 "Update dependency versions"
-
-    1. Quick plan — jot down steps, save to .lo/work/t005-update-deps/
-    2. Jump to /lo:work — skip planning, just start executing
-
-    User picks option 2 → "Run /lo:work t005 to start."
+User picks 2 → "Run /lo:work t005 to start."
+</example>

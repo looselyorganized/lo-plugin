@@ -35,7 +35,7 @@ The project backlog lives at `.lo/BACKLOG.md`. It is the single registry for fea
   status-line (optional)
 
 - [x] t{NNN} Task description
-  [done](v0.4.0) 2026-03-09
+  [done] v0.4.0 2026-03-09
 ```
 
 Tasks use a simplified pattern where the first-line description after the ID serves as the task name; there is no separate Name field.
@@ -56,9 +56,9 @@ Tasks use a simplified pattern where the first-line description after the ID ser
 | Backlog | `- [ ]` | (no status line) | Just the checkbox + ID + name |
 | Active | `- [ ]` | `[active](.lo/work/<id>-slug/)` | Link to work directory (`f{NNN}` for features, `t{NNN}` for tasks) |
 | Done (no version) | `- [x]` | `[done] YYYY-MM-DD` | Explore/Closed projects |
-| Done (versioned) | `- [x]` | `[done](v0.4.0) YYYY-MM-DD` | Build/Open projects |
+| Done (versioned) | `- [x]` | `[done] vX.Y.Z YYYY-MM-DD` | Build/Open projects |
 
-The Markdown link syntax serves double duty — it's both metadata and navigation in GitHub/editors.
+The `[active]` tag uses Markdown link syntax for navigation. The `[done]` tag uses plain text with an optional version prefix.
 
 ## ID Convention
 
@@ -70,8 +70,43 @@ The Markdown link syntax serves double duty — it's both metadata and navigatio
 ## Status Transitions
 
 - **Backlog → Active:** `/lo:plan` adds `[active](.lo/work/<id>-slug/)` when creating a work directory (`f{NNN}` for features, `t{NNN}` for tasks)
-- **Active → Done:** `/lo:ship` updates the status line; the format is determined by project type — Build/Open projects use the versioned form `[done](vX.Y.Z) YYYY-MM-DD`, while Explore/Closed projects use `[done] YYYY-MM-DD` (see Status Lines table above)
+- **Active → Done:** `/lo:ship` updates the status line; the format is determined by project type — Build/Open projects use the versioned form `[done] vX.Y.Z YYYY-MM-DD`, while Explore/Closed projects use `[done] YYYY-MM-DD` (see Status Lines table above)
 - Features and tasks stay in BACKLOG.md through their full lifecycle — never deleted
+
+## Epic Grouping
+
+Epics are optional `### Epic Name` sub-headers under `## Features` or `## Tasks`. Items listed under an epic belong to it. Items not under any epic are ungrouped and appear before any epic sections.
+
+```markdown
+## Features
+
+- [ ] f007 Auth System
+  User authentication with OAuth.
+
+### Platform Expansion
+
+- [ ] f008 Mobile App
+  Native iOS and Android apps.
+
+- [ ] f009 API Gateway
+  Public REST API for third-party integrations.
+
+## Tasks
+
+- [ ] t004 Add epic to backlog command
+
+### Tech Debt
+
+- [ ] t005 Migrate to new ORM
+```
+
+### Epic Rules
+
+- Epic headers use `###` (h3) level — one level below the section header (`##`)
+- Epic names are free text (no ID required)
+- An epic with no items underneath is valid (empty epic, waiting for items)
+- Items before the first `###` in a section are ungrouped
+- Epics cannot be nested (no `####` sub-epics)
 
 ## Validation Rules
 
@@ -109,7 +144,7 @@ updated: 2026-03-09
 
 - [x] f001 Changing LORF to LO
   Rename `.lorf/` directory to `.lo/`, update all references.
-  [done](v0.3.0) 2026-02-25
+  [done] v0.3.0 2026-02-25
 
 - [ ] f006 Plugin Redesign
   Redesign using Claude Code's latest capabilities.
@@ -118,9 +153,18 @@ updated: 2026-03-09
 - [ ] f007 Auth System
   User authentication with OAuth.
 
+### Platform Expansion
+
+- [ ] f008 Mobile App
+  Native iOS and Android apps.
+
 ## Tasks
 
 - [x] t001 Audit /work
-  [done](v0.3.2) 2026-03-07
+  [done] v0.3.2 2026-03-07
 - [ ] t004 Add epic to backlog command
+
+### Tech Debt
+
+- [ ] t005 Migrate to new ORM
 ```
