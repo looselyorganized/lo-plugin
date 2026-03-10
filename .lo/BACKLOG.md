@@ -46,3 +46,4 @@ updated: 2026-03-10
 - [ ] t007 Stream as single STREAM.md file in .lo/ root instead of individual files in .lo/stream/
 - [ ] t008 Audit files created on status change to Build — ensure proper CI/CD scaffolding
 - [ ] t009 Add private/public visibility toggle to /lo:status (or separate command)
+- [ ] t010 Remove "topics" from PROJECT.md generation and clean up topic tags across all .lo projects
