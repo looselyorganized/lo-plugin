@@ -20,7 +20,7 @@ This research examines every major capability, maps what LO already covers, iden
 
 ### Skills — The Winning Abstraction
 
-Skills are now the primary extension mechanism for Claude Code, and the community has voted with their feet. The [`awesome-claude-code`](https://github.com/anthropics/awesome-claude-code) repo has grown rapidly (star count as of writing: verify at time of use). Anthropic ships bundled skills (examples include `/simplify`, `/batch`, `/debug`, `/claude-api`) ([docs](https://docs.anthropic.com/en/docs/claude-code/skills)). The format has been standardized as the [Agent Skills open standard](https://agentskills.io/specification) — portable across Claude.ai, Claude Code CLI, and the API.
+Skills are now the primary extension mechanism for Claude Code, and the community has voted with their feet. The [`awesome-claude-code`](https://github.com/anthropics/awesome-claude-code) repo has grown rapidly. Anthropic ships bundled skills (examples include `/simplify`, `/batch`, `/debug`, `/claude-api`) ([docs](https://docs.anthropic.com/en/docs/claude-code/skills)). The format has been standardized as the [Agent Skills open standard](https://agentskills.io/specification) — portable across Claude.ai, Claude Code CLI, and the API.
 
 **What's new since we last looked:**
 
@@ -214,7 +214,7 @@ This is essentially what LO's `plan → work → ship` models. The community arr
 
 ### The Arize Finding
 
-Arize's prompt optimization research found that optimizing only the CLAUDE.md — with no other changes — yielded **+5.2% improvement on SWE Bench** and **+10.9% on repository-specific tasks** *(source: Arize AI internal research, 2025–2026; link to original report to be added when publicly available)*. Repository-specific configuration is a "practical superpower."
+Arize's prompt optimization research found that optimizing only the CLAUDE.md — with no other changes — yielded **+5.2% improvement on SWE Bench** and **+10.9% on repository-specific tasks** *(source: ["CLAUDE.md: Best Practices Learned from Optimizing Claude Code with Prompt Learning"](https://arize.com/blog/claude-md-best-practices-learned-from-optimizing-claude-code-with-prompt-learning/), Arize AI)*. Repository-specific configuration is a "practical superpower."
 
 This validates LO's approach of maintaining rich project context in `.lo/PROJECT.md`, but it also suggests we may want a skill that helps users refine their CLAUDE.md iteratively based on session outcomes.
 
