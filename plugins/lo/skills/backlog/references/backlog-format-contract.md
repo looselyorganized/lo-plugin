@@ -10,20 +10,55 @@ The project backlog lives at `.lo/BACKLOG.md`. It is the single registry for fea
 |-------|------|-------------|
 | `updated` | date | Date of last modification (YYYY-MM-DD) |
 
-## Feature Block Syntax
+## Feature Format
+
+```markdown
+- [ ] f{NNN} Feature Name
+  Description of the feature.
+  status-line (optional; omit for backlog items)
+```
+
+### Feature Elements
 
 | Element | Format | Description |
 |---------|--------|-------------|
-| Heading | `### f{NNN} — Feature Name` | Feature ID + display name |
-| Description | Free text below heading | 1-2 sentence summary |
-| Status | `Status: backlog` / `Status: active -> .lo/work/f{NNN}-slug/` / `Status: done -> YYYY-MM-DD` | Current lifecycle state |
+| Checkbox | `- [ ]` / `- [x]` | Open or completed |
+| ID | `f{NNN}` | Feature identifier |
+| Name | Free text after ID | Short display name |
+| Description | Indented line below | 1-2 sentence summary (optional) |
+| Status | Indented line below description | Lifecycle state (see below) |
 
-## Task Checkbox Syntax
+## Task Format
 
-| State | Format | Description |
-|-------|--------|-------------|
-| Open | `- [ ] t{NNN} description` | Pending task |
-| Done | `- [x] t{NNN} ~~description~~ -> YYYY-MM-DD` | Completed task with date |
+```markdown
+- [ ] t{NNN} Task description
+  status-line (optional)
+
+- [x] t{NNN} Task description
+  [done](v0.4.0) 2026-03-09
+```
+
+Tasks use a simplified pattern where the first-line description after the ID serves as the task name; there is no separate Name field.
+
+### Task Elements
+
+| Element | Format | Description |
+|---------|--------|-------------|
+| Checkbox | `- [ ]` / `- [x]` | Open or completed |
+| ID | `t{NNN}` | Task identifier |
+| Description | Free text after ID | Acts as the task name |
+| Status | Indented line below | Lifecycle state (optional; absence = backlog) |
+
+## Status Lines
+
+| State | Checkbox | Format | Example |
+|-------|----------|--------|---------|
+| Backlog | `- [ ]` | (no status line) | Just the checkbox + ID + name |
+| Active | `- [ ]` | `[active](.lo/work/<id>-slug/)` | Link to work directory (`f{NNN}` for features, `t{NNN}` for tasks) |
+| Done (no version) | `- [x]` | `[done] YYYY-MM-DD` | Explore/Closed projects |
+| Done (versioned) | `- [x]` | `[done](v0.4.0) YYYY-MM-DD` | Build/Open projects |
+
+The Markdown link syntax serves double duty — it's both metadata and navigation in GitHub/editors.
 
 ## ID Convention
 
@@ -32,22 +67,17 @@ The project backlog lives at `.lo/BACKLOG.md`. It is the single registry for fea
 - IDs are sequential and never reused, even after deletion
 - To find the next ID, scan BACKLOG.md for the highest existing `f{NNN}` or `t{NNN}` and increment
 
-## Status Values
+## Status Transitions
 
-- **Features:** `backlog` | `active -> .lo/work/f{NNN}-slug/` | `done -> YYYY-MM-DD`
-- `/lo:plan` sets status to `active` when creating a work directory
-- `/lo:ship` sets status to `done` when shipping
-- Features stay in BACKLOG.md through their full lifecycle
-- **Tasks:** open (`- [ ]`) or done (`- [x]`)
+- **Backlog → Active:** `/lo:plan` adds `[active](.lo/work/<id>-slug/)` when creating a work directory (`f{NNN}` for features, `t{NNN}` for tasks)
+- **Active → Done:** `/lo:ship` updates the status line; the format is determined by project type — Build/Open projects use the versioned form `[done](vX.Y.Z) YYYY-MM-DD`, while Explore/Closed projects use `[done] YYYY-MM-DD` (see Status Lines table above)
+- Features and tasks stay in BACKLOG.md through their full lifecycle — never deleted
 
 ## Validation Rules
 
 - `updated` must be a valid YYYY-MM-DD date
-- Every feature must have a heading matching `### f{NNN} — Name`
-- Every feature must have a `Status:` line
-- Every task must be a checkbox with a `t{NNN}` ID
+- Every feature/task must have a checkbox with an `f{NNN}` or `t{NNN}` ID
 - IDs must be unique within their type (no duplicate `f{NNN}` or `t{NNN}`)
-- Completed tasks must include a strikethrough description and completion date
 - All content is plain Markdown with YAML frontmatter — no MDX
 
 ## Default Template
@@ -59,11 +89,11 @@ updated: YYYY-MM-DD
 
 ## Features
 
-_No features in backlog. Use `/lo:backlog feature "description"` to add one._
+_No features yet. Use `/lo:backlog feature "name"` to add one._
 
 ## Tasks
 
-_No tasks in backlog. Use `/lo:backlog task "description"` to add one._
+_No tasks yet. Use `/lo:backlog task "description"` to add one._
 ```
 
 Use today's date for the `updated` field when creating a new backlog.
@@ -72,26 +102,25 @@ Use today's date for the `updated` field when creating a new backlog.
 
 ```yaml
 ---
-updated: 2026-03-01
+updated: 2026-03-09
 ---
 
 ## Features
 
-### f001 — Dashboard Redesign
-Rebuild the main dashboard with responsive layout and live data widgets.
-Status: done -> 2026-02-28
+- [x] f001 Changing LORF to LO
+  Rename `.lorf/` directory to `.lo/`, update all references.
+  [done](v0.3.0) 2026-02-25
 
-### f002 — User Authentication
-Add email/password login with session management.
-Status: active -> .lo/work/f002-user-auth/
+- [ ] f006 Plugin Redesign
+  Redesign using Claude Code's latest capabilities.
+  [active](.lo/work/f006-plugin-redesign/)
 
-### f003 — API Rate Limiting
-Add rate limiting to public API endpoints.
-Status: backlog
+- [ ] f007 Auth System
+  User authentication with OAuth.
 
 ## Tasks
 
-- [ ] t003 Update dependency versions
-- [x] t002 ~~Set up CI pipeline~~ -> 2026-02-20
-- [x] t001 ~~Initialize project repository~~ -> 2026-02-15
+- [x] t001 Audit /work
+  [done](v0.3.2) 2026-03-07
+- [ ] t004 Add epic to backlog command
 ```

@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.4.0] — 2026-03-09
+
+### Added
+- Custom subagents: `reviewer` (sonnet, code review for secrets/security/dead code) and `scout` (haiku, fast read-only codebase exploration) with model aliases, disallowedTools, and proactive descriptions (f006)
+- SessionStart hook injecting PROJECT.md into every session automatically (f006)
+- `allowed-tools` frontmatter on all skills for reduced permission prompting (f006)
+
+### Changed
+- `/lo:ship` is now the universal ship command — detects context automatically: fast mode (Explore/Closed → push to main), feature mode (Build/Open → push branch), release mode (semver branch → changelog, cleanup, PR to main, tag) (f006)
+- `/lo:release` slimmed to release starter only — creates branch, bumps version. Finalization moved to `/lo:ship` (f006)
+- Ship pipeline simplified from 9 gates to 6 — reviewer subagent replaces inline code simplification and security review gates (f006)
+- Explore/Closed ship mode pushes directly to main instead of creating branch + PR (f006)
+- Backlog format unified: features and tasks both use checkbox list items with `[active](path)` / `[done](version) date` status lines (f006)
+
+### Removed
+- Per-skill version metadata from SKILL.md frontmatter (f006)
+- Release polling loop, cleanup PR, TaskCreate progress tracking (f006)
+- Separate `/lo:release ship` command — absorbed into `/lo:ship` (f006)
+
 ## [0.3.2] — 2026-03-07
 
 ### Added

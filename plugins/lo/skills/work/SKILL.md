@@ -1,9 +1,17 @@
 ---
 name: work
 description: Executes features (from plans) and tasks (directly) in .lo/work/. Handles branch isolation, worktree-based parallelization, and progress tracking. Not for planning — use /lo:plan to design first. Stops when complete — does not ship. Use when user says "start working", "let's build", "execute the plan", "work on", or "/work".
-metadata:
-  version: 0.3.1
-  author: LORF
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
+  - Write
+  - Edit
+  - Agent
+  - Skill
+  - TaskCreate
+  - EnterWorktree
 ---
 
 # LO Work Executor
@@ -59,7 +67,7 @@ Tell user the feature directory exists but needs plans. Redirect to `/lo:plan f{
 
 ### Step 2: Read the Plan and EARS Contract
 
-Read the current plan file (lowest-numbered incomplete plan):
+Read the current plan file (lowest-numbered incomplete plan). Use the `scout` subagent for any codebase exploration needed to understand the plan context.
 
 1. Parse the plan's tasks, dependencies, and parallelization markers
 2. **Check for EARS contract:** Look for `ears-requirements.md` in the work directory (`.lo/work/f{NNN}-slug/ears-requirements.md`). If it exists:

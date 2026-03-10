@@ -1,9 +1,13 @@
 ---
 name: status
 description: Manages project lifecycle transitions. Updates PROJECT.md status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Use when user says "status", "change status", "move to explore", "move to build", "go to open", "close project", "/status", or "/lo:status".
-metadata:
-  version: 0.3.2
-  author: LORF
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
+  - Write
+  - Edit
 ---
 
 # LO Status Manager
@@ -92,9 +96,9 @@ Create a backlog feature and work plan:
 1. Determine next feature ID from `.lo/BACKLOG.md`
 2. Add to BACKLOG.md:
 
-        ### f{NNN} — Test Coverage
-        Retroactive test coverage for core project logic. Generated during Explore → Build transition.
-        Status: active -> .lo/work/f{NNN}-test-coverage/
+        - [ ] f{NNN} Test Coverage
+          Retroactive test coverage for core project logic. Generated during Explore → Build transition.
+          [active](.lo/work/f{NNN}-test-coverage/)
 
 3. Create `.lo/work/f{NNN}-test-coverage/001-test-coverage.md`:
 

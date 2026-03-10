@@ -1,9 +1,15 @@
 ---
 name: plan
 description: Designs and plans features or tasks before execution. Brainstorms requirements, creates structured implementation plans, and saves them to .lo/work/. Not for execution — use /lo:work to build. Use when user says "plan this", "start feature", "brainstorm", "design this", "let's plan", "/plan", or "/lo:plan".
-metadata:
-  version: 0.3.1
-  author: LORF
+allowed-tools:
+  - Read
+  - Glob
+  - Grep
+  - Bash
+  - Write
+  - Edit
+  - Agent
+  - Skill
 ---
 
 # LO Plan
@@ -48,7 +54,7 @@ Arguments: `f{NNN}` or feature name (fuzzy match against BACKLOG.md)
 
 1. Derive directory name: `f{NNN}-slug` (kebab-case from feature name, prefixed with ID)
 2. Create `.lo/work/f{NNN}-slug/` directory
-3. Update feature status in BACKLOG.md: `Status: active -> .lo/work/f{NNN}-slug/`
+3. Update feature status in BACKLOG.md: add `[active](.lo/work/f{NNN}-slug/)` line under the feature
 4. Update `updated:` date in BACKLOG.md
 5. Confirm:
 
@@ -131,7 +137,7 @@ After brainstorming, ask the user:
 
 **Plan mode path:**
 1. Use `EnterPlanMode` to enter plan mode
-2. Explore the codebase — identify files to touch, patterns to follow, dependencies
+2. Explore the codebase using the `scout` subagent — identify files to touch, patterns to follow, dependencies
 3. Write the plan to `.lo/work/f{NNN}-slug/001-<phase-slug>.md` using the plan file format
 4. Present via `ExitPlanMode` for user approval
 5. If multi-phase, create additional plan files (`002-*.md`, `003-*.md`)
@@ -171,6 +177,7 @@ Tasks are smaller — they don't always need brainstorming or formal plans.
    - Create `.lo/work/t{NNN}-slug/` directory
    - Ask the user to describe the approach or generate steps from the task description
    - Save a lightweight plan file to `.lo/work/t{NNN}-slug/001-task.md`
+   - Edit `.lo/BACKLOG.md` to replace the task's backlog entry status line with `[active](.lo/work/t{NNN}-slug/)` (preserve existing metadata and formatting)
    - Bridge to `/lo:work`
 
 4. **Jump to /lo:work chosen:**
@@ -205,7 +212,7 @@ When invoked as `/lo:plan` with no arguments:
 
     Agent reads BACKLOG.md → finds f003 "User Authentication" (status: backlog)
     Creates .lo/work/f003-user-auth/
-    Updates backlog: f003 status → active -> .lo/work/f003-user-auth/
+    Updates backlog: adds [active](.lo/work/f003-user-auth/) under f003
     Checks .lo/solutions/ for relevant prior art
     Invokes brainstorming → explores design → user approves
 

@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "cat \"$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.lo/PROJECT.md\" 2>/dev/null || true"
+      }
+    ]
+  }
+}
