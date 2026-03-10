@@ -10,7 +10,7 @@ readingTime: "18 min read"
 
 ## The Landscape Has Shifted
 
-Claude Code as of v2.1.71 (March 2026) is a fundamentally different tool than what we built the original ADB against. The surface area of capabilities has expanded in every direction: subagents with custom models and tool restrictions, agent teams with mesh communication, skills as a portable standard, git worktree isolation, lifecycle hooks for deterministic control, background tasks, persistent agent memory, and a CI/CD story that's gone from "possible" to "first-party GitHub Action."
+Claude Code as of v2.1.71 (March 2026) is a fundamentally different tool than what we built the original ADB against. The surface area of capabilities has expanded in every direction: subagents with custom models and tool restrictions ([docs](https://docs.anthropic.com/en/docs/claude-code/sub-agents)), agent teams with mesh communication ([docs](https://docs.anthropic.com/en/docs/claude-code/agent-teams)), skills as a portable standard ([docs](https://docs.anthropic.com/en/docs/claude-code/skills)), git worktree isolation ([docs](https://docs.anthropic.com/en/docs/claude-code/worktrees)), lifecycle hooks for deterministic control ([docs](https://docs.anthropic.com/en/docs/claude-code/hooks)), background tasks ([docs](https://docs.anthropic.com/en/docs/claude-code/background-tasks)), persistent agent memory ([docs](https://docs.anthropic.com/en/docs/claude-code/memory)), and a CI/CD story that's gone from "possible" to "first-party GitHub Action" ([docs](https://docs.anthropic.com/en/docs/claude-code/github-actions)).
 
 This research examines every major capability, maps what LO already covers, identifies where the platform is going, and develops a strong opinion about what the plugin should become.
 
@@ -20,7 +20,7 @@ This research examines every major capability, maps what LO already covers, iden
 
 ### Skills — The Winning Abstraction
 
-Skills are now the primary extension mechanism for Claude Code, and the community has voted with their feet. The `awesome-claude-skills` repo has 8,500 stars. Anthropic ships bundled skills (`/simplify`, `/batch`, `/debug`, `/loop`, `/claude-api`). The format has been standardized as the [Agent Skills open standard](https://agentskills.io/) — portable across Claude.ai, Claude Code CLI, and the API.
+Skills are now the primary extension mechanism for Claude Code, and the community has voted with their feet. The [`awesome-claude-code`](https://github.com/anthropics/awesome-claude-code) repo has grown rapidly (star count as of writing: verify at time of use). Anthropic ships bundled skills (`/simplify`, `/batch`, `/debug`) ([docs](https://docs.anthropic.com/en/docs/claude-code/skills)). The format has been standardized as the [Agent Skills open standard](https://agentskills.io/specification) — portable across Claude.ai, Claude Code CLI, and the API.
 
 **What's new since we last looked:**
 
@@ -71,7 +71,7 @@ skills:
 - **Skill preloading**: The `skills` field injects full skill content at subagent startup (not just descriptions)
 - **Background execution**: `background: true` or runtime backgrounding with Ctrl+B
 
-**The community pattern**: 100+ community subagents now collected at `VoltAgent/awesome-claude-code-subagents`. The emerging architecture is orchestrator + specialists — one main session coordinating security reviewers, test writers, documentation generators, each reporting back summaries.
+**The community pattern**: 100+ community subagents now collected at [`VoltAgent/awesome-claude-code-subagents`](https://github.com/VoltAgent/awesome-claude-code-subagents). The emerging architecture is orchestrator + specialists — one main session coordinating security reviewers, test writers, documentation generators, each reporting back summaries.
 
 **The provocative finding**: One practitioner noted Claude now designs better subagents on the fly than the ones they hand-crafted. This points toward meta-agentic improvement — the system getting better at organizing itself.
 
@@ -211,7 +211,7 @@ This is essentially what LO's `plan → work → ship` models. The community arr
 
 ### The Arize Finding
 
-Arize's prompt optimization research found that optimizing only the CLAUDE.md — with no other changes — yielded **+5.2% improvement on SWE Bench** and **+10.9% on repository-specific tasks**. Repository-specific configuration is a "practical superpower."
+Arize's prompt optimization research found that optimizing only the CLAUDE.md — with no other changes — yielded **+5.2% improvement on SWE Bench** and **+10.9% on repository-specific tasks** *(source: Arize AI internal research, 2025–2026; link to original report to be added when publicly available)*. Repository-specific configuration is a "practical superpower."
 
 This validates LO's approach of maintaining rich project context in `.lo/PROJECT.md`, but it also suggests we may want a skill that helps users refine their CLAUDE.md iteratively based on session outcomes.
 
@@ -228,7 +228,7 @@ The value: CodeRabbit catches race conditions, memory leaks, and logic errors th
 
 ### The `obra/superpowers` Analog
 
-The closest community equivalent to LO is Jesse Vincent's `superpowers` collection — `/brainstorm`, `/write-plan`, `/execute-plan`, etc. It's the most prominent community skill set with 20+ battle-tested skills. Worth studying for gaps. Key difference: superpowers is generic workflow tooling; LO is an opinionated work system for research-oriented projects.
+The closest community equivalent to LO is Jesse Vincent's [`superpowers`](https://github.com/obra/superpowers) collection — `/brainstorm`, `/write-plan`, `/execute-plan`, etc. It's the most prominent community skill set with 20+ battle-tested skills. Worth studying for gaps. Key difference: superpowers is generic workflow tooling; LO is an opinionated work system for research-oriented projects.
 
 ### Where People Think It's Going
 
