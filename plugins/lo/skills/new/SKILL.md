@@ -1,6 +1,6 @@
 ---
 name: new
-description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (stream, research, work, solutions), .gitkeep files, and optional stream initialization. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
+description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (research, work, solutions), STREAM.md, .gitkeep files, and optional stream initialization. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
 allowed-tools:
   - Read
   - Glob
@@ -133,7 +133,7 @@ Ask the user for the project's current status and state:
 - `public` — Publicly visible
 - `private` — Private / internal only
 
-#### 2f: Generate proj_id
+#### 2f: Generate project ID
 
 Generate a stable project identifier for this project. This value is written into PROJECT.md frontmatter and used as the universal ID across the platform.
 
@@ -156,7 +156,15 @@ Present all auto-filled content to the user for review/editing before writing. M
 ### Step 3: Create Directory Structure
 
 ```bash
-mkdir -p .lo/stream .lo/research .lo/work .lo/solutions
+mkdir -p .lo/research .lo/work .lo/solutions
+```
+
+Create `.lo/STREAM.md` with the file frontmatter:
+
+```markdown
+---
+type: stream
+---
 ```
 
 ### Step 4: Write PROJECT.md
@@ -175,9 +183,6 @@ title: "[NAME]"
 description: "[One-sentence description of what this project does.]"
 status: "[from Step 2e]"              # Explore | Build | Open | Closed
 state: "[from Step 2e]"               # public | private
-topics:
-  - [topic-1]
-  - [topic-2]
 repo: "[detected-or-placeholder]"     # Uncommented if detected, commented if not
 stack:                                # Uncommented if detected, commented if not
   - [Detected Technology]
@@ -231,15 +236,13 @@ git log --oneline 2>/dev/null | head -1
 
 Ask the user to write the first stream announcement. Prompt them: "What's the first thing you want to say about this project?" Use their response as the body of the stream entry.
 
-Write `.lo/stream/YYYY-MM-DD-project-started.md` using today's date:
+Prepend the entry to `.lo/STREAM.md` (after the frontmatter):
 
 ```markdown
----
-type: "milestone"
-date: "YYYY-MM-DD"
+<!-- entry -->
+date: YYYY-MM-DD
 title: "Project initialized"
 commits: 0
----
 
 [User's announcement text]
 ```
@@ -254,7 +257,7 @@ Ask the user how they want to handle existing git history:
 
 If backfill: find the first commit date, write the "project started" entry backdated to it, then run `/lo:stream`.
 If start fresh: write the "project started" entry backdated to the first commit date only.
-If skip: leave `.lo/stream/` empty (created by Step 3's `mkdir -p`).
+If skip: leave `.lo/STREAM.md` with just the frontmatter (created by Step 3).
 
 ### Step 6: Write .gitkeep Files
 
@@ -265,7 +268,9 @@ Write empty `.gitkeep` files in directories that start empty:
 
 ### Step 7: Reconcile GitHub Automation
 
-Run the sync script to set up GitHub automation appropriate for the project's initial status:
+**Skip this step entirely if the repo has no git remote** (detected in Step 2a).
+
+If a remote exists, run the sync script to set up GitHub automation:
 
 ```bash
 "$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix
@@ -294,7 +299,7 @@ Show the user what was created and what was auto-detected:
 .lo/ directory created:
 
   PROJECT.md
-    proj_id: [generated]
+    id: [generated]
     status: [user selection]
     state: [user selection]
     repo: [detected or placeholder]
@@ -303,9 +308,9 @@ Show the user what was created and what was auto-detected:
     agents: [user selections]
     body: [auto-filled sections or TODOs]
 
-  GitHub automation: lo-github-sync applied (see output above)
+  GitHub automation: [lo-github-sync applied / skipped (no remote) / skipped (script not found)]
 
-  stream/ [show entry filename if created, or "(skipped)" if user chose skip]
+  STREAM.md [show entry count if created, or "(empty)" if user chose skip]
   research/
   work/
   solutions/
@@ -319,7 +324,7 @@ Next steps:
 ```
 .lo/
 ├── PROJECT.md
-├── stream/
+├── STREAM.md
 ├── research/
 ├── work/
 └── solutions/
@@ -328,17 +333,12 @@ Next steps:
 ## Validation
 
 Before finishing, verify:
-- [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter (including `id` as first field)
-- [ ] All subdirectories exist
-- [ ] Stream entry (if user chose backfill or start fresh) has correct date in both filename and frontmatter
-- [ ] `.gitkeep` files in research/, work/, solutions/
-- [ ] `.coderabbit.yaml` exists with correct reviews.enabled value
-- [ ] `.github/workflows/ci.yml` exists with correct status
-- [ ] No files outside the expected structure
-- [ ] `.lo/work/` directory exists
-- [ ] `.lo/solutions/` directory exists
-- [ ] `.lo/work/.gitkeep` exists
-- [ ] `.lo/solutions/.gitkeep` exists
+- [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter (`id` is first field)
+- [ ] All three subdirectories exist: `research/`, `work/`, `solutions/`
+- [ ] `.gitkeep` files exist in `research/`, `work/`, `solutions/`
+- [ ] `.lo/STREAM.md` exists with `type: stream` frontmatter
+- [ ] Stream entry (if created) has correct date in inline metadata
+- [ ] If Step 7 ran: `.coderabbit.yaml` and `.github/workflows/ci.yml` exist with correct values
 
 ## Frontmatter Reference
 

@@ -308,15 +308,24 @@ This runs **before cleanup** so work artifacts are still available for context.
 
 1. Gather context for the stream entry:
    - Version number
-   - Feature names and IDs from `.lo/work/*/` and BACKLOG.md
-   - Commit count: `git rev-list --count main..<version>`
+   - Feature names from `.lo/work/*/` and BACKLOG.md
    - Key decisions and summaries from plan files in `.lo/work/*/`
-2. Draft a stream milestone entry with `version: "<version>"` in frontmatter
+2. Draft a stream entry using the XML format (see stream skill `references/stream-format.md`):
+   ```markdown
+   <entry>
+   date: YYYY-MM-DD
+   title: "Release title"
+   version: "<version>"
+   <description>
+   1-3 sentences. Public voice.
+   </description>
+   </entry>
+   ```
 3. Present for user review — the user edits the narrative voice
-4. Write to `.lo/stream/YYYY-MM-DD-{slug}.md`
+4. Prepend to `.lo/STREAM.md` after the YAML frontmatter (newest entries first)
 5. Commit:
 ```bash
-git add .lo/stream/
+git add .lo/STREAM.md
 git commit -m "docs: stream milestone for v<version>"
 ```
 
@@ -324,7 +333,7 @@ git commit -m "docs: stream milestone for v<version>"
 
 1. Scan `.lo/work/` for directories related to this release
 2. Delete each work directory (git history preserves everything)
-3. Update BACKLOG.md: features → `[done](v<version>) YYYY-MM-DD`, tasks → checked + `[done](v<version>) YYYY-MM-DD`
+3. Update BACKLOG.md: features → `[done] v<version> YYYY-MM-DD`, tasks → checked + `[done] v<version> YYYY-MM-DD`
 4. Update `updated:` date in BACKLOG.md
 5. Commit:
 ```bash

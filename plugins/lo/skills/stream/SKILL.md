@@ -1,22 +1,63 @@
 ---
 name: stream
-description: Creates milestone entries in .lo/stream/ — the public-facing narrative of a project. Each entry marks a significant event worth showing on the project page or posting to socials. Not a git log summary — a curated editorial timeline. Use when user says "update stream", "add milestone", "log progress", or "/lo:stream". Also invoked by /lo:ship during release mode.
+description: Creates milestone entries in .lo/STREAM.md — the public-facing narrative of a project. Each entry marks a significant event worth showing on the project page or posting to socials. Not a git log summary — a curated editorial timeline. Use when user says "update stream", "add milestone", "log progress", or "/lo:stream". Also invoked by /lo:ship during release mode.
 allowed-tools:
   - Read
   - Glob
   - Grep
   - Bash
   - Write
+  - Edit
 ---
 
 # LO Stream
 
 The stream is the **public face of the project** — what appears on looselyorganized.org and feeds social posts. Every entry is a milestone: something worth showing a visitor.
 
+All entries live in a single `.lo/STREAM.md` file using XML tags for reliable parsing. Newest first.
+
 <critical>
 Quality gate: would you post this? If you wouldn't put it on the project page or tweet it, it's not a stream entry. Git history already captures the small stuff.
 Never create duplicate entries. Always read existing stream entries first.
 </critical>
+
+## STREAM.md Format
+
+See `references/stream-format.md` for the full specification and parsing algorithm.
+
+```markdown
+---
+type: stream
+---
+
+<entry>
+date: 2026-03-10
+title: "Stream redesign and skill hardening"
+version: "0.4.1"
+<description>
+Stream consolidated into single STREAM.md with milestones-only quality gate.
+</description>
+</entry>
+
+<entry>
+date: 2026-03-09
+title: "Unified ship and plugin redesign"
+version: "0.4.0"
+<description>
+One ship command, three modes — Explore pushes to main, Build pushes the branch,
+release branches get the full pipeline.
+</description>
+</entry>
+```
+
+### Entry Metadata Fields
+
+| Field | Required | Type | Notes |
+|-------|----------|------|-------|
+| `date` | yes | YYYY-MM-DD | Unquoted |
+| `title` | yes | string | Quoted, under 80 chars |
+| `version` | no | semver | Quoted, only for releases |
+| `research` | no | string | Quoted, comma-separated slugs |
 
 ## When to Use
 
@@ -34,17 +75,6 @@ Detect from context:
 
 Follow ONLY the section matching your mode.
 
-## Frontmatter
-
-| Field | Required | Type | Description |
-|-------|----------|------|-------------|
-| `date` | yes | date | YYYY-MM-DD, must match filename prefix |
-| `title` | yes | string | Short descriptive title (under 80 chars) |
-| `version` | no | string | Semver if this milestone is a release (Build/Open projects only) |
-| `feature_id` | no | string | `f{NNN}` if tied to a specific backlog feature |
-| `commits` | no | number | Count of commits this milestone groups |
-| `research` | no | list | Slugs of related research articles |
-
 ---
 
 <scan-mode>
@@ -60,26 +90,29 @@ Stream Progress:
   - [ ] Step 2: Read existing stream
   - [ ] Step 3: Scan git history
   - [ ] Step 4: Identify milestones
-  - [ ] Step 5: Write files
+  - [ ] Step 5: Write entries
   - [ ] Step 6: Confirm
 ```
 
 ### Step 1: Verify .lo/ Exists
 
-Check that `.lo/stream/` exists. If not:
+Check that `.lo/STREAM.md` exists. If not, check if `.lo/` exists at all:
 
-```
-No .lo/ directory found. Run /lo:new first to set up the project structure.
-```
-
-Stop here.
+- No `.lo/` directory: tell user to run `/lo:new` first. Stop here.
+- `.lo/` exists but no `STREAM.md`: create it with just the frontmatter:
+  ```markdown
+  ---
+  type: stream
+  ---
+  ```
 
 ### Step 2: Read Existing Stream
 
-Read every file in `.lo/stream/` and build an index:
+Read `.lo/STREAM.md` and parse existing entries:
 
-- Parse each file's frontmatter (`date`, `title`, `version`, `feature_id`, `commits`)
-- Note the **most recent entry date** — this is the "last known" point
+- Split content on `<entry>` tags
+- Parse each entry's metadata (`date`, `title`, `version`)
+- Note the **most recent entry date** (first entry in the file) — this is the "last known" point
 
 ```
 Stream has N entries, last updated YYYY-MM-DD ("title of most recent").
@@ -119,54 +152,52 @@ This is the editorial step. Only surface events that pass the quality gate.
 - Incremental improvements that don't change the user experience
 - Anything you wouldn't mention on the project page
 
-For each candidate, draft a title and 1-3 sentence body. Count the commits it groups. Identify version, feature_id, research links if applicable.
+For each candidate, draft a title and 1-3 sentence description.
 
 Present candidates:
 
 ```
 Found N milestones since last stream update:
 
-1. YYYY-MM-DD — "Title here" (version: 0.4.0, 15 commits)
-   Body preview...
+1. YYYY-MM-DD — "Title here" (version: 0.4.0)
+   Description preview...
 
-2. YYYY-MM-DD — "Title here" (f003, 26 commits)
-   Body preview...
+2. YYYY-MM-DD — "Title here"
+   Description preview...
 
 Skip any? Edit any? Or write all?
 ```
 
 **Wait for user confirmation.** The user can approve all, skip entries, edit titles/bodies, or adjust what qualifies.
 
-### Step 5: Write Files
+### Step 5: Write Entries
 
-For each approved entry, write to `.lo/stream/YYYY-MM-DD-{slug}.md`:
+For each approved entry, prepend to `.lo/STREAM.md` after the YAML frontmatter (newest first).
+
+Entry format:
 
 ```markdown
----
-date: "YYYY-MM-DD"
-title: "[Short descriptive title]"
-version: "[semver]"
-feature_id: "f{NNN}"
-commits: N
----
-
-[1-3 sentences. Public voice — concrete, editorial, no filler.]
+<entry>
+date: YYYY-MM-DD
+title: "Short descriptive title"
+version: "X.Y.Z"
+<description>
+1-3 sentences. Public voice — concrete, editorial, no filler.
+</description>
+</entry>
 ```
 
-Omit optional frontmatter fields that don't apply.
+Omit optional metadata fields (`version`, `research`) that don't apply.
 
-Slug rules:
-- Derive from title, kebab-case
-- 2-5 words
-- If a slug already exists for that date, add a distinguishing word
+**How to prepend:** Read the file, find the end of the YAML frontmatter (the closing `---`), insert the new entry block(s) immediately after it (with a blank line separator), then write the file back.
 
 ### Step 6: Confirm
 
 ```
 Stream updated: N new milestones written.
 
-  YYYY-MM-DD-slug.md — "Title" (version: X.Y.Z, N commits)
-  YYYY-MM-DD-slug.md — "Title" (f003, N commits)
+  "Title" (version: X.Y.Z)
+  "Title"
 
 Stream now has TOTAL entries.
 ```
@@ -184,9 +215,9 @@ Ask:
 1. What happened?
 2. When? (default: today)
 3. Version? (if applicable)
-4. Related feature or research?
+4. Related research?
 
-Generate a single entry from their answers. Write the file using the same template as scan mode Step 5.
+Generate a single entry. Prepend to `.lo/STREAM.md` after the frontmatter using the same XML format as scan mode Step 5.
 
 Present for confirmation before writing.
 
@@ -199,16 +230,15 @@ Present for confirmation before writing.
 
 When `/lo:ship` invokes the stream during release mode, it passes context in the conversation:
 - Version number
-- Feature names and IDs from the release
-- Commit count
+- Feature names from the release
 - Work artifact summaries (plans, key decisions)
 
 Use this context to draft the entry. Do NOT scan git history — the context is already provided.
 
-1. Draft a title and 1-3 sentence body from the provided context
+1. Draft a title and 1-3 sentence description from the provided context
 2. Present for user review before writing
-3. Write using the same template as scan mode Step 5
-4. Include `version` in frontmatter
+3. Prepend to `.lo/STREAM.md` after the frontmatter using the same XML format as scan mode Step 5
+4. Include `version` in the entry metadata
 
 </ship-mode>
 
@@ -243,17 +273,17 @@ implementing various improvements and consolidating commands.
 <example name="scan-mode-flow">
 User: /lo:stream
 
-Stream has 15 entries, last updated 2026-03-09 ("v0.4.0: unified ship and plugin redesign").
+Stream has 5 entries, last updated 2026-03-09 ("Unified ship and plugin redesign").
 
 Found 1 milestone since last stream update:
 
-1. 2026-03-10 — "Skill prompt engineering audit" (34 commits)
-   Applied Anthropic's prompt best practices across all LO skills...
+1. 2026-03-10 — "Stream redesign and skill hardening" (version: 0.4.1)
+   Stream consolidated into single STREAM.md with milestones-only quality gate...
 
-User approves → writes 2026-03-10-skill-prompt-engineering-audit.md
+User approves → entry prepended to STREAM.md
 
 Stream updated: 1 new milestone written.
-Stream now has 16 entries.
+Stream now has 6 entries.
 </example>
 
 <example name="manual-entry">
@@ -262,7 +292,7 @@ User: /lo:stream (says "I want to add a milestone about the new auth system")
 What happened? → "Launched session-based auth with OAuth providers"
 When? → 2026-03-08
 Version? → no
-Related feature? → f003
+Related research? → no
 
-Writes 2026-03-08-auth-system.md
+Entry prepended to STREAM.md.
 </example>

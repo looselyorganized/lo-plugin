@@ -1,6 +1,6 @@
 ---
 name: status
-description: Manages project lifecycle transitions. Updates PROJECT.md status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Use when user says "status", "change status", "move to explore", "move to build", "go to open", "close project", "/status", or "/lo:status".
+description: Manages project lifecycle transitions and visibility state. Updates PROJECT.md status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Toggles public/private visibility. Use when user says "status", "change status", "move to explore", "move to build", "go to open", "close project", "make public", "make private", "/status", or "/lo:status".
 allowed-tools:
   - Read
   - Glob
@@ -38,6 +38,8 @@ Detect from arguments:
 - `/lo:status` with no args → **show status**
 - `/lo:status Build` → **transition to Build** (complex — has sub-steps)
 - `/lo:status Open` or `Closed` or `Explore` → **simple transition**
+- `/lo:status public` or `private` → **set visibility** (direct)
+- `/lo:status state` → **toggle visibility** (prompts for choice)
 
 Follow ONLY the section matching the detected mode.
 
@@ -121,7 +123,7 @@ For each testable file/function, note: file path, what to test, priority (`high`
 ---
 status: pending
 feature_id: "f{NNN}"
-feature: test-coverage
+feature: "Test Coverage"
 phase: 1
 ---
 
@@ -129,8 +131,8 @@ phase: 1
 Add test coverage to core project logic identified during Build transition.
 
 ## Tasks
-- [ ] [high] Test <file>: <function/behavior> description
-- [ ] [medium] Test <file>: <function/behavior> description
+- [ ] 1. [high] Test <file>: <function/behavior> description
+- [ ] 2. [medium] Test <file>: <function/behavior> description
 ```
 
 Order tasks by priority (high first).
@@ -187,7 +189,7 @@ Present the script's output. If any items show `error`, investigate and report.
 2. If missing, generate from `.lo/PROJECT.md`:
    - Title and description from frontmatter
    - Body from PROJECT.md content
-   - Stack/topics from frontmatter
+   - Stack from frontmatter
    - Prompt user for install/usage instructions if unclear
 3. Present for user review before writing
 4. If README already exists, skip: `README.md already exists.`
@@ -248,6 +250,53 @@ Status changed: <old-status> → <new-status>
 
 ---
 
+<visibility-toggle>
+## Visibility Toggle (public, private, state)
+
+This section handles changing the `state` field in PROJECT.md between `public` and `private`.
+
+### Direct set: `/lo:status public` or `/lo:status private`
+
+1. Read `.lo/PROJECT.md`, note current `state` value
+2. If already the requested state, report and stop:
+
+```
+State is already <state>. No changes made.
+```
+
+3. Update `state: "<target>"` in frontmatter
+4. Report:
+
+```
+State changed: <old-state> → <new-state>
+```
+
+### Prompted toggle: `/lo:status state`
+
+1. Read `.lo/PROJECT.md`, note current `state` value
+2. Prompt:
+
+```
+Current state: <current-state>
+
+Switch to:
+1. public — visible in project listings, README published
+2. private — hidden from listings, internal only
+
+Choose (1/2):
+```
+
+3. Update `state: "<chosen>"` in frontmatter
+4. Report:
+
+```
+State changed: <old-state> → <new-state>
+```
+
+</visibility-toggle>
+
+---
+
 ## Examples
 
 <example name="show-status">
@@ -274,6 +323,28 @@ Build transition complete for "LO Plugin"
   Tests:      f008 — 12 files to cover
   GitHub:     lo-github-sync applied
   Docs:       README.md created
+</example>
+
+<example name="set-visibility-direct">
+User: /lo:status public
+
+State changed: private → public
+</example>
+
+<example name="toggle-visibility">
+User: /lo:status state
+
+Current state: public
+
+Switch to:
+1. public — visible in project listings, README published
+2. private — hidden from listings, internal only
+
+Choose (1/2):
+
+User picks 2 → state updated
+
+State changed: public → private
 </example>
 
 <example name="backward-transition">
