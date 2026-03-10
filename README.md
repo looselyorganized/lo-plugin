@@ -73,28 +73,25 @@ stack:                           # optional, array of strings
   - Bun
   - Hono
   - Redis
+infrastructure:                  # optional, services layer
+  - Railway
+  - Supabase
 agents:                          # optional, array of agent declarations
   - name: "nexus-coordinator"
     role: "Coordination and task distribution"
-    email: "nexus@lo.dev"      # optional, for AgentMail
-relatedContent:                  # optional, cross-references to website content
-  - type: research
-    slug: distributed-locking-for-agents
-  - type: thoughts
-    slug: why-agents-need-locks
 ---
 ```
 
 **Body:** The project brief. Free-form Markdown describing what the project is, why it exists, architecture, capabilities, and current state. This replaces the body of `content/projects/{slug}/index.mdx`.
 
 **Required fields:** `id`, `title`, `description`, `status`, `state`
-**Optional fields:** `repo`, `stack`, `agents`, `relatedContent`
+**Optional fields:** `repo`, `stack`, `infrastructure`, `agents`
 
 **Validation rules:**
 - `status` must be one of: `explore`, `build`, `open`, `closed`
 - `state` must be one of: `public`, `private`
 - `agents[].name` and `agents[].role` are required if `agents` is present
-- `relatedContent[].type` must be `research` or `thoughts`
+- `stack` and `infrastructure` are distinct: stack = code (Bun, React), infrastructure = services (Supabase, Railway)
 
 ### `STREAM.md` — Project Stream
 
@@ -201,7 +198,11 @@ To add your project to LO, create a `.lo/` directory at your repo root:
 
 ```bash
 mkdir -p .lo/research .lo/work .lo/solutions
-touch .lo/STREAM.md
+cat > .lo/STREAM.md <<'EOF'
+---
+type: stream
+---
+EOF
 ```
 
 Create `.lo/PROJECT.md`:

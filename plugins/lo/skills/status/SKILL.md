@@ -69,8 +69,9 @@ This is the major transition — the project is becoming real. Multiple automati
 
 1. Read `.lo/PROJECT.md`, note current status
 2. If already `Build`, report and stop
-3. Update `status: "Build"` in frontmatter
-4. Announce:
+3. If current status is `Open`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
+4. Update `status: "Build"` in frontmatter
+5. Announce:
 
 ```
 Status changed: <old-status> → Build
@@ -152,18 +153,14 @@ Run /lo:work f{NNN} to start writing tests.
 <build-step-b>
 ### Step B: Reconcile GitHub Automation
 
-```bash
-"$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix
-```
-
-If the script doesn't exist, warn and skip:
+If the sync script doesn't exist, warn and skip:
 
 ```
 GitHub sync script not found. Skipping automation reconciliation.
 You can set up CI/CD manually or add the script later.
 ```
 
-If the project has a `build` script in package.json, ask:
+If the project has a `build` script in package.json, ask **before running the script**:
 
 ```
 CI build check detected (bun run build). Include in CI?
@@ -172,7 +169,15 @@ CI build check detected (bun run build). Include in CI?
 2. No (APIs, scripts, or packages where tests are sufficient)
 ```
 
-If no, run with `--no-build`:
+Then run the sync script with the appropriate flag:
+
+If yes (or no build script in package.json):
+
+```bash
+"$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix
+```
+
+If no:
 
 ```bash
 "$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix --no-build

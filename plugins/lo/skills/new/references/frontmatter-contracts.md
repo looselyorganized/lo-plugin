@@ -102,7 +102,7 @@ Current multi-agent setups have no coordination layer. Agents overwrite each oth
 
 ## STREAM.md — Project Stream
 
-Single file containing all milestones and updates, newest first. File has `type: stream` frontmatter, entries delimited by `<!-- entry -->`.
+Single file containing all milestones, newest first. File has `type: stream` frontmatter, entries use XML tags for reliable parsing. See `plugins/lo/skills/stream/references/stream-format.md` for full spec.
 
 ### Entry Metadata Fields
 
@@ -111,8 +111,7 @@ Single file containing all milestones and updates, newest first. File has `type:
 | `date` | yes | date | YYYY-MM-DD |
 | `title` | yes | string | Short descriptive title (under 80 chars) |
 | `version` | no | string | Semver if this is a release milestone |
-| `feature_id` | no | string | `f{NNN}` if tied to a backlog feature |
-| `commits` | no | number | Count of commits this milestone groups |
+| `research` | no | string | Comma-separated slugs of related research articles |
 
 ### Example
 
@@ -121,12 +120,14 @@ Single file containing all milestones and updates, newest first. File has `type:
 type: stream
 ---
 
-<!-- entry -->
+<entry>
 date: 2026-02-15
 title: "Prototype deployed to Railway"
-commits: 8
-
-First working deployment. API responds to health checks, WebSocket connections establish successfully. No persistence layer yet — all state is in-memory.
+version: "0.1.0"
+<description>
+First working deployment. API responds to health checks, WebSocket connections establish successfully.
+</description>
+</entry>
 ```
 
 ---
