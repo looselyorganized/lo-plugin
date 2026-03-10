@@ -15,6 +15,7 @@ The root file. One per project. Contains all metadata and the project brief.
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `id` | string | Auto-generated project identifier. Format: `proj_` + lowercase UUID v4. Never manually assign or reuse. |
 | `title` | string | Project title, e.g. `"Project: Nexus"` |
 | `description` | string | One-sentence description |
 | `status` | enum | `explore` \| `build` \| `open` \| `closed` |
@@ -63,6 +64,7 @@ Any other `## ` headings render as generic prose sections. All sections are opti
 
 ```yaml
 ---
+id: "proj_166345da-d821-4b3a-abbc-e3a439925e85"
 title: "Project: Nexus"
 description: "A coordination server for multi-agent engineering teams."
 status: "build"

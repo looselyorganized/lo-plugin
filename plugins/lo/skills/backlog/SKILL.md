@@ -112,22 +112,22 @@ Apply the edit, update `updated:` date, confirm.
 
 ## Examples
 
-### Adding a feature
+<example name="adding-a-feature">
+User: /lo:backlog feature "user authentication"
 
-    User: /lo:backlog feature "user authentication"
+Added: f003 "User Authentication"
+</example>
 
-    Added: f003 "User Authentication"
+<example name="viewing-the-backlog">
+User: /lo:backlog
 
-### Viewing the backlog
+Backlog (updated 2026-03-01):
 
-    User: /lo:backlog
+Features:
+  [ ] f003 User Authentication
+  [ ] f001 Dashboard Redesign — active -> .lo/work/f001-dashboard-redesign/
 
-    Backlog (updated 2026-03-01):
-
-    Features:
-      [ ] f003 User Authentication
-      [ ] f001 Dashboard Redesign — active -> .lo/work/f001-dashboard-redesign/
-
-    Tasks:
-      [ ] t004 Update dependency versions
-      [x] t003 Fix button color — 2026-02-28
+Tasks:
+  [ ] t004 Update dependency versions
+  [x] t003 Fix button color — 2026-02-28
+</example>

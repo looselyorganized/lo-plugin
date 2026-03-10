@@ -302,6 +302,24 @@ git add CHANGELOG.md
 git commit -m "docs: changelog for <version>"
 ```
 
+**Create stream milestone:**
+
+This runs **before cleanup** so work artifacts are still available for context.
+
+1. Gather context for the stream entry:
+   - Version number
+   - Feature names and IDs from `.lo/work/*/` and BACKLOG.md
+   - Commit count: `git rev-list --count main..<version>`
+   - Key decisions and summaries from plan files in `.lo/work/*/`
+2. Draft a stream milestone entry with `version: "<version>"` in frontmatter
+3. Present for user review — the user edits the narrative voice
+4. Write to `.lo/stream/YYYY-MM-DD-{slug}.md`
+5. Commit:
+```bash
+git add .lo/stream/
+git commit -m "docs: stream milestone for v<version>"
+```
+
 **Clean up work artifacts:**
 
 1. Scan `.lo/work/` for directories related to this release
@@ -343,6 +361,7 @@ Release: v<version>
   Tests:     passed (N tests)
   Reviewer:  clean
   Changelog: generated
+  Stream:    milestone created
   Cleanup:   N work dirs removed
   PR:        #NNN opened, auto-merge enabled
 
@@ -353,14 +372,22 @@ Release: v<version>
 
 ---
 
-## Post-ship Prompt (all modes)
+## Post-ship Prompt
 
-After reporting, prompt:
+After reporting, prompt based on mode:
 
+**Fast mode and Feature mode:**
 ```
 Shipped: <item> "<name>"
 
-Update the stream? Run /lo:stream to capture this milestone.
+Worth a milestone? Run /lo:stream to capture it.
+Anything reusable? Run /lo:solution, or "no" to skip.
+```
+
+**Release mode:** Stream milestone already created during the pipeline. Only prompt for solution:
+```
+Shipped: v<version>
+
 Anything reusable? Run /lo:solution, or "no" to skip.
 ```
 
@@ -391,9 +418,8 @@ Release shipped: v<version>
 
   Tag:       v<version>
   Changelog: CHANGELOG.md updated
+  Stream:    milestone already captured
   Cleaned:   work artifacts removed, branches deleted
-
-  Next: /lo:stream to capture this as a milestone.
 ```
 
 ---
@@ -457,6 +483,7 @@ Gate 3: Tests — 12 passed ✓
 Gate 4: Reviewer — clean ✓
 Gate 5+6: Release mode ship
   - Changelog generated, reviewed
+  - Stream milestone created, reviewed
   - 2 work dirs removed, backlog updated
   - Pushed 0.4.0
   - PR #42 opened, auto-merge enabled
