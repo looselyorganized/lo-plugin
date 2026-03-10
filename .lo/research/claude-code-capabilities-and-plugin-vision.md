@@ -20,7 +20,7 @@ This research examines every major capability, maps what LO already covers, iden
 
 ### Skills — The Winning Abstraction
 
-Skills are now the primary extension mechanism for Claude Code, and the community has voted with their feet. The [`awesome-claude-code`](https://github.com/anthropics/awesome-claude-code) repo has grown rapidly (star count as of writing: verify at time of use). Anthropic ships bundled skills (`/simplify`, `/batch`, `/debug`) ([docs](https://docs.anthropic.com/en/docs/claude-code/skills)). The format has been standardized as the [Agent Skills open standard](https://agentskills.io/specification) — portable across Claude.ai, Claude Code CLI, and the API.
+Skills are now the primary extension mechanism for Claude Code, and the community has voted with their feet. The [`awesome-claude-code`](https://github.com/anthropics/awesome-claude-code) repo has grown rapidly (star count as of writing: verify at time of use). Anthropic ships bundled skills (examples include `/simplify`, `/batch`, `/debug`, `/claude-api`) ([docs](https://docs.anthropic.com/en/docs/claude-code/skills)). The format has been standardized as the [Agent Skills open standard](https://agentskills.io/specification) — portable across Claude.ai, Claude Code CLI, and the API.
 
 **What's new since we last looked:**
 
@@ -121,7 +121,7 @@ claude --worktree feature-auth
 
 Hooks are user-defined shell commands that execute at lifecycle points. They're the escape hatch from pure LLM control — when you need something to happen every time, not just when the model remembers.
 
-**16 hook events:**
+**14 hook events:**
 
 | Event | When |
 |-------|------|
@@ -133,7 +133,8 @@ Hooks are user-defined shell commands that execute at lifecycle points. They're 
 | `SubagentStart/Stop` | Subagent lifecycle |
 | `Notification` | Claude needs attention |
 | `TaskCompleted` | Task marked complete |
-| `WorktreeCreate/Remove` | Worktree lifecycle |
+| `PermissionRequest` | Claude requests permission for a tool or action |
+| `TeammateIdle` | A teammate has no pending work |
 | `PreCompact` | Before context compaction |
 | `SessionEnd` | Session terminates |
 | `Stop` | Claude finishes responding |
@@ -187,7 +188,9 @@ The `9to5` community project runs Claude Code on schedules and webhooks. Anthrop
 | `plan` | Read-only exploration |
 | `dontAsk` | Auto-deny unpermitted tools |
 | `bypassPermissions` | Skip all checks |
-| `auto` | Intelligent auto-approval |
+| `auto` (preview) | Intelligent auto-approval |
+
+> **Note:** `auto` mode is a research preview rollout expected around mid‑March 2026 and may not be available in all environments — treat it as unstable.
 
 ---
 
@@ -316,7 +319,7 @@ The skills are already well-structured. The brainstorming requirement is a genui
 Three skills would materially benefit from `!command` preprocessing:
 
 - **`/lo:ship`**: Inject `!git diff --stat` and `!git log --oneline -10` at the top so the skill starts with awareness of what's being shipped
-- **`/lo:stream`**: Inject `!git log --oneline --since="$(date -v-30d +%Y-%m-%d)"` to have recent history pre-loaded
+- **`/lo:stream`**: Inject `!git log --oneline --since="30 days ago"` to have recent history pre-loaded
 - **`/lo:work`**: Inject `!cat .lo/PROJECT.md | head -20` to have project context immediately
 
 These are small, targeted changes that reduce the back-and-forth of "let me read the project state" at the start of every skill invocation.
