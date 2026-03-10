@@ -83,12 +83,11 @@ $line"
     body=$(echo "$body" | sed '/./,$!d')
 
     # Parse frontmatter fields we care about
-    local date_val title_val version_val feature_id_val commits_val research_val type_val
+    local date_val title_val version_val research_val type_val
     date_val=$(echo "$fm_lines" | grep -E '^date:' | head -1 | sed 's/^date:[[:space:]]*//' | tr -d '"' || true)
     title_val=$(echo "$fm_lines" | grep -E '^title:' | head -1 | sed 's/^title:[[:space:]]*//' || true)
     version_val=$(echo "$fm_lines" | grep -E '^version:' | head -1 | sed 's/^version:[[:space:]]*//' | tr -d '"' || true)
-    feature_id_val=$(echo "$fm_lines" | grep -E '^feature_id:' | head -1 | sed 's/^feature_id:[[:space:]]*//' | tr -d '"' || true)
-    commits_val=$(echo "$fm_lines" | grep -E '^commits:' | head -1 | sed 's/^commits:[[:space:]]*//' || true)
+    research_val=$(echo "$fm_lines" | grep -E '^research:' | head -1 | sed 's/^research:[[:space:]]*//' | tr -d '"' || true)
 
     # Build entry block
     local entry_block="
@@ -98,10 +97,8 @@ title: $title_val"
 
     [ -n "$version_val" ] && entry_block="$entry_block
 version: \"$version_val\""
-    [ -n "$feature_id_val" ] && entry_block="$entry_block
-feature_id: \"$feature_id_val\""
-    [ -n "$commits_val" ] && entry_block="$entry_block
-commits: $commits_val"
+    [ -n "$research_val" ] && entry_block="$entry_block
+research: $research_val"
 
     entry_block="$entry_block
 

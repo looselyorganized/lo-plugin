@@ -22,7 +22,7 @@ Add the marketplace and install the plugin:
 | solution | `/lo:solution` | Capture reusable knowledge |
 | status | `/lo:status` | Manage project lifecycle transitions (explore → build → open → closed) |
 | new | `/lo:new` | Scaffold `.lo/` directory |
-| stream | `/lo:stream` | Update `.lo/STREAM.md` with milestones and updates |
+| stream | `/lo:stream` | Update `.lo/STREAM.md` with milestones only |
 | publish | `/lo:publish` | Publish research articles to the platform from `.lo/research/` material |
 | stocktaper-design-system | — | StockTaper / LO design system tokens, components, and layout patterns |
 
@@ -42,7 +42,7 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 .lo/
 ├── PROJECT.md            # Brief, metadata, agent declarations
 ├── BACKLOG.md            # Feature and task backlog
-├── STREAM.md             # Milestones and updates (single file, newest first)
+├── STREAM.md             # Milestones only (single file, newest first)
 ├── research/             # Research docs (draft → review → published)
 │   ├── distributed-locking.md
 │   └── institutional-memory.md
@@ -95,7 +95,7 @@ agents:                          # optional, array of agent declarations
 
 ### `STREAM.md` — Project Stream
 
-Single file containing all milestones and updates, newest first. This is the project's activity feed.
+Single file containing milestones only, newest first. This is the project's milestone feed.
 
 **File format:** YAML frontmatter (`type: stream`), then entries using XML tags for reliable parsing. Newest first.
 
@@ -209,7 +209,7 @@ Create `.lo/PROJECT.md`:
 
 ```markdown
 ---
-id: "proj_your-uuid-here"
+id: "proj_a1b2c3d4-e5f6-7890-abcd-ef1234567890"   # generate a new UUID v4 — must be unique
 title: "Your Project Name"
 description: "One-sentence description of what this project does."
 status: "explore"
@@ -219,6 +219,8 @@ state: "public"
 Your project brief goes here. What is this? Why does it exist?
 What problem does it solve? What's the current state?
 ```
+
+> **Note:** The `id` field is auto-generated and must be unique. Generate a lowercase UUID v4 — do not copy the example value.
 
 Create `.lo/BACKLOG.md`:
 

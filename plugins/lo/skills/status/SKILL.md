@@ -226,8 +226,8 @@ This section handles transitions to Open, Closed, and Explore. These are simpler
 1. Read `.lo/PROJECT.md`, note current status
 
 2. **Check for backward transition:**
-   - Open → Build, Build → Explore, or any move toward Explore/Build from a later stage
-   - If backward: confirm with user before proceeding
+   - A backward transition occurs when: `target === "Explore"` (moving back to the first phase from any later stage) OR `current === "Closed" && target === "Open"` (the specific Closed → Open reverse)
+   - If either condition is true, prompt the user and block until confirmed:
 
 ```
 This moves the project backward from <current> to <target>. Are you sure?

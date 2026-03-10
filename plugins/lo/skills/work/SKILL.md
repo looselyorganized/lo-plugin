@@ -194,6 +194,10 @@ Add tests to the plan, or proceed without?
 Do not block — let the user decide.
 </test-open>
 
+<test-closed>
+**Closed** — Project archived; do not run or add tests. Skip test-related prompts.
+</test-closed>
+
 **What counts as testable logic:** Functions with business logic, parsers, validators, data transformations, state machines, API handlers. **Not testable:** Config, types, UI layout, markdown, thin wrappers.
 
 ### Step 5: Execute
@@ -321,7 +325,10 @@ You are executing a **task**. Tasks are smaller — they don't need formal plans
 
 Check if `.lo/work/t{NNN}-slug/` exists with plan files:
 
-- **Plan exists:** Follow the Feature Execution flow (Steps 2-7 above) using the task's plan
+- **Plan exists:** Follow the Feature Execution flow (Steps 2-7 above) using the task's plan, with these task-specific overrides:
+  - Branch naming: `fix/t{NNN}-slug` (not `feat/f{NNN}-slug`)
+  - PR summary template: reference the task ID and description (not a feature title)
+  - Phase messages: use task context (e.g., "Task complete: t{NNN}" instead of "Feature complete: f{NNN}")
 - **No plan:** Continue to Step 3 below
 
 ### Step 3: Set Up Isolation
@@ -333,6 +340,8 @@ git status
 
 Present options and **do not proceed until the user answers:**
 
+For a **clean** working tree:
+
 ```
 Working on: t{NNN} "<description>"
 You're on <current-branch>.
@@ -341,15 +350,21 @@ You're on <current-branch>.
 2. Stay on <current-branch> (fine for quick fixes)
 ```
 
-If dirty working tree, add: `3. New worktree (you have uncommitted changes)`
+For a **dirty** working tree (uncommitted changes detected), omit the new-branch option and recommend worktree instead:
+
+```
+Working on: t{NNN} "<description>"
+You're on <current-branch>. You have uncommitted changes.
+
+1. Stay on <current-branch> (fine for quick fixes if changes are unrelated)
+2. New worktree (recommended — keeps your uncommitted changes isolated)
+```
 
 If new branch:
 
 ```bash
 git checkout -b fix/t{NNN}-slug
 ```
-
-If worktree: use the EnterWorktree tool.
 
 ### Step 4: Execute
 
