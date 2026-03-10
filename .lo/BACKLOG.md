@@ -24,9 +24,9 @@ updated: 2026-03-09
   Refocus stream skill to capture significant milestones rather than granular commit groups.
   [done](v0.3.2) 2026-03-07
 
-- [ ] f006 Plugin Redesign
+- [x] f006 Plugin Redesign
   Redesign using Claude Code's latest capabilities — subagents, hooks, allowed-tools, simplified pipelines.
-  [active](.lo/work/f006-plugin-redesign/)
+  [done](v0.4.0) 2026-03-09
 
 ## Tasks
 
