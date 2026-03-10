@@ -29,7 +29,7 @@ Features and tasks use the same list-item pattern. See `references/backlog-forma
 - [ ] t004 Add epic to backlog command
 ```
 
-Status lines: no line = backlog, `[active](path)` = in progress, `[done](version) date` = shipped.
+Status lines: no line = backlog, `[active](path)` = in progress, `[done](version) date` = shipped (Build/Open projects), `[done] YYYY-MM-DD` = shipped (Explore/Closed projects).
 
 ## When to Use
 

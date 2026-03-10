@@ -10,6 +10,8 @@ allowed-tools:
   - Edit
   - Agent
   - Skill
+  - TaskCreate
+  - EnterWorktree
 ---
 
 # LO Work Executor

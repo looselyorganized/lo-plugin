@@ -177,6 +177,7 @@ Tasks are smaller — they don't always need brainstorming or formal plans.
    - Create `.lo/work/t{NNN}-slug/` directory
    - Ask the user to describe the approach or generate steps from the task description
    - Save a lightweight plan file to `.lo/work/t{NNN}-slug/001-task.md`
+   - Edit `.lo/BACKLOG.md` to replace the task's backlog entry status line with `[active](.lo/work/t{NNN}-slug/)` (preserve existing metadata and formatting)
    - Bridge to `/lo:work`
 
 4. **Jump to /lo:work chosen:**

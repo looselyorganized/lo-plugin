@@ -86,14 +86,14 @@ All notable changes to this project are documented in this file.
 3. **Version format:** `[MAJOR.MINOR.PATCH]` in brackets
 4. **Categories** (only include categories that have entries):
 
-    | Category | What goes here |
-    |----------|---------------|
-    | Added | New features, new skills, new capabilities |
-    | Fixed | Bug fixes |
-    | Changed | Refactors, improvements, dependency updates, config changes |
-    | Removed | Deleted features, removed files |
-    | Breaking | Changes that break backward compatibility |
-    | Documentation | Doc-only changes (use sparingly — most doc changes accompany code) |
+| Category | What goes here |
+|----------|---------------|
+| Added | New features, new skills, new capabilities |
+| Fixed | Bug fixes |
+| Changed | Refactors, improvements, dependency updates, config changes |
+| Removed | Deleted features, removed files |
+| Breaking | Changes that break backward compatibility |
+| Documentation | Doc-only changes (use sparingly — most doc changes accompany code) |
 
 5. **Entry format:** One line per change (wrap long lines). Start with what changed, not how. Include backlog IDs when applicable: `(f003)`, `(t005)`.
 6. **One entry per feature/task.** Multiple commits implementing the same feature become a single changelog line. The changelog describes outcomes, not implementation steps.
