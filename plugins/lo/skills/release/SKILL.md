@@ -88,7 +88,7 @@ Report:
     Branch: <version>
     Version bumped in: <files>
 
-    Work on this branch. Features branch off it, /lo:ship merges them back.
+    Work on this branch. Features branch off it; /lo:ship commits and pushes the feature branch.
     When ready to finalize: /lo:ship (on this branch)
 
 ---

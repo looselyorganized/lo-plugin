@@ -45,7 +45,7 @@ Tasks follow the same pattern as features. Description goes on the first line af
 | State | Format | Example |
 |-------|--------|---------|
 | Backlog | (no status line) | Just the checkbox + ID + name |
-| Active | `[active](.lo/work/f{NNN}-slug/)` | Link to work directory |
+| Active | `[active](.lo/work/<id>-slug/)` | Link to work directory (`f{NNN}` for features, `t{NNN}` for tasks) |
 | Done (no version) | `[done] YYYY-MM-DD` | Explore/Closed projects |
 | Done (versioned) | `[done](v0.4.0) YYYY-MM-DD` | Build/Open projects |
 
@@ -60,7 +60,7 @@ The markdown link syntax serves double duty — it's both metadata and navigatio
 
 ## Status Transitions
 
-- **Backlog → Active:** `/lo:plan` adds `[active](.lo/work/f{NNN}-slug/)` when creating a work directory
+- **Backlog → Active:** `/lo:plan` adds `[active](.lo/work/<id>-slug/)` when creating a work directory (`f{NNN}` for features, `t{NNN}` for tasks)
 - **Active → Done:** `/lo:ship` changes to `[done](v0.4.0) YYYY-MM-DD` (version included if available)
 - Features and tasks stay in BACKLOG.md through their full lifecycle — never deleted
 

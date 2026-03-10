@@ -5,7 +5,9 @@ allowed-tools:
   - Read
   - Glob
   - Grep
+  - Bash
   - Write
+  - Edit
 ---
 
 # LO Solution Capture

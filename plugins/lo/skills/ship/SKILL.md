@@ -153,6 +153,8 @@ If push fails, stop and report.
 
 **Fast mode (Explore/Closed):**
 - Mark done in BACKLOG.md (`[done] YYYY-MM-DD` — no version in Explore), delete `.lo/work/` directory, update dates
+- Commit cleanup: `git add .lo/BACKLOG.md && git rm -r .lo/work/<item>/` then `git commit -m "chore: mark <item> done, clean up work artifacts"`
+- Push: `git push origin main`
 
 **Feature mode (Build/Open + feature branch):**
 - Leave work directories and BACKLOG.md unchanged — release ship needs them for changelog
