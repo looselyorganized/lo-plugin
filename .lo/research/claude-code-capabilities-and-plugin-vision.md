@@ -25,7 +25,7 @@ Skills are now the primary extension mechanism for Claude Code, and the communit
 **What's new since we last looked:**
 
 - **Custom commands merged into skills.** `.claude/commands/review.md` and `.claude/skills/review/SKILL.md` are now equivalent. Legacy commands files still work; skills take precedence on name conflicts.
-- **Dynamic context injection** via `!`command`` syntax. Shell commands run before skill content is sent to Claude, with output substituted inline. This is preprocessing — Claude only sees the rendered result.
+- **Dynamic context injection** via `!command` syntax. Shell commands run before skill content is sent to Claude, with output substituted inline. This is preprocessing — Claude only sees the rendered result.
 - **Forked execution** with `context: fork` and `agent: <type>`. A skill can declare it runs in an isolated subagent with a specific model and tool set.
 - **String substitutions**: `$ARGUMENTS`, `$ARGUMENTS[N]`, `${CLAUDE_SESSION_ID}`, `${CLAUDE_SKILL_DIR}`.
 - **Invocation control matrix**: `disable-model-invocation: true` hides description from context (user-only). `user-invocable: false` hides from `/` menu (Claude-only). Default: both can invoke, description always in context.
@@ -283,7 +283,7 @@ status → (transitions trigger automation)
 
 1. **No custom subagents**: LO doesn't ship subagent definitions. The `/lo:work` skill describes parallelization strategies but doesn't provide pre-configured agents optimized for LO's workflow
 2. **No hooks**: No lifecycle hooks for deterministic behavior (auto-format on edit, auto-lint on commit, status notifications)
-3. **No dynamic context injection**: Skills don't use `!`command`` syntax to pull live data (git state, recent changes, project status) at invocation time
+3. **No dynamic context injection**: Skills don't use `!command` syntax to pull live data (git state, recent changes, project status) at invocation time
 4. **No `context: fork` usage**: No skills run in forked subagent context despite some being good candidates (stream scanning, backlog queries)
 5. **No `allowed-tools` declarations**: Skills don't pre-authorize tools, meaning users get more permission prompts than necessary
 6. **No persistent agent memory**: No use of `memory:` for building institutional knowledge across sessions
@@ -313,11 +313,11 @@ The skills are already well-structured. The brainstorming requirement is a genui
 
 #### 2. Add Selective Dynamic Context Injection
 
-Three skills would materially benefit from `!`command`` preprocessing:
+Three skills would materially benefit from `!command` preprocessing:
 
-- **`/lo:ship`**: Inject `!`git diff --stat`` and `!`git log --oneline -10`` at the top so the skill starts with awareness of what's being shipped
-- **`/lo:stream`**: Inject `!`git log --oneline --since="$(date -v-30d +%Y-%m-%d)"`` to have recent history pre-loaded
-- **`/lo:work`**: Inject `!`cat .lo/PROJECT.md | head -20`` to have project context immediately
+- **`/lo:ship`**: Inject `!git diff --stat` and `!git log --oneline -10` at the top so the skill starts with awareness of what's being shipped
+- **`/lo:stream`**: Inject `!git log --oneline --since="$(date -v-30d +%Y-%m-%d)"` to have recent history pre-loaded
+- **`/lo:work`**: Inject `!cat .lo/PROJECT.md | head -20` to have project context immediately
 
 These are small, targeted changes that reduce the back-and-forth of "let me read the project state" at the start of every skill invocation.
 
