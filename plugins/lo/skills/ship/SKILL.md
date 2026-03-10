@@ -142,7 +142,7 @@ Invoke the `reviewer` subagent (defined in `.claude-plugin/agents/reviewer.md`) 
 | Mode | Action |
 |------|--------|
 | Fast mode | Merge to main if on feature branch, then `git push origin main` |
-| Feature mode | `git push -u origin <feature-branch>` |
+| Feature mode | `git push -u origin <feature-branch>`, open PR: `gh pr create --base <release-branch> --head <feature-branch> --title "<commit message title>" --body "<brief item summary>"`, enable auto-merge: `gh pr merge <PR> --auto --merge` |
 | Release mode | `git push -u origin <version>`, open PR: `gh pr create --base main --head <version> --title "release: v<version>" --body "<changelog summary>"`, enable auto-merge: `gh pr merge <PR> --auto --merge` |
 
 Use `--merge` (not `--squash`) for release PRs to preserve branch history.
@@ -158,6 +158,7 @@ If push fails, stop and report.
 
 **Feature mode (Build/Open + feature branch):**
 - Leave work directories and BACKLOG.md unchanged — release ship needs them for changelog
+- Report PR URL: `Feature PR opened: <url>. Auto-merge enabled.`
 
 **Release mode (Build/Open + semver branch):**
 - Cleanup already done above. Report PR URL and stop:
@@ -226,7 +227,7 @@ Report:
       Tests:    passed (N tests)
       Reviewer: clean
       Commit:   <hash> "<message>"
-      Pushed:   origin/<branch>
+      PR:       #NNN opened, auto-merge enabled
 
 **Release mode (Build/Open + semver branch):**
 
@@ -269,7 +270,7 @@ Report:
     Gate 2: EARS — 22/22 covered ✓
     Gate 3: Tests — 47 passed ✓
     Gate 4: Reviewer — clean ✓
-    Gate 5: Commit + Push — abc1234, origin/feat/f003-user-auth ✓
+    Gate 5: Commit + Push — abc1234, PR #15 opened, auto-merge enabled ✓
     Gate 6: Wrap-up ✓
 
     Shipped: f003 "User Authentication"
