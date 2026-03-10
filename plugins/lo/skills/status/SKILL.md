@@ -15,7 +15,7 @@ allowed-tools:
 Manages project lifecycle transitions in `.lo/PROJECT.md`. Each transition triggers automation appropriate to the new phase.
 
 <critical>
-Backward transitions (Open→Build, Build→Explore) ALWAYS require explicit user confirmation before proceeding.
+Backward transitions (any move toward an earlier status in explore→build→open→closed) ALWAYS require explicit user confirmation before proceeding.
 ALWAYS read the current status from PROJECT.md before making any changes.
 </critical>
 
@@ -30,14 +30,14 @@ ALWAYS read the current status from PROJECT.md before making any changes.
 Explore → Build → Open → Closed
 ```
 
-Status values are capitalized: `Explore`, `Build`, `Open`, `Closed`.
+Status values are lowercase: `explore`, `build`, `open`, `closed`.
 
 ## Modes
 
 Detect from arguments:
 - `/lo:status` with no args → **show status**
-- `/lo:status Build` → **transition to Build** (complex — has sub-steps)
-- `/lo:status Open` or `Closed` or `Explore` → **simple transition**
+- `/lo:status build` → **transition to build** (complex — has sub-steps)
+- `/lo:status open` or `closed` or `explore` → **simple transition**
 - `/lo:status public` or `private` → **set visibility** (direct)
 - `/lo:status state` → **toggle visibility** (prompts for choice)
 
@@ -68,15 +68,15 @@ This is the major transition — the project is becoming real. Multiple automati
 ### Pre-flight
 
 1. Read `.lo/PROJECT.md`, note current status
-2. If already `Build`, report and stop
-3. If current status is `Open`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
-4. Update `status: "Build"` in frontmatter
+2. If already `build`, report and stop
+3. If current status is `open` or `closed`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
+4. Update `status: "build"` in frontmatter
 5. Announce:
 
 ```
-Status changed: <old-status> → Build
+Status changed: <old-status> → build
 
-The project is now in Build phase. This unlocks:
+The project is now in build phase. This unlocks:
   - Test coverage planning
   - CI/CD pipeline setup
   - Branch protection + auto-merge
@@ -114,7 +114,7 @@ For each testable file/function, note: file path, what to test, priority (`high`
 
 ```markdown
 - [ ] f{NNN} Test Coverage
-  Retroactive test coverage for core project logic. Generated during Explore → Build transition.
+  Retroactive test coverage for core project logic. Generated during explore → build transition.
   [active](.lo/work/f{NNN}-test-coverage/)
 ```
 
@@ -208,7 +208,7 @@ After all selected steps complete:
 ```
 Build transition complete for "<project-title>"
 
-  Status:     Build
+  Status:     build
   Tests:      f{NNN} — N files to cover. Run /lo:work f{NNN} to start.
   GitHub:     lo-github-sync applied (see output above)
   Docs:       README.md [created | already exists | skipped]
@@ -308,14 +308,14 @@ State changed: <old-state> → <new-state>
 User: /lo:status
 
 Project: LO Plugin
-Status: Build
+Status: build
 State: public
 </example>
 
 <example name="transition-to-build">
-User: /lo:status Build
+User: /lo:status build
 
-Status changed: Explore → Build
+Status changed: explore → build
 
 What do you want to configure?
 1. All of the below (recommended)
@@ -324,7 +324,7 @@ What do you want to configure?
 User picks 1 → runs Steps A, B, C
 
 Build transition complete for "LO Plugin"
-  Status:     Build
+  Status:     build
   Tests:      f008 — 12 files to cover
   GitHub:     lo-github-sync applied
   Docs:       README.md created
@@ -353,11 +353,11 @@ State changed: public → private
 </example>
 
 <example name="backward-transition">
-User: /lo:status Explore
+User: /lo:status explore
 
-This moves the project backward from Build to Explore. Are you sure?
+This moves the project backward from build to explore. Are you sure?
 
 User confirms → status updated
 
-Status changed: Build → Explore
+Status changed: build → explore
 </example>

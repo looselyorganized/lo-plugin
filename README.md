@@ -220,6 +220,15 @@ Your project brief goes here. What is this? Why does it exist?
 What problem does it solve? What's the current state?
 ```
 
+Create `.lo/BACKLOG.md`:
+
+```markdown
+---
+type: backlog
+---
+
+```
+
 That's the minimum. Add stream entries and research docs as the project evolves. The webhook will sync everything to the website automatically.
 
 ## Development

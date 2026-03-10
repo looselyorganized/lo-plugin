@@ -124,6 +124,7 @@ type: stream
 date: 2026-02-15
 title: "Prototype deployed to Railway"
 version: "0.1.0"
+research: "railway-deployment,bun-http-server"
 <description>
 First working deployment. API responds to health checks, WebSocket connections establish successfully.
 </description>
