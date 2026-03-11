@@ -34,11 +34,12 @@ Copy this checklist and update it as you proceed. It tracks your mode and gate p
 ```
 Ship Progress:
   Mode: [pending detection]
+  Status: [pending detection]
   Item: [pending detection]
   - [ ] Gate 1: Pre-flight
-  - [ ] Gate 2: EARS audit
-  - [ ] Gate 3: Tests
-  - [ ] Gate 4: Reviewer
+  - [ ] Gate 2: EARS audit (skip: Explore/Closed)
+  - [ ] Gate 3: Tests (skip: Explore/Closed)
+  - [ ] Gate 4: Reviewer (skip: Explore/Closed)
   - [ ] Gate 5: Ship (mode-specific)
   - [ ] Gate 6: Wrap-up
 ```
@@ -100,6 +101,8 @@ Store the result as `DIFF_BASE`.
 
 ## Gate 2: EARS Requirements Audit
 
+*Skip if status is **Explore** or **Closed** — no formal requirements tracking at these stages.*
+
 *Skip if mode is **release** — individual features already passed EARS during their own ship.*
 
 *Skip if no `ears-requirements.md` exists in the work directory.*
@@ -119,15 +122,48 @@ Store the result as `DIFF_BASE`.
 
 ## Gate 3: Run Tests
 
-Detect the project's test runner and run tests.
+Follow ONLY the block matching the project status detected in Gate 1.
+
+<test-gate-explore>
+**Explore / Closed** — Skip this gate entirely. No output needed.
+</test-gate-explore>
+
+<test-gate-build>
+**Build** — Detect the project's test runner and run tests.
 
 - **Pass:** Report count, proceed.
 - **Fail:** Stop. Report failures. Do not continue.
-- **No tests:** Warn user, ask whether to proceed.
+- **No tests found:** Proceed. Note "No test runner detected" in the ship report — this is expected, not a warning.
+</test-gate-build>
+
+<test-gate-open>
+**Open** — Detect the project's test runner and run tests. Then run dependency audit.
+
+Tests:
+- **Pass:** Report count, continue to audit.
+- **Fail:** Stop. Report failures. Do not continue.
+- **No tests found:** Stop. "Open-status projects require tests. Add tests before shipping, or move the project back to Build status."
+
+Dependency audit:
+```bash
+# Detect package manager and run audit
+npm audit --audit-level=critical 2>/dev/null || \
+pnpm audit --audit-level=critical 2>/dev/null || \
+bun pm audit 2>/dev/null || \
+pip audit 2>/dev/null || \
+echo "No supported package manager found for audit"
+```
+
+- **Clean:** Report "Audit: clean", proceed.
+- **Critical vulnerabilities found:** Stop. Report vulnerabilities. Do not continue.
+- **No package manager:** Proceed with a note.
+</test-gate-open>
 
 ---
 
 ## Gate 4: Reviewer
+
+*Skip if status is **Explore** or **Closed** — no code review at these stages.*
 
 Invoke the `reviewer` subagent (defined in `.claude-plugin/agents/reviewer.md`).
 
@@ -212,8 +248,6 @@ git branch -d <branch>
 
 ```
 Ship complete: <item> "<name>"
-  Tests:    passed (N tests)
-  Reviewer: clean
   Commit:   <hash> "<message>"
   Pushed:   main
   Backlog:  marked done
@@ -455,9 +489,9 @@ Ship stopped at Gate N: <gate-name>
 User: /lo:ship (on feat/f003-auth, project status: Explore)
 
 Gate 1: Pre-flight — status=Explore, branch=feat/f003-auth → **fast mode** ✓
-Gate 2: EARS — skipped (no ears-requirements.md) ✓
-Gate 3: Tests — 47 passed ✓
-Gate 4: Reviewer — clean ✓
+Gate 2: EARS — skipped (Explore) ✓
+Gate 3: Tests — skipped (Explore) ✓
+Gate 4: Reviewer — skipped (Explore) ✓
 Gate 5+6: Fast mode ship
   - Committed: abc1234 "feat: user authentication"
   - Merged feat/f003-auth → main
