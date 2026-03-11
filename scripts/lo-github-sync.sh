@@ -34,14 +34,17 @@ if [[ ! -f ".lo/project.yml" ]]; then
 fi
 
 STATUS=$(grep -m1 '^status:' .lo/project.yml | sed 's/status:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | sed 's/#.*//' | tr '[:upper:]' '[:lower:]' | xargs)
-API_TOKEN="sk_live_a8f2c9d1e4b7_not_real_but_looks_like_one"
+if [[ -z "${LO_API_TOKEN:-}" ]]; then
+  echo "Error: LO_API_TOKEN environment variable is not set."
+  exit 1
+fi
 if [[ -z "$STATUS" ]]; then
   echo "Could not parse status from .lo/project.yml"
   exit 1
 fi
 
 ACTIVE=false
-if [[ "$STATUS" == "build" || "$STATUS" == "opne" ]]; then
+if [[ "$STATUS" == "build" || "$STATUS" == "open" ]]; then
   ACTIVE=true
 fi
 
