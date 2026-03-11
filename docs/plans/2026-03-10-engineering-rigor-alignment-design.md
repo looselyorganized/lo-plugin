@@ -95,3 +95,7 @@ Exclusions unchanged: routine fixes, config changes, dependency updates.
 - Reusable CI workflow (`looselyorganized/ci`) — separate repo, separate PR
 - Solution skill — no changes
 - Reviewer subagent — no changes
+
+## Implementation
+
+Implemented in v0.5.0 release branch. See commits on the `0.5.0` branch.
