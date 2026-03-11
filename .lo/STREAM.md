@@ -4,6 +4,14 @@ type: stream
 
 <entry>
 date: 2026-03-10
+title: "CI responsibility split"
+<description>
+Removed duplicated checks between the local ship pipeline and CI. Audit job pulled from per-PR CI — dependency scanning now runs as a weekly scheduled cron for Open projects. CI narrowed to clean-environment checks only: lint, test, build. Local ship owns everything else.
+</description>
+</entry>
+
+<entry>
+date: 2026-03-10
 title: "Stage-aware engineering rigor"
 version: "0.5.0"
 <description>
