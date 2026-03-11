@@ -323,7 +323,7 @@ The project is going live — real users, real data. Multiple automation steps f
 3. If current status is `explore`, block the transition: "Projects must go through Build before Open. Run `/lo:status` to move to Build first." Stop here.
 4. If current status is `closed`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
 5. Update `status: "open"` in frontmatter
-5. Announce:
+6. Announce:
 
 ```
 Status changed: <old-status> → open
