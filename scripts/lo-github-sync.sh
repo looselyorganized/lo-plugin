@@ -279,24 +279,12 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('"'"'**/package.json'"'"','"'"'**/package-lock.json'"'"','"'"'**/yarn.lock'"'"','"'"'**/pnpm-lock.yaml'"'"','"'"'**/bun.lock'"'"','"'"'**/bun.lockb'"'"') }}
+          key: bun-${{ runner.os }}-${{ hashFiles('"'"'bun.lock'"'"') }}
           restore-keys: bun-${{ runner.os }}-
       - run: bun install
       - run: npm audit --audit-level=critical'
 
-  # Only Node projects get a scheduled audit workflow
-  local IS_NODE=false
-  if [[ -f "package.json" || -f "package-lock.json" || -f "yarn.lock" || -f "pnpm-lock.yaml" || -f "bun.lockb" ]]; then
-    IS_NODE=true
-  fi
-
-  # audit.yml should exist only for open Node projects
-  local SHOULD_EXIST=false
-  if [[ "$STATUS" == "open" ]] && [[ "$IS_NODE" == "true" ]]; then
-    SHOULD_EXIST=true
-  fi
-
-  if [[ "$SHOULD_EXIST" == "true" ]]; then
+  if [[ "$STATUS" == "open" && -f "package.json" ]]; then
     if [[ -f ".github/workflows/audit.yml" ]]; then
       CURRENT=$(cat .github/workflows/audit.yml)
       if [[ "$CURRENT" == "$TARGET_CONTENT" ]]; then
