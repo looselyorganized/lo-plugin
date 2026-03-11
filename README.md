@@ -226,9 +226,12 @@ Create `.lo/BACKLOG.md`:
 
 ```markdown
 ---
-type: backlog
+updated: 2026-03-11
 ---
 
+## Features
+
+## Tasks
 ```
 
 That's the minimum. Add stream entries and research docs as the project evolves. The webhook will sync everything to the website automatically.
