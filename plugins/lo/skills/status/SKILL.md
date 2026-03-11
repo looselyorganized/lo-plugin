@@ -88,6 +88,8 @@ The project is now in build phase. This unlocks:
 
 Ask the user what to set up:
 
+Scan `.lo/PROJECT.md` frontmatter for `infrastructure` and `stack` to determine which optional steps to show.
+
 ```
 What do you want to configure?
 
@@ -95,7 +97,11 @@ What do you want to configure?
 2. Scan codebase and create a test coverage plan
 3. Reconcile GitHub automation (CodeRabbit, CI, branch protection, auto-merge)
 4. Create README and public docs (if missing)
-5. Skip all — just change the status
+5. Verify database backups and migrations     ← only if infrastructure includes a database (Supabase, Railway Postgres, Prisma, Drizzle, etc.)
+6. Add health check endpoint                  ← only if stack includes an API framework (Hono, Express, Fastify, Next.js, etc.)
+7. Skip all — just change the status
+
+Items 5-6 are **conditionally visible** — omit them from the menu if the project has no database or no server. Adjust numbering accordingly.
 ```
 
 Allow multiple selections. Run selected steps in order.
@@ -202,6 +208,87 @@ Present the script's output. If any items show `error`, investigate and report.
 
 </build-step-c>
 
+<build-step-d>
+### Step D: Verify Database Backups and Migrations
+
+*Only shown if `.lo/PROJECT.md` infrastructure includes a database.*
+
+Check the project for database-related setup:
+
+**Migrations in version control:**
+
+```bash
+# Check for common migration directories
+ls -d supabase/migrations/ prisma/ drizzle/ alembic/ migrations/ 2>/dev/null
+```
+
+- If found: Report which migration tool is detected and that it's in version control. ✓
+- If not found: Ask the user:
+
+```
+No migration directory found in version control. Do you use a migration tool?
+
+1. Yes — I'll add it (add backlog task)
+2. No database migrations needed
+3. Skip
+```
+
+If task needed, add to BACKLOG.md:
+
+```markdown
+- [ ] t{NNN} Add database migrations to version control
+  Ensure schema changes are tracked via migration files. Triggered by Build transition.
+```
+
+**Automated backups:**
+
+```
+Do you have automated database backups enabled?
+(Supabase Pro has daily backups by default. Railway Postgres plugins include backups.)
+
+1. Yes — already configured
+2. No — add a backlog task
+3. Skip
+```
+
+If task needed, add to BACKLOG.md:
+
+```markdown
+- [ ] t{NNN} Enable automated database backups
+  Configure daily automated backups for production database. Triggered by Build transition.
+```
+
+</build-step-d>
+
+<build-step-e>
+### Step E: Health Check Endpoint
+
+*Only shown if project stack includes an API framework.*
+
+```bash
+# Search for existing health check
+grep -r "health" --include="*.ts" --include="*.js" --include="*.py" --include="*.go" -l . 2>/dev/null | head -5
+```
+
+- If a health route is found: Report it. ✓
+- If not found:
+
+```
+No health check endpoint detected. A /health route that returns 200 lets Railway and monitoring tools verify your service is running.
+
+1. Add a backlog task to create /health endpoint
+2. Skip — not needed
+```
+
+If task needed, add to BACKLOG.md:
+
+```markdown
+- [ ] t{NNN} Add health check endpoint
+  Create a /health endpoint returning 200 OK for monitoring and Railway health checks. Triggered by Build transition.
+```
+
+</build-step-e>
+
 ### Final Summary
 
 After all selected steps complete:
@@ -213,6 +300,8 @@ Build transition complete for "<project-title>"
   Tests:      f{NNN} — N files to cover. Run /lo:work f{NNN} to start.
   GitHub:     lo-github-sync applied (see output above)
   Docs:       README.md [created | already exists | skipped]
+  Database:   [migrations ✓, backups ✓ | t{NNN} added | skipped | not detected]
+  Health:     [/health found | t{NNN} added | skipped | not detected]
 ```
 
 </transition-build>
