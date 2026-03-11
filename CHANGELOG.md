@@ -8,7 +8,7 @@ All notable changes to this project are documented in this file.
 - Open transition wizard in /lo:status — Railway PR deploy verification, error tracking, uptime monitoring, and rate limiting prompts with automatic backlog task creation for gaps
 - Conditional infrastructure steps in Build transition — database backup/migration verification (if DB detected) and health check endpoint detection (if API framework detected)
 - Dependency audit (`npm audit --audit-level=critical`) in ship Gate 3 for Open-status projects
-- `has-audit` flag in CI workflow generation for Open-status projects via lo-github-sync.sh
+- Scheduled weekly dependency audit workflow (`audit.yml`) for Open-status projects via lo-github-sync.sh
 - .gitignore verification step in /lo:new — generates stack-appropriate defaults if missing, warns if .env not excluded
 
 ### Changed
