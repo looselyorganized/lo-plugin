@@ -1,101 +1,50 @@
 # LO Frontmatter Contracts
 
-> From the .lo/ Convention Spec v2.0.0
-> Updated 2026-02-23 — lifecycle phases changed to explore/build/open/closed.
-
-All `.lo/` files use Markdown with YAML frontmatter (parsed by gray-matter). No MDX — content is plain Markdown.
+> From the .lo/ Convention Spec v3.0.0
+> Updated 2026-03-11 — PROJECT.md replaced by project.yml (pure YAML, 5 required fields, no body).
 
 ---
 
-## project.md — Project Brief & Metadata
+## project.yml — Project Metadata
 
-The root file. One per project. Contains all metadata and the project brief.
+The root file. One per project. Pure YAML — no frontmatter delimiters, no markdown body.
 
 ### Required Fields
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `id` | string | Auto-generated project identifier. Format: `proj_` + lowercase UUID v4. Never manually assign or reuse. |
-| `title` | string | Project title, e.g. `"Project: Nexus"` |
+| `id` | string | Auto-generated project identifier. Format: `proj_` + lowercase UUID v4. Never manually assign or reuse. Must be the first field. |
+| `title` | string | Project title, e.g. `"Loosely Organized"` |
 | `description` | string | One-sentence description |
 | `status` | enum | `explore` \| `build` \| `open` \| `closed` |
 | `state` | enum | `public` \| `private` |
 
-### Optional Fields
+### No Optional Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `repo` | string | GitHub repo URL |
-| `stack` | string[] | Code-level technologies (languages, frameworks, libraries) |
-| `infrastructure` | string[] | Deployment/service layer (Supabase, Railway, Vercel, AWS, etc.) |
-| `agents` | object[] | AI coding agents used on this project (each needs `name` and `role`) |
+Fields previously in PROJECT.md have moved to canonical sources:
+
+| Removed Field | New Home |
+|--------------|----------|
+| `repo` | `git remote -v` / GitHub API |
+| `stack` | `package.json` (or ask user during `/lo:new`) |
+| `infrastructure` | Ask user during `/lo:status` transitions |
+| `agents` | Dropped — boilerplate, not displayed |
+| Body sections | `CLAUDE.md` (architecture), `README.md` (public description) |
 
 ### Validation Rules
 
 - `status` must be one of: `explore`, `build`, `open`, `closed`
 - `state` must be one of: `public`, `private`
-- `agents[].name` and `agents[].role` are required if `agents` is present
-- `stack` and `infrastructure` are distinct: stack = code (Bun, React, Hono), infrastructure = services (Supabase, Railway, Docker)
-
-### Status Semantics
-
-| Status | Meaning | Visibility |
-|-------|---------|------------|
-| `explore` | Poking at an idea. Conversations, research, references. Nothing built yet. | Just you |
-| `build` | Committed to making something. Code, demo, or prototype exists. | Shareable |
-| `open` | Inviting people in. Public, accepting feedback, telemetry running. | Public |
-| `closed` | Stopped working on it. Record stays up as history. | Still visible, no longer active |
-
-### Body Sections
-
-The project page parses the body by `## ` headings. Three headings get special rendering:
-
-| Heading | Rendering | Body format |
-|---------|-----------|-------------|
-| `## Capabilities` | Grid of capability cards | Bullet list: `- **Title** — description` (one per line) |
-| `## Architecture` | Prose block alongside the `stack` array | Free-form Markdown |
-| `## Why This Matters` | Prose block | Free-form Markdown |
-
-Any other `## ` headings render as generic prose sections. All sections are optional.
+- `id` format: `proj_` + lowercase UUID v4
 
 ### Example
 
 ```yaml
----
 id: "proj_166345da-d821-4b3a-abbc-e3a439925e85"
-title: "Project: Nexus"
+title: "Nexus"
 description: "A coordination server for multi-agent engineering teams."
 status: "build"
 state: "public"
-repo: "https://github.com/mhofwell/nexus-2"
-stack:
-  - Bun
-  - Hono
-  - Redis
-infrastructure:
-  - Railway
-  - Supabase
-agents:
-  - name: "claude-code"
-    role: "AI coding agent (Claude Code)"
----
-
-Nexus is a coordination server that gives multi-agent engineering teams shared state, mutual exclusion, and structured communication. It replaces ad-hoc file locking with a purpose-built protocol.
-
-## Capabilities
-
-- **Distributed Locking** — File-level mutual exclusion via Redis with TTL-based expiration
-- **Agent Registry** — Tracks active agents, their capabilities, and current assignments
-- **Task Routing** — Assigns work items to agents based on availability and skill match
-- **Event Streaming** — Real-time WebSocket feed of coordination events for observability
-
-## Architecture
-
-The server runs on Hono with Redis as the state backend. Agents connect via WebSocket for real-time events and use REST endpoints for lock acquisition and task management. All state is ephemeral — Redis TTLs handle cleanup when agents crash or disconnect.
-
-## Why This Matters
-
-Current multi-agent setups have no coordination layer. Agents overwrite each other's work, duplicate effort, and have no way to signal intent. Nexus provides the missing infrastructure — like a database server, but for agent collaboration.
 ```
 
 ---
@@ -143,7 +92,7 @@ Raw materials captured during deep work. Filename convention: `{slug}.md`.
 |-------|------|-------------|
 | `title` | string | Descriptive title |
 | `date` | date | Creation or last update date (YYYY-MM-DD) |
-| `topics` | string[] | Topic tags (used by platform for articles; not used in PROJECT.md) |
+| `topics` | string[] | Topic tags (used by platform for articles; not used in project.yml) |
 
 ### Optional Fields
 
@@ -168,4 +117,3 @@ Full research content in Markdown goes here.
 ```
 
 ---
-

@@ -52,10 +52,10 @@ Ship Progress:
 1. **Read project status:**
 
 ```bash
-head -20 .lo/PROJECT.md
+cat .lo/project.yml
 ```
 
-Extract the `status` field from frontmatter.
+Extract the `status` field.
 
 2. **Detect branch:**
 

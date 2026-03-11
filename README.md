@@ -40,7 +40,7 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 
 ```
 .lo/
-├── PROJECT.md            # Brief, metadata, agent declarations
+├── project.yml           # Project metadata (5 required fields, pure YAML)
 ├── BACKLOG.md            # Feature and task backlog
 ├── STREAM.md             # Milestones only (single file, newest first)
 ├── research/             # Research docs (draft → review → published)
@@ -55,43 +55,27 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 
 All files use Markdown with YAML frontmatter (parsed by gray-matter). No MDX — `.lo/` content is plain Markdown to keep the contract simple and parseable by any tool.
 
-### `PROJECT.md` — Project Brief & Metadata
+### `project.yml` — Project Metadata
 
-The root file. One per project. Contains all metadata and the project brief.
+The root file. One per project. Pure YAML — no frontmatter delimiters, no markdown body.
 
-**Frontmatter contract:**
+**Format:**
 
 ```yaml
----
-id: "proj_UUID"                  # auto-generated, never reused
-title: "Project: Nexus"
+id: "proj_166345da-d821-4b3a-abbc-e3a439925e85"
+title: "Nexus"
 description: "A coordination server for multi-agent engineering teams."
-status: "build"                  # explore | build | open | closed
-state: "public"                  # public | private
-repo: "https://github.com/mhofwell/nexus-2"  # optional
-stack:                           # optional, array of strings
-  - Bun
-  - Hono
-  - Redis
-infrastructure:                  # optional, services layer
-  - Railway
-  - Supabase
-agents:                          # optional, array of agent declarations
-  - name: "nexus-coordinator"
-    role: "Coordination and task distribution"
----
+status: "build"
+state: "public"
 ```
 
-**Body:** The project brief. Free-form Markdown describing what the project is, why it exists, architecture, capabilities, and current state. This replaces the body of `content/projects/{slug}/index.mdx`.
-
-**Required fields:** `id`, `title`, `description`, `status`, `state`
-**Optional fields:** `repo`, `stack`, `infrastructure`, `agents`
+**Required fields (all 5):** `id`, `title`, `description`, `status`, `state`
+**No optional fields.** Data previously stored in PROJECT.md has moved to canonical sources (`git remote`, `package.json`, `CLAUDE.md`, `README.md`).
 
 **Validation rules:**
 - `status` must be one of: `explore`, `build`, `open`, `closed`
 - `state` must be one of: `public`, `private`
-- `agents[].name` and `agents[].role` are required if `agents` is present
-- `stack` and `infrastructure` are distinct: stack = code (Bun, React), infrastructure = services (Supabase, Railway)
+- `id` format: `proj_` + lowercase UUID v4
 
 ### `STREAM.md` — Project Stream
 
@@ -205,19 +189,14 @@ type: stream
 EOF
 ```
 
-Create `.lo/PROJECT.md`:
+Create `.lo/project.yml`:
 
-```markdown
----
-id: "proj_a1b2c3d4-e5f6-7890-abcd-ef1234567890"   # generate a new UUID v4 — must be unique
+```yaml
+id: "proj_a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 title: "Your Project Name"
 description: "One-sentence description of what this project does."
 status: "explore"
 state: "public"
----
-
-Your project brief goes here. What is this? Why does it exist?
-What problem does it solve? What's the current state?
 ```
 
 > **Note:** The `id` field is auto-generated and must be unique. Generate a lowercase UUID v4 — do not copy the example value.

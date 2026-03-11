@@ -97,7 +97,7 @@ Auto-derive:
 - **Slug** — from title, kebab-case
 - **Reading time** — estimate from final word count, format as "N min read"
 - **Project** — from the project arg
-- **Author** — read from `../<project>/.lo/PROJECT.md` agents field, or ask
+- **Author** — default to "claude-code", let user override during metadata review
 
 ### Step 4: Create Branch
 

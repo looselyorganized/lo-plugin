@@ -1,6 +1,6 @@
 ---
 name: new
-description: Scaffolds the .lo/ directory structure for a new LO project. Creates PROJECT.md with full frontmatter template, subdirectories (research, work, solutions), STREAM.md, .gitkeep files, and optional stream initialization. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
+description: Scaffolds the .lo/ directory structure for a new LO project. Creates project.yml with 5 required fields, subdirectories (research, work, solutions), STREAM.md, .gitkeep files, and optional stream initialization. Use when user says "new lo", "create lo", "set up lo", "scaffold lo", "new lo project", "add lo to this repo", "new project", or "/lo:new".
 allowed-tools:
   - Read
   - Glob
@@ -24,8 +24,8 @@ Scaffolds the `.lo/` directory convention in the current repository root.
 ## Critical Rules
 
 - NEVER overwrite an existing `.lo/` directory. If one exists, warn the user and stop.
-- All files use plain Markdown with YAML frontmatter. No MDX.
-- `PROJECT.md` is the only content file created at init. `BACKLOG.md` is created by `/lo:backlog` on first use.
+- `project.yml` is pure YAML — no frontmatter delimiters (`---`), no markdown body.
+- `project.yml` is the only content file created at init. `BACKLOG.md` is created by `/lo:backlog` on first use.
 - If git history exists, ask the user how to handle it (backfill, start fresh, or skip). If no history, ask for the first stream announcement.
 
 ## Workflow
@@ -41,101 +41,40 @@ To avoid overwriting existing project content, I won't re-initialize.
 ```
 Stop here.
 
-### Step 2: Scan the Repo
-
-Before creating files, gather context from the repo to pre-populate the template.
+### Step 2: Gather Project Metadata
 
 #### 2a: Detect Git Remote
 
-Check for a git remote to pre-fill the `repo` field:
+Check for a git remote (used by sync script, not written to project file):
 ```bash
 git remote get-url origin
 ```
-If found, include it as the `repo` value (uncommented). If not, leave it commented out.
 
-#### 2b: Detect Stack
+#### 2b: Ask Title & Description
 
-Scan for stack indicators:
-- `package.json` → check `dependencies` and `devDependencies` for frameworks (Next.js, React, Hono, Express, etc.)
-- `Cargo.toml` → Rust
-- `go.mod` → Go
-- `pyproject.toml` / `requirements.txt` → Python
-- `bun.lockb` / `bun.lock` → Bun runtime
-- `pnpm-lock.yaml` → pnpm
-- Language/framework names from config files
+Ask the user for:
+- **Title** — project name (e.g., "Loosely Organized", "Nexus")
+- **Description** — one-sentence description of what this project does
 
-Pre-populate the `stack` field with what you find.
+If a `README.md` or `package.json` exists, suggest values from those.
 
-#### 2c: Detect Infrastructure
-
-Scan ALL of the following sources in order — check every one, not just the first hit:
-
-1. **Config files** (definitive — check first) — infra-specific config at repo root and common subdirs
-2. **Known directories** — `supabase/`, `prisma/`, `terraform/`, `.aws/`
-3. **Package dependencies** — search `dependencies` AND `devDependencies` in `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`
-4. **Source code imports** — grep `src/` (or equivalent) for import statements referencing infra SDKs
-5. **Environment variable declarations** — check `env.d.ts`, `.env.example`, `.env.template`, `.env.sample`, `.env.local.example`, or any committed `.env*` files (NOT `.env` itself) for variable name prefixes
-6. **CI/CD files** — check `.github/workflows/`, `Procfile`, `nixpacks.toml`
-
-| Signal (match ANY of these) | Infrastructure |
-|------------------------------|---------------|
-| `supabase/config.toml`, `supabase/migrations/`, `@supabase/supabase-js` or `@supabase/ssr` in deps, `createClient` imported from `@supabase/*` in source, `SUPABASE_URL` or `SUPABASE_ANON_KEY` in env declarations | Supabase |
-| `railway.toml`, `railway.json`, `.railwayignore`, `nixpacks.toml`, `RAILWAY_*` env vars | Railway |
-| `vercel.json`, `@vercel/*` in deps, `VERCEL_*` env vars | Vercel |
-| `firebase.json`, `.firebaserc`, `firebase-functions` or `firebase-admin` in deps | Firebase / Google Cloud |
-| `wrangler.toml`, `@cloudflare/workers-types` in deps, `CLOUDFLARE_*` env vars | Cloudflare Workers |
-| `fly.toml` | Fly.io |
-| `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml`, `.dockerignore` | Docker |
-| `terraform/`, `*.tf` files | Terraform |
-| `.aws/`, `serverless.yml`, `cdk.json`, `aws-cdk-lib` in deps, `AWS_*` env vars | AWS |
-| `amplify.yml`, `@aws-amplify/*` in deps | AWS Amplify |
-| `netlify.toml` | Netlify |
-| `render.yaml` | Render |
-| `planetscale` in deps, `DATABASE_URL` with `pscale` | PlanetScale |
-| `turso` in deps, `TURSO_*` env vars | Turso |
-| `prisma/schema.prisma`, `prisma` in deps | Prisma (ORM) |
-| `drizzle.config.ts`, `drizzle-orm` in deps | Drizzle (ORM) |
-
-**Important:** Do not stop after checking package.json. Many projects use infra SDKs without listing a CLI tool in deps — you must also check config files, known directories, grep source files for import patterns, and check env declarations (`env.d.ts` is especially reliable for TypeScript projects).
-
-#### 2d: Ask Which Agent(s)
-
-Ask the user which AI coding agent(s) they use on this project:
-
-Options:
-- Claude Code
-- Codex
-- Cursor
-- Other (let user type)
-
-Allow multiple selections. Pre-populate the `agents` field accordingly.
-
-Agent field mapping:
-
-| Selection | name | role |
-|-----------|------|------|
-| Claude Code | `"claude-code"` | `"AI coding agent (Claude Code)"` |
-| Codex | `"codex"` | `"AI coding agent (Codex)"` |
-| Cursor | `"cursor"` | `"AI coding agent (Cursor)"` |
-| Other | Ask user for name | Ask user for role |
-
-#### 2e: Ask Status & State
+#### 2c: Ask Status & State
 
 Ask the user for the project's current status and state:
 
 **Status** (single select):
-- `Explore` — Vibing on an idea, building some demo software, doing initial exploratory research.
-- `Build` — Committed to developing production-ready software. Full CI/CD setup. Security hardening.
-- `Open` — Multi-tenant ready. Onboarding flows, access controls, and public-facing polish.
-- `Closed` — Stopped working on it. Record stays up.
+- `explore` — Vibing on an idea, building some demo software, doing initial exploratory research.
+- `build` — Committed to developing production-ready software. Full CI/CD setup. Security hardening.
+- `open` — Multi-tenant ready. Onboarding flows, access controls, and public-facing polish.
+- `closed` — Stopped working on it. Record stays up.
 
 **State** (single select):
 - `public` — Publicly visible
 - `private` — Private / internal only
 
-#### 2f: Generate project ID
+#### 2d: Generate project ID
 
-Generate a stable project identifier for this project. This value is written into PROJECT.md frontmatter and used as the universal ID across the platform.
+Generate a stable project identifier:
 
 ```bash
 echo "proj_$(uuidgen | tr '[:upper:]' '[:lower:]')"
@@ -143,17 +82,7 @@ echo "proj_$(uuidgen | tr '[:upper:]' '[:lower:]')"
 
 Save the output (e.g., `proj_166345da-d821-4b3a-abbc-e3a439925e85`) — you will use it in Step 4.
 
-#### 2g: Auto-fill from Codebase
-
-If a codebase exists (not an empty repo), scan it to pre-populate body sections:
-
-1. **Opening paragraph**: Read the project's README.md (if it exists) to draft a 1-2 sentence summary of what the project is and why it exists.
-2. **Capabilities**: Scan the codebase structure (key directories, route files, main entry points, exported modules) and generate a short list of capabilities. Each capability should follow this format exactly: `**Name** — terse technical description`. Example: `**File Claims** — Redis-backed distributed locks on file paths with TTL-based lease expiration`. Keep each capability to one line, no fluff.
-3. **Architecture**: Generate a ≤300 character summary of how the system is structured. Focus on key components, runtime, and data flow. Example: `Next.js app router + Supabase Postgres. MDX content parsed at build time, served as static pages. Edge functions handle sync. Railway hosts prod.`
-
-Present all auto-filled content to the user for review/editing before writing. Mark any section you couldn't auto-detect with a `[TODO]` placeholder — never fabricate lengthy descriptions.
-
-#### 2h: Verify .gitignore
+#### 2e: Verify .gitignore
 
 Check if `.gitignore` exists at the repo root.
 
@@ -200,62 +129,22 @@ type: stream
 ---
 ```
 
-### Step 4: Write PROJECT.md
+### Step 4: Write project.yml
 
-Write `.lo/PROJECT.md` using the scanned values from Step 2.
+Write `.lo/project.yml` using the values gathered in Step 2. Pure YAML — no `---` delimiters, no markdown body.
 
-- Required fields get placeholder values (user edits after)
-- `repo`, `stack`, `infrastructure`, `agents` get pre-populated from scan results (uncommented if detected, commented if not)
+Template:
 
-Template structure:
-
-```markdown
----
-id: "[generated-proj-id]"              # From Step 2f — do not edit
-title: "[NAME]"
-description: "[One-sentence description of what this project does.]"
-status: "[from Step 2e]"              # Explore | Build | Open | Closed
-state: "[from Step 2e]"               # public | private
-repo: "[detected-or-placeholder]"     # Uncommented if detected, commented if not
-stack:                                # Uncommented if detected, commented if not
-  - [Detected Technology]
-  - [Detected Framework]
-infrastructure:                       # Uncommented if detected, commented if not
-  - [Detected Service]
-agents:                               # Populated from user selection in Step 2d
-  - name: "[agent-name]"
-    role: "[agent-role]"
----
-
-[Opening paragraph: what this project is, why it exists, what problem it solves. Auto-filled from README if available.]
-
-## Capabilities
-
-- **[Name]** — [Terse technical description, one line max]
-- **[Name]** — [Terse technical description, one line max]
-
-## Architecture
-
-[≤300 characters. Key components, runtime, data flow. No fluff.]
-
-## Infrastructure
-
-[List hosting, databases, and services. One line per service with its role. Omit if no infrastructure detected.]
+```yaml
+id: "proj_[generated-id]"
+title: "[title from Step 2b]"
+description: "[description from Step 2b]"
+status: "[from Step 2c]"
+state: "[from Step 2c]"
 ```
 
-#### Body section notes
-
-The project page parses the body by `## ` headings. Three headings get special rendering:
-
-| Heading | Rendering | Format | Constraint |
-|---------|-----------|--------|------------|
-| `## Capabilities` | Grid of capability cards | Bullet list: `- **Name** — terse description` (one per line) | Keep each line short and technical |
-| `## Architecture` | Prose block alongside the `stack` array | Free-form Markdown | ≤300 characters total |
-| `## Infrastructure` | Service list rendered alongside `infrastructure` array | Bullet list: `- **Service** — role/purpose` (one per line) | Keep terse; omit if none |
-
-**Do NOT generate verbose placeholder text.** No multi-sentence product descriptions, no marketing copy. Each section should be terse and technical. If you can't auto-detect content, use a short `[TODO]` placeholder — never fabricate lengthy descriptions.
-
-Any other `## ` headings render as generic prose sections. All sections are optional — omit any that aren't relevant yet.
+**Required fields (all 5):** `id`, `title`, `description`, `status`, `state`
+**No optional fields.** Stack, infrastructure, agents, and body sections are not part of project.yml.
 
 ### Step 5: Initialize Stream
 
@@ -272,12 +161,13 @@ Ask the user to write the first stream announcement. Prompt them: "What's the fi
 Prepend the entry to `.lo/STREAM.md` (after the frontmatter):
 
 ```markdown
-<!-- entry -->
+<entry>
 date: YYYY-MM-DD
 title: "Project initialized"
-commits: 0
-
+<description>
 [User's announcement text]
+</description>
+</entry>
 ```
 
 **If commits exist:**
@@ -316,30 +206,27 @@ GitHub sync script not found at scripts/lo-github-sync.sh. Skipping automation s
 You can set up CI/CD manually or add the script later.
 ```
 
-For new `Explore` projects (the common case), this creates:
+For new `explore` projects (the common case), this creates:
 - `.coderabbit.yaml` with `reviews.enabled: false`
 - `.github/workflows/ci.yml` with dormant status
 
-For new `Build` or `Open` projects, it also creates auto-merge workflow, enables branch protection, etc.
+For new `build` or `open` projects, it also creates auto-merge workflow, enables branch protection, etc.
 
 The script auto-detects capabilities from `package.json` and env files.
 
 ### Step 8: Confirm
 
-Show the user what was created and what was auto-detected:
+Show the user what was created:
 
 ```
 .lo/ directory created:
 
-  PROJECT.md
+  project.yml
     id: [generated]
+    title: [user input]
+    description: [user input]
     status: [user selection]
     state: [user selection]
-    repo: [detected or placeholder]
-    stack: [detected items]
-    infrastructure: [detected items]
-    agents: [user selections]
-    body: [auto-filled sections or TODOs]
 
   GitHub automation: [lo-github-sync applied / skipped (no remote) / skipped (script not found)]
 
@@ -356,7 +243,7 @@ Next steps:
 
 ```
 .lo/
-├── PROJECT.md
+├── project.yml
 ├── STREAM.md
 ├── research/
 ├── work/
@@ -366,15 +253,18 @@ Next steps:
 ## Validation
 
 Before finishing, verify:
-- [ ] `.lo/PROJECT.md` exists with valid YAML frontmatter (`id` is first field)
+- [ ] `.lo/project.yml` exists with valid YAML (`id` is first field)
+- [ ] All five required fields present: `id`, `title`, `description`, `status`, `state`
+- [ ] `status` is one of: `explore`, `build`, `open`, `closed`
+- [ ] `state` is one of: `public`, `private`
 - [ ] All three subdirectories exist: `research/`, `work/`, `solutions/`
 - [ ] `.gitkeep` files exist in `research/`, `work/`, `solutions/`
 - [ ] `.lo/STREAM.md` exists with `type: stream` frontmatter
-- [ ] Stream entry (if created) has correct date in inline metadata
+- [ ] Stream entry (if created) has correct date
 - [ ] If Step 7 ran: `.coderabbit.yaml` and `.github/workflows/ci.yml` exist with correct values
 
-## Frontmatter Reference
+## project.yml Reference
 
-`id` is **required** and **auto-generated** by this skill (Step 2f). It must be the first field in PROJECT.md frontmatter. Format: `proj_` + lowercase UUID v4 (e.g., `proj_166345da-d821-4b3a-abbc-e3a439925e85`). Never manually assign or reuse an id.
+`id` is **required** and **auto-generated** by this skill (Step 2d). It must be the first field in project.yml. Format: `proj_` + lowercase UUID v4 (e.g., `proj_166345da-d821-4b3a-abbc-e3a439925e85`). Never manually assign or reuse an id.
 
-For the full frontmatter contracts for all file types, consult `references/frontmatter-contracts.md`.
+For the full format contract, consult `references/frontmatter-contracts.md`.

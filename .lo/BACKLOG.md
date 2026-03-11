@@ -29,7 +29,7 @@ updated: 2026-03-10
   [done] v0.4.0 2026-03-09
 
 - [ ] f007 Project Refresh
-  `/lo:refresh` skill that updates (not regenerates) README.md, CLAUDE.md, and other project files to reflect current state. Reads PROJECT.md, BACKLOG.md, and codebase context to patch stale sections. Called by `/lo:ship` as a final step, or manually anytime.
+  `/lo:refresh` skill that updates (not regenerates) README.md, CLAUDE.md, and other project files to reflect current state. Reads project.yml, BACKLOG.md, and codebase context to patch stale sections. Called by `/lo:ship` as a final step, or manually anytime.
   Status: backlog
 
 ## Tasks

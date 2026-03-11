@@ -1,6 +1,6 @@
 ---
 name: status
-description: Manages project lifecycle transitions and visibility state. Updates PROJECT.md status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Toggles public/private visibility. Use when user says "status", "change status", "move to explore", "move to build", "go to open", "close project", "make public", "make private", "/status", or "/lo:status".
+description: Manages project lifecycle transitions and visibility state. Updates project.yml status and triggers transition-specific automation (test scaffolding, CI setup, branch protection). Toggles public/private visibility. Use when user says "status", "change status", "move to explore", "move to build", "go to open", "close project", "make public", "make private", "/status", or "/lo:status".
 allowed-tools:
   - Read
   - Glob
@@ -12,11 +12,11 @@ allowed-tools:
 
 # LO Status Manager
 
-Manages project lifecycle transitions in `.lo/PROJECT.md`. Each transition triggers automation appropriate to the new phase.
+Manages project lifecycle transitions in `.lo/project.yml`. Each transition triggers automation appropriate to the new phase.
 
 <critical>
 Backward transitions (any move toward an earlier status in explore→build→open→closed) ALWAYS require explicit user confirmation before proceeding.
-ALWAYS read the current status from PROJECT.md before making any changes.
+ALWAYS read the current status from project.yml before making any changes.
 </critical>
 
 ## When to Use
@@ -49,7 +49,7 @@ Follow ONLY the section matching the detected mode.
 <show-status>
 ## Show Status (no args)
 
-Read `.lo/PROJECT.md` frontmatter and display:
+Read `.lo/project.yml` frontmatter and display:
 
 ```
 Project: <title>
@@ -68,7 +68,7 @@ This is the major transition — the project is becoming real. Multiple automati
 
 ### Pre-flight
 
-1. Read `.lo/PROJECT.md`, note current status
+1. Read `.lo/project.yml`, note current status
 2. If already `build`, report and stop
 3. If current status is `open` or `closed`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
 4. Update `status: "build"` in frontmatter
@@ -88,7 +88,12 @@ The project is now in build phase. This unlocks:
 
 Ask the user what to set up:
 
-Scan `.lo/PROJECT.md` frontmatter for `infrastructure` and `stack` to determine which optional steps to show.
+Ask the user two questions to determine which optional steps to show:
+
+1. "Does this project use a database?" → If yes, show the database backup/migration step
+2. "Does this project have an API server?" → If yes, show the health check endpoint step
+
+Then present the menu:
 
 ```
 What do you want to configure?
@@ -97,11 +102,11 @@ What do you want to configure?
 2. Scan codebase and create a test coverage plan
 3. Reconcile GitHub automation (CodeRabbit, CI, branch protection, auto-merge)
 4. Create README and public docs (if missing)
-5. Verify database backups and migrations     ← only if infrastructure includes a database (Supabase, Railway Postgres, Prisma, Drizzle, etc.)
-6. Add health check endpoint                  ← only if stack includes an API framework (Hono, Express, Fastify, Next.js, etc.)
+5. Verify database backups and migrations     ← only if user said yes to database
+6. Add health check endpoint                  ← only if user said yes to API server
 7. Skip all — just change the status
 
-Items 5-6 are **conditionally visible** — omit them from the menu if the project has no database or no server. Adjust numbering accordingly.
+Items 5-6 are **conditionally visible** — omit them from the menu if the user said no. Adjust numbering accordingly.
 ```
 
 Allow multiple selections. Run selected steps in order.
@@ -198,10 +203,9 @@ Present the script's output. If any items show `error`, investigate and report.
 ### Step C: Create README and Public Docs
 
 1. Check if `README.md` exists at repo root
-2. If missing, generate from `.lo/PROJECT.md`:
-   - Title and description from frontmatter
-   - Body from PROJECT.md content
-   - Stack from frontmatter
+2. If missing, generate from available sources:
+   - Title and description from `.lo/project.yml`
+   - Stack/architecture context from `package.json` and `CLAUDE.md`
    - Prompt user for install/usage instructions if unclear
 3. Present for user review before writing
 4. If README already exists, skip: `README.md already exists.`
@@ -211,7 +215,7 @@ Present the script's output. If any items show `error`, investigate and report.
 <build-step-d>
 ### Step D: Verify Database Backups and Migrations
 
-*Only shown if `.lo/PROJECT.md` infrastructure includes a database.*
+*Only shown if the user indicated the project uses a database.*
 
 Check the project for database-related setup:
 
@@ -264,7 +268,7 @@ If task needed, add to BACKLOG.md:
 <build-step-e>
 ### Step E: Health Check Endpoint
 
-*Only shown if project stack includes an API framework.*
+*Only shown if the user indicated the project has an API server.*
 
 ```bash
 # Search for common health endpoint paths
@@ -318,7 +322,7 @@ The project is going live — real users, real data. Multiple automation steps f
 
 ### Pre-flight
 
-1. Read `.lo/PROJECT.md`, note current status
+1. Read `.lo/project.yml`, note current status
 2. If already `open`, report and stop
 3. If current status is `explore`, block the transition: "Projects must go through Build before Open. Run `/lo:status` to move to Build first." Stop here.
 4. If current status is `closed`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
@@ -376,9 +380,9 @@ Present the script's output. The script generates a weekly scheduled audit workf
 <open-step-b>
 ### Step B: Verify Railway PR Deploys
 
-Check if the project has Railway infrastructure by reading `.lo/PROJECT.md` frontmatter `infrastructure` field.
+Ask the user: "Does this project deploy to Railway?"
 
-**If Railway is not in infrastructure:** Skip with note:
+**If no:** Skip with note:
 
 ```
 No Railway infrastructure detected. Skipping PR deploy verification.
@@ -512,7 +516,7 @@ Open transition complete for "<project-title>"
 
 This section handles transitions to Closed and Explore. These are simpler — they update the status and run the sync script.
 
-1. Read `.lo/PROJECT.md`, note current status
+1. Read `.lo/project.yml`, note current status
 
 2. **Check for backward transition:**
    - The handled stages progress in order: Open → Explore → Closed
@@ -557,11 +561,11 @@ Status changed: <old-status> → <new-status>
 <visibility-toggle>
 ## Visibility Toggle (public, private, state)
 
-This section handles changing the `state` field in PROJECT.md between `public` and `private`.
+This section handles changing the `state` field in project.yml between `public` and `private`.
 
 ### Direct set: `/lo:status public` or `/lo:status private`
 
-1. Read `.lo/PROJECT.md`, note current `state` value
+1. Read `.lo/project.yml`, note current `state` value
 2. If already the requested state, report and stop:
 
 ```
@@ -577,7 +581,7 @@ State changed: <old-state> → <new-state>
 
 ### Prompted toggle: `/lo:status state`
 
-1. Read `.lo/PROJECT.md`, note current `state` value
+1. Read `.lo/project.yml`, note current `state` value
 2. Prompt:
 
 ```

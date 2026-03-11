@@ -12,7 +12,7 @@ A Claude Code plugin (pure markdown, no runtime) providing the LO work system â€
 plugins/lo/
   .claude-plugin/
     plugin.json          # Version source (canonical)
-    hooks.json           # SessionStart hook injects .lo/PROJECT.md
+    hooks.json           # SessionStart hook injects .lo/project.yml
     agents/
       reviewer.md        # Code review subagent (sonnet, read-only)
       scout.md           # Fast codebase explorer (haiku, read-only)
@@ -22,7 +22,7 @@ plugins/lo/
       references/        # Format contracts, guides (skill-specific)
 
 scripts/
-  lo-github-sync.sh      # Reconciles GitHub automation to match PROJECT.md status
+  lo-github-sync.sh      # Reconciles GitHub automation to match project.yml status
 
 .lo/                     # LO convention: project metadata for this repo
 ```
@@ -37,7 +37,7 @@ scripts/
 
 ## Stage-Aware Behavior (v0.5.0)
 
-Skills behave differently based on `status` in `.lo/PROJECT.md`:
+Skills behave differently based on `status` in `.lo/project.yml`:
 
 | Stage | Ship gates | Tests | Code review | CI |
 |-------|-----------|-------|-------------|-----|

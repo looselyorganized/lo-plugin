@@ -26,7 +26,7 @@ Starts versioned releases. Creates a release branch, bumps the version, and hand
 
 ## Critical Rules
 
-- `.lo/PROJECT.md` MUST exist with status `Build` or `Open`. If `Explore`, tell the user.
+- `.lo/project.yml` MUST exist with status `Build` or `Open`. If `Explore`, tell the user.
 - The canonical version lives in the project's version source (e.g., `plugin.json`, `package.json`). Read it — don't guess.
 - Version format is semver: `MAJOR.MINOR.PATCH`.
 - Release branches are named by version number only: `0.3.2`, `0.4.0`. No `release/` prefix.
@@ -43,7 +43,7 @@ Starts versioned releases. Creates a release branch, bumps the version, and hand
 
 ### Step 1: Pre-flight
 
-1. Read `.lo/PROJECT.md` — verify status is `Build` or `Open`
+1. Read `.lo/project.yml` — verify status is `Build` or `Open`
 2. Find and read the project's version source:
 ```bash
 grep -r '"version"' package.json plugin.json plugins/*/plugin.json .claude-plugin/plugin.json 2>/dev/null | head -5

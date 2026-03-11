@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# lo-github-sync.sh — Reconcile GitHub automation to match PROJECT.md status
+# lo-github-sync.sh — Reconcile GitHub automation to match project.yml status
 # Usage: lo-github-sync.sh [--fix] [--no-build]
 
 FIX=false
@@ -28,14 +28,14 @@ err()     { echo -e "  ${RED}error${NC}    $1"; }
 
 # ── State Detection ──────────────────────────────────────────────────
 
-if [[ ! -f ".lo/PROJECT.md" ]]; then
-  echo "No .lo/PROJECT.md found. Run /lo:new first."
+if [[ ! -f ".lo/project.yml" ]]; then
+  echo "No .lo/project.yml found. Run /lo:new first."
   exit 1
 fi
 
-STATUS=$(grep -m1 '^status:' .lo/PROJECT.md | sed 's/status:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | sed 's/#.*//' | tr '[:upper:]' '[:lower:]' | xargs)
+STATUS=$(grep -m1 '^status:' .lo/project.yml | sed 's/status:[[:space:]]*"\{0,1\}\([^"]*\)"\{0,1\}/\1/' | sed 's/#.*//' | tr '[:upper:]' '[:lower:]' | xargs)
 if [[ -z "$STATUS" ]]; then
-  echo "Could not parse status from .lo/PROJECT.md"
+  echo "Could not parse status from .lo/project.yml"
   exit 1
 fi
 

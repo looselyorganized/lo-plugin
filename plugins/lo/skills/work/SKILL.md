@@ -162,7 +162,7 @@ If staying: note this so `/lo:ship` knows there's no feature branch.
 
 ### Step 4: Check Test Expectations
 
-Read `.lo/PROJECT.md` status field and follow ONLY the matching block:
+Read `.lo/project.yml` status field and follow ONLY the matching block:
 
 <test-explore>
 **Explore** — Do not mention tests. Speed is the priority.
