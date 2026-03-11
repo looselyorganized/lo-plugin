@@ -177,7 +177,7 @@ git check-ignore -v .env
 
 Parse the output — only treat `.env` as covered if the match source is the repository's `.gitignore` file (not global excludes or `.git/info/exclude`). If `.env` is not covered by the repo `.gitignore`, warn:
 
-```text
+```
 Your .gitignore doesn't exclude .env files. This risks committing secrets.
 Add .env to .gitignore?
 ```
