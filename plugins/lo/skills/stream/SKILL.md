@@ -17,7 +17,7 @@ The stream is the **public face of the project** — what appears on looselyorga
 All entries live in a single `.lo/STREAM.md` file using XML tags for reliable parsing. Newest first.
 
 <critical>
-Quality gate: would you post this? If you wouldn't put it on the project page or tweet it, it's not a stream entry. Git history already captures the small stuff.
+Quality gate: would this be interesting to someone following the project? Milestones, key decisions, pivots, and lessons learned all qualify. Routine fixes, config changes, and dependency updates do not. Git history already captures the small stuff.
 Never create duplicate entries. Always read existing stream entries first.
 </critical>
 
@@ -145,6 +145,7 @@ This is the editorial step. Only surface events that pass the quality gate.
 - A major feature landing that changes how the project works
 - A research article published
 - A significant architectural decision or pivot
+- A lesson learned or challenge overcome that other builders would find useful
 
 **What does NOT qualify:**
 - Routine fixes, config changes, dependency updates
