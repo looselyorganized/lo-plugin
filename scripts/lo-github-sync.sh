@@ -284,7 +284,7 @@ jobs:
       - run: bun install
       - run: npm audit --audit-level=critical'
 
-  if [[ "$STATUS" == "open" ]]; then
+  if [[ "$STATUS" == "open" && -f "package.json" ]]; then
     if [[ -f ".github/workflows/audit.yml" ]]; then
       CURRENT=$(cat .github/workflows/audit.yml)
       if [[ "$CURRENT" == "$TARGET_CONTENT" ]]; then
