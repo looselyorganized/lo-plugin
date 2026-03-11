@@ -37,7 +37,8 @@ Status values are lowercase: `explore`, `build`, `open`, `closed`.
 Detect from arguments:
 - `/lo:status` with no args → **show status**
 - `/lo:status build` → **transition to build** (complex — has sub-steps)
-- `/lo:status open` or `closed` or `explore` → **simple transition**
+- `/lo:status open` → **transition to open** (complex — has sub-steps)
+- `/lo:status closed` or `explore` → **simple transition**
 - `/lo:status public` or `private` → **set visibility** (direct)
 - `/lo:status state` → **toggle visibility** (prompts for choice)
 
@@ -218,10 +219,205 @@ Build transition complete for "<project-title>"
 
 ---
 
-<simple-transition>
-## Simple Transition (Open, Closed, Explore)
+<transition-open>
+## Transition to Open
 
-This section handles transitions to Open, Closed, and Explore. These are simpler than Build — they update the status and run the sync script.
+The project is going live — real users, real data. Multiple automation steps follow.
+
+### Pre-flight
+
+1. Read `.lo/PROJECT.md`, note current status
+2. If already `open`, report and stop
+3. If current status is `closed`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
+4. Update `status: "open"` in frontmatter
+5. Announce:
+
+```
+Status changed: <old-status> → open
+
+The project is now in open phase. This unlocks:
+  - Railway PR deploy verification
+  - Dependency auditing in CI
+  - Error tracking setup
+  - Uptime monitoring setup
+  - Rate limiting check
+```
+
+### Select automation steps
+
+Ask the user what to set up:
+
+```
+What do you want to configure?
+
+1. All of the below (recommended)
+2. Reconcile GitHub automation (CodeRabbit, CI with dependency audit, branch protection)
+3. Verify Railway PR deploys are enabled
+4. Set up error tracking (Sentry or similar)
+5. Set up uptime monitoring
+6. Add rate limiting check
+7. Skip all — just change the status
+```
+
+Allow multiple selections. Run selected steps in order.
+
+<open-step-a>
+### Step A: Reconcile GitHub Automation
+
+If the sync script doesn't exist, warn and skip:
+
+```
+GitHub sync script not found. Skipping automation reconciliation.
+```
+
+Otherwise, run:
+
+```bash
+"$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix
+```
+
+Present the script's output. The script now generates Open-specific CI with `has-audit: true` for dependency scanning. If any items show `error`, investigate and report.
+
+</open-step-a>
+
+<open-step-b>
+### Step B: Verify Railway PR Deploys
+
+Check if the project has Railway infrastructure by reading `.lo/PROJECT.md` frontmatter `infrastructure` field.
+
+**If Railway is not in infrastructure:** Skip with note:
+
+```
+No Railway infrastructure detected. Skipping PR deploy verification.
+```
+
+**If Railway detected:**
+
+```
+Railway PR deploys let you test every pull request in an isolated environment before merging.
+
+Is Railway PR deploy enabled for this project?
+
+1. Yes — already configured
+2. No — I'll set it up (opens Railway dashboard)
+3. Skip — not needed for this project
+```
+
+If "No": Report the steps to enable it:
+
+```
+To enable Railway PR deploys:
+  1. Open your Railway project dashboard
+  2. Go to Settings → General
+  3. Enable "PR Deploys"
+  4. Each PR will get its own ephemeral environment
+
+PR deploys serve as your staging environment — no separate staging service needed.
+```
+
+</open-step-b>
+
+<open-step-c>
+### Step C: Set Up Error Tracking
+
+```
+Do you have error tracking set up for this project? (Sentry, LogRocket, Highlight, etc.)
+
+1. Yes — already configured
+2. No — add a backlog task to set it up
+3. Skip
+```
+
+If "No": Determine next task ID from `.lo/BACKLOG.md` and add:
+
+```markdown
+- [ ] t{NNN} Set up error tracking
+  Add error tracking (Sentry, LogRocket, or similar) to capture runtime errors in production. Triggered by Open transition.
+```
+
+Report:
+
+```
+Added: t{NNN} — Set up error tracking
+```
+
+</open-step-c>
+
+<open-step-d>
+### Step D: Set Up Uptime Monitoring
+
+```
+Do you have uptime monitoring for this project? (Railway health checks, Better Stack, UptimeRobot, etc.)
+
+1. Yes — already configured
+2. No — add a backlog task to set it up
+3. Skip
+```
+
+If "No": Determine next task ID from `.lo/BACKLOG.md` and add:
+
+```markdown
+- [ ] t{NNN} Set up uptime monitoring
+  Add uptime monitoring to detect downtime before users report it. Railway health checks, Better Stack, or UptimeRobot. Triggered by Open transition.
+```
+
+Report:
+
+```
+Added: t{NNN} — Set up uptime monitoring
+```
+
+</open-step-d>
+
+<open-step-e>
+### Step E: Rate Limiting Check
+
+```
+Do your public endpoints have rate limiting?
+
+1. Yes — already configured
+2. No — add a backlog task to set it up
+3. Skip — no public endpoints
+```
+
+If "No": Determine next task ID from `.lo/BACKLOG.md` and add:
+
+```markdown
+- [ ] t{NNN} Add rate limiting to public endpoints
+  Add basic rate limiting (per-IP) to auth endpoints and public API routes. Triggered by Open transition.
+```
+
+Report:
+
+```
+Added: t{NNN} — Add rate limiting
+```
+
+</open-step-e>
+
+### Final Summary
+
+After all selected steps complete:
+
+```
+Open transition complete for "<project-title>"
+
+  Status:     open
+  GitHub:     lo-github-sync applied (see output above)
+  Railway:    PR deploys [verified | task added | skipped | not detected]
+  Tracking:   [configured | t{NNN} added | skipped]
+  Uptime:     [configured | t{NNN} added | skipped]
+  Rate limit: [configured | t{NNN} added | skipped]
+```
+
+</transition-open>
+
+---
+
+<simple-transition>
+## Simple Transition (Closed, Explore)
+
+This section handles transitions to Closed and Explore. These are simpler — they update the status and run the sync script.
 
 1. Read `.lo/PROJECT.md`, note current status
 
@@ -370,4 +566,24 @@ This moves the project backward from build to explore. Are you sure?
 User confirms → status updated
 
 Status changed: build → explore
+</example>
+
+<example name="transition-to-open">
+User: /lo:status open
+
+Status changed: build → open
+
+What do you want to configure?
+1. All of the below (recommended)
+...
+
+User picks 1 → runs Steps A through E
+
+Open transition complete for "My Project"
+  Status:     open
+  GitHub:     lo-github-sync applied
+  Railway:    PR deploys verified
+  Tracking:   t012 added
+  Uptime:     t013 added
+  Rate limit: configured
 </example>
