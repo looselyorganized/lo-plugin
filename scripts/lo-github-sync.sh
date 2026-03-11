@@ -58,10 +58,12 @@ fi
 
 HAS_TEST=false
 HAS_BUILD=false
+HAS_LINT=false
 if [[ -f "package.json" ]]; then
   # Check for script keys directly — don't try to parse JSON block boundaries
   if grep -q '"test"[[:space:]]*:' package.json; then HAS_TEST=true; fi
   if grep -q '"build"[[:space:]]*:' package.json; then HAS_BUILD=true; fi
+  if grep -q '"lint"[[:space:]]*:' package.json; then HAS_LINT=true; fi
 fi
 
 if [[ "$NO_BUILD" == "true" ]]; then HAS_BUILD=false; fi
@@ -156,6 +158,8 @@ jobs:
     uses: looselyorganized/ci/.github/workflows/reusable-ci.yml@main
     with:
       status: ${STATUS}"
+    if [[ "$HAS_LINT" == "true" ]]; then TARGET="${TARGET}
+      has-lint: true"; fi
     if [[ "$HAS_TEST" == "true" ]]; then TARGET="${TARGET}
       has-test: true"; fi
     if [[ "$HAS_BUILD" == "true" ]]; then TARGET="${TARGET}
@@ -167,6 +171,7 @@ jobs:
 
     local DESC="${STATUS}"
     local CAPS=""
+    [[ "$HAS_LINT" == "true" ]] && CAPS="${CAPS}, lint"
     [[ "$HAS_TEST" == "true" ]] && CAPS="${CAPS}, test"
     [[ "$HAS_BUILD" == "true" ]] && CAPS="${CAPS}, build"
     [[ -n "$CAPS" ]] && DESC="${DESC} (${CAPS#, })"
@@ -384,6 +389,7 @@ reconcile_branch_protection() {
         local JOB=$CI_JOB_NAME
         [[ -z "$JOB" ]] && JOB="pipeline"
         CHECKS_ARRAY+=("{\"context\": \"${JOB} / Gate\"}")
+        [[ "$HAS_LINT" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Lint\"}")
         [[ "$HAS_TEST" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Unit Tests\"}")
         [[ "$HAS_BUILD" == "true" ]] && CHECKS_ARRAY+=("{\"context\": \"${JOB} / Build\"}")
       else

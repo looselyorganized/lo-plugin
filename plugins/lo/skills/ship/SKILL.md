@@ -40,8 +40,9 @@ Ship Progress:
   - [ ] Gate 2: EARS audit (skip: Explore/Closed/Release)
   - [ ] Gate 3: Tests (skip: Explore/Closed)
   - [ ] Gate 4: Reviewer (skip: Explore/Closed)
-  - [ ] Gate 5: Ship (mode-specific)
-  - [ ] Gate 6: Wrap-up
+  - [ ] Gate 5: README staleness (skip: Explore/Closed)
+  - [ ] Gate 6: Ship (mode-specific)
+  - [ ] Gate 7: Wrap-up
 ```
 
 ---
@@ -184,7 +185,40 @@ git diff $DIFF_BASE...HEAD
 
 ---
 
-## Gate 5 + 6: Ship (mode-specific)
+## Gate 5: README Staleness
+
+*Skip if status is **Explore** or **Closed** — README tracking starts at Build.*
+
+1. **Check if README.md exists:**
+
+```bash
+test -f README.md && echo "exists" || echo "missing"
+```
+
+2. **If missing:** Warn the user: "No README.md found. Create one before shipping, or skip." Wait for user decision — create now, or skip this gate.
+
+3. **If exists, check staleness:**
+
+```bash
+# Last commit that touched README.md
+README_DATE=$(git log -1 --format="%ai" -- README.md | cut -d' ' -f1)
+
+# Last commit that touched code (excluding README, CHANGELOG, .lo/)
+CODE_DATE=$(git log -1 --format="%ai" -- . ':!README.md' ':!CHANGELOG.md' ':!.lo/' | cut -d' ' -f1)
+```
+
+4. **Compare dates:** If `CODE_DATE` is more than 30 days newer than `README_DATE`, flag as potentially stale:
+
+```
+README may be stale — last updated {README_DATE}, code last changed {CODE_DATE}.
+Review and update?
+```
+
+5. **User decides:** Update now, skip, or confirm it's current. Any choice proceeds to the next gate.
+
+---
+
+## Gate 6 + 7: Ship (mode-specific)
 
 Follow ONLY the section matching your detected mode. Do not read the other mode sections.
 
@@ -498,7 +532,8 @@ Gate 1: Pre-flight — status=Explore, branch=feat/f003-auth → **fast mode** �
 Gate 2: EARS — skipped (Explore) ✓
 Gate 3: Tests — skipped (Explore) ✓
 Gate 4: Reviewer — skipped (Explore) ✓
-Gate 5+6: Fast mode ship
+Gate 5: README staleness — skipped (Explore) ✓
+Gate 6+7: Fast mode ship
   - Committed: abc1234 "feat: user authentication"
   - Merged feat/f003-auth → main
   - Pushed to main
@@ -515,7 +550,8 @@ Gate 1: Pre-flight — status=Build, branch=feat/f003-auth → **feature mode** 
 Gate 2: EARS — 22/22 covered ✓
 Gate 3: Tests — 47 passed ✓
 Gate 4: Reviewer — clean ✓
-Gate 5+6: Feature mode ship
+Gate 5: README staleness — current ✓
+Gate 6+7: Feature mode ship
   - Committed: abc1234 "feat: user authentication"
   - Pushed feat/f003-auth
   - PR #15 opened, auto-merge enabled
@@ -530,7 +566,8 @@ Gate 1: Pre-flight — status=Build, branch=0.4.0 → **release mode** ✓
 Gate 2: EARS — skipped (release mode) ✓
 Gate 3: Tests — 12 passed ✓
 Gate 4: Reviewer — clean ✓
-Gate 5+6: Release mode ship
+Gate 5: README staleness — current ✓
+Gate 6+7: Release mode ship
   - Changelog generated, reviewed
   - Stream milestone created, reviewed
   - 2 work dirs removed, backlog updated
