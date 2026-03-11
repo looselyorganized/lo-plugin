@@ -218,8 +218,9 @@ Check the project for database-related setup:
 **Migrations in version control:**
 
 ```bash
-# Check for common migration directories
-ls -d supabase/migrations/ prisma/ drizzle/ alembic/ migrations/ 2>/dev/null
+# Check for actual migration artifacts
+ls -d supabase/migrations/ prisma/migrations/ alembic/versions/ migrations/ 2>/dev/null
+find drizzle -maxdepth 2 -type f \( -name '*.sql' -o -name '*.ts' \) 2>/dev/null | head -5
 ```
 
 - If found: Report which migration tool is detected and that it's in version control. ✓
@@ -319,8 +320,9 @@ The project is going live — real users, real data. Multiple automation steps f
 
 1. Read `.lo/PROJECT.md`, note current status
 2. If already `open`, report and stop
-3. If current status is `closed`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
-4. Update `status: "open"` in frontmatter
+3. If current status is `explore`, block the transition: "Projects must go through Build before Open. Run `/lo:status` to move to Build first." Stop here.
+4. If current status is `closed`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
+5. Update `status: "open"` in frontmatter
 5. Announce:
 
 ```
@@ -495,7 +497,7 @@ Open transition complete for "<project-title>"
 
   Status:     open
   GitHub:     lo-github-sync applied (see output above)
-  Railway:    PR deploys [verified | task added | skipped | not detected]
+  Railway:    PR deploys [verified | manual setup | skipped | not detected]
   Tracking:   [configured | t{NNN} added | skipped]
   Uptime:     [configured | t{NNN} added | skipped]
   Rate limit: [configured | t{NNN} added | skipped]

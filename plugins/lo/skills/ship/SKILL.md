@@ -37,7 +37,7 @@ Ship Progress:
   Status: [pending detection]
   Item: [pending detection]
   - [ ] Gate 1: Pre-flight
-  - [ ] Gate 2: EARS audit (skip: Explore/Closed)
+  - [ ] Gate 2: EARS audit (skip: Explore/Closed/Release)
   - [ ] Gate 3: Tests (skip: Explore/Closed)
   - [ ] Gate 4: Reviewer (skip: Explore/Closed)
   - [ ] Gate 5: Ship (mode-specific)
@@ -146,12 +146,18 @@ Tests:
 
 Dependency audit:
 ```bash
-# Detect package manager and run audit
-npm audit --audit-level=critical 2>/dev/null || \
-pnpm audit --audit-level=critical 2>/dev/null || \
-bun audit --audit-level=critical 2>/dev/null || \
-pip audit 2>/dev/null || \
-echo "No supported package manager found for audit"
+# Detect package manager first, then run exactly one audit command
+if [ -f package-lock.json ]; then
+  npm audit --audit-level=critical 2>/dev/null
+elif [ -f pnpm-lock.yaml ]; then
+  pnpm audit --audit-level=critical 2>/dev/null
+elif [ -f bun.lockb ] || [ -f bun.lock ]; then
+  bun audit --audit-level=critical 2>/dev/null
+elif [ -f requirements.txt ] || [ -f pyproject.toml ]; then
+  pip-audit 2>/dev/null
+else
+  echo "No supported package manager found for audit"
+fi
 ```
 
 - **Clean:** Report "Audit: clean", proceed.

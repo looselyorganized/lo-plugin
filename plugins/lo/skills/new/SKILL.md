@@ -169,13 +169,13 @@ Check if `.gitignore` exists at the repo root.
 
 Always include `.env` and `.DS_Store`. Add stack-specific entries on top. Present the proposed `.gitignore` to the user for review before writing.
 
-**If exists:** Check whether `.env` is covered:
+**If exists:** Check whether `.env` is covered by the repo's `.gitignore`:
 
 ```bash
-git check-ignore -q .env
+git check-ignore -v .env
 ```
 
-If `.env` is not in `.gitignore`, warn:
+Parse the output — only treat `.env` as covered if the match source is the repository's `.gitignore` file (not global excludes or `.git/info/exclude`). If `.env` is not covered by the repo `.gitignore`, warn:
 
 ```
 Your .gitignore doesn't exclude .env files. This risks committing secrets.
