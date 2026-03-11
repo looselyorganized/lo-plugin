@@ -149,7 +149,7 @@ Dependency audit:
 # Detect package manager and run audit
 npm audit --audit-level=critical 2>/dev/null || \
 pnpm audit --audit-level=critical 2>/dev/null || \
-bun pm audit 2>/dev/null || \
+bun audit --audit-level=critical 2>/dev/null || \
 pip audit 2>/dev/null || \
 echo "No supported package manager found for audit"
 ```

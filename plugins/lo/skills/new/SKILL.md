@@ -172,7 +172,7 @@ Always include `.env` and `.DS_Store`. Add stack-specific entries on top. Presen
 **If exists:** Check whether `.env` is covered:
 
 ```bash
-grep -q '\.env' .gitignore
+git check-ignore -q .env
 ```
 
 If `.env` is not in `.gitignore`, warn:

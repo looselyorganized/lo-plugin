@@ -266,11 +266,13 @@ If task needed, add to BACKLOG.md:
 *Only shown if project stack includes an API framework.*
 
 ```bash
-# Search for existing health check
-grep -r "health" --include="*.ts" --include="*.js" --include="*.py" --include="*.go" -l . 2>/dev/null | head -5
+# Search for common health endpoint paths
+grep -R -E '(/health\b|healthz\b|readyz\b)' \
+  --include="*.ts" --include="*.js" --include="*.py" --include="*.go" \
+  . 2>/dev/null | head -5
 ```
 
-- If a health route is found: Report it. ✓
+- If a match is found: Show the matching lines and ask the user to confirm it's an actual health endpoint. ✓
 - If not found:
 
 ```
