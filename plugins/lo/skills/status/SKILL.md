@@ -323,14 +323,14 @@ The project is going live — real users, real data. Multiple automation steps f
 3. If current status is `explore`, block the transition: "Projects must go through Build before Open. Run `/lo:status` to move to Build first." Stop here.
 4. If current status is `closed`, ask for explicit confirmation before proceeding (backward transition). Stop until user confirms.
 5. Update `status: "open"` in frontmatter
-5. Announce:
+6. Announce:
 
 ```
 Status changed: <old-status> → open
 
 The project is now in open phase. This unlocks:
   - Railway PR deploy verification
-  - Dependency auditing in CI
+  - Scheduled weekly dependency auditing
   - Error tracking setup
   - Uptime monitoring setup
   - Rate limiting check
@@ -344,7 +344,7 @@ Ask the user what to set up:
 What do you want to configure?
 
 1. All of the below (recommended)
-2. Reconcile GitHub automation (CodeRabbit, CI with dependency audit, branch protection)
+2. Reconcile GitHub automation (CodeRabbit, CI, scheduled audit, branch protection)
 3. Verify Railway PR deploys are enabled
 4. Set up error tracking (Sentry or similar)
 5. Set up uptime monitoring
@@ -369,7 +369,7 @@ Otherwise, run:
 "$(git rev-parse --show-toplevel)/scripts/lo-github-sync.sh" --fix
 ```
 
-Present the script's output. The script now generates Open-specific CI with `has-audit: true` for dependency scanning. If any items show `error`, investigate and report.
+Present the script's output. The script generates a weekly scheduled audit workflow (`audit.yml`) for Open-status projects. If any items show `error`, investigate and report.
 
 </open-step-a>
 

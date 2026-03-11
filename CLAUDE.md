@@ -33,7 +33,7 @@ scripts/
 - **Version source** is `plugins/lo/.claude-plugin/plugin.json`. Bump it during `/lo:release`.
 - **Skills are markdown with YAML frontmatter** declaring `name`, `description`, `allowed-tools`. The body is the prompt.
 - **Subagents** are markdown files in `.claude-plugin/agents/` with frontmatter for `model`, `tools`, `disallowedTools`, `maxTurns`.
-- **`lo-github-sync.sh`** generates `.coderabbit.yaml`, `.github/workflows/ci.yml`, `.github/workflows/auto-merge.yml`, and configures GitHub branch protection via API. All generated files are marked "do not edit manually."
+- **`lo-github-sync.sh`** generates `.coderabbit.yaml`, `.github/workflows/ci.yml`, `.github/workflows/auto-merge.yml`, `.github/workflows/audit.yml` (Open only, weekly cron), and configures GitHub branch protection via API. All generated files are marked "do not edit manually."
 
 ## Stage-Aware Behavior (v0.5.0)
 
@@ -43,10 +43,10 @@ Skills behave differently based on `status` in `.lo/PROJECT.md`:
 |-------|-----------|-------|-------------|-----|
 | **Explore** | Skip Gates 2-4 | None | None | Dormant |
 | **Build** | All gates | Run if exist | Reviewer subagent | lint + test + build |
-| **Open** | All gates + `npm audit` | Required (hard stop if missing) | Reviewer subagent | lint + test + build + audit |
+| **Open** | All gates + `npm audit` | Required (hard stop if missing) | Reviewer subagent | lint + test + build |
 | **Closed** | Skip Gates 2-4 | None | None | Dormant |
 
-The sync script passes `has-audit: true` to CI for Open-status projects.
+Open-status projects also get a weekly scheduled `npm audit` workflow (`audit.yml`). The local ship pipeline handles pre-push audit in Gate 3.
 
 ## How Skills Reference Each Other
 
