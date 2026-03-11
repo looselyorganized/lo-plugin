@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.5.0] — 2026-03-10
+
+### Added
+- Open transition wizard in /lo:status — Railway PR deploy verification, error tracking, uptime monitoring, and rate limiting prompts with automatic backlog task creation for gaps
+- Conditional infrastructure steps in Build transition — database backup/migration verification (if DB detected) and health check endpoint detection (if API framework detected)
+- Dependency audit (`npm audit --audit-level=critical`) in ship Gate 3 for Open-status projects
+- `has-audit` flag in CI workflow generation for Open-status projects via lo-github-sync.sh
+- .gitignore verification step in /lo:new — generates stack-appropriate defaults if missing, warns if .env not excluded
+
+### Changed
+- Ship gates are now stage-aware — Explore/Closed skips Gates 2 (EARS), 3 (tests), and 4 (reviewer) entirely; Build runs all gates; Open adds dependency audit to Gate 3
+- Stream quality gate broadened from "would you post this?" to "would this be interesting to someone following the project?" — decisions, pivots, and lessons learned now qualify alongside milestones
+- Open transition promoted from simple status change to full wizard with 5 automation steps (matching Build's treatment)
+
 ## [0.4.1] — 2026-03-10
 
 ### Added

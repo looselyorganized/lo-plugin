@@ -4,6 +4,15 @@ type: stream
 
 <entry>
 date: 2026-03-10
+title: "Stage-aware engineering rigor"
+version: "0.5.0"
+<description>
+Skills now scale with project maturity. Explore ships with zero gates — no tests, no review, just commit and push. Build adds the full pipeline. Open adds dependency auditing and a transition wizard for Railway PR deploys, error tracking, uptime monitoring, and rate limiting. Stream broadened from milestones-only to include decisions and lessons.
+</description>
+</entry>
+
+<entry>
+date: 2026-03-10
 title: "Stream redesign and skill hardening"
 version: "0.4.1"
 <description>

@@ -153,6 +153,39 @@ If a codebase exists (not an empty repo), scan it to pre-populate body sections:
 
 Present all auto-filled content to the user for review/editing before writing. Mark any section you couldn't auto-detect with a `[TODO]` placeholder — never fabricate lengthy descriptions.
 
+#### 2h: Verify .gitignore
+
+Check if `.gitignore` exists at the repo root.
+
+**If missing:** Generate a default based on detected stack:
+
+| Stack | Default .gitignore entries |
+|-------|---------------------------|
+| Node/Bun | `node_modules/`, `.env`, `.env.local`, `.env*.local`, `.next/`, `dist/`, `.turbo/` |
+| Rust | `target/`, `.env` |
+| Go | `.env`, `bin/` |
+| Python | `__pycache__/`, `.env`, `venv/`, `.venv/`, `dist/`, `*.egg-info/` |
+| Any | `.env`, `.DS_Store` |
+
+Always include `.env` and `.DS_Store`. Add stack-specific entries on top. Present the proposed `.gitignore` to the user for review before writing.
+
+**If exists:** Check whether `.env` is covered by the repo's `.gitignore`:
+
+```bash
+git check-ignore -v .env
+```
+
+Parse the output — only treat `.env` as covered if the match source is the repository's `.gitignore` file (not global excludes or `.git/info/exclude`). If `.env` is not covered by the repo `.gitignore`, warn:
+
+```
+Your .gitignore doesn't exclude .env files. This risks committing secrets.
+Add .env to .gitignore?
+```
+
+If user confirms, append `.env` to the file.
+
+**If exists and covers .env:** No action needed.
+
 ### Step 3: Create Directory Structure
 
 ```bash
