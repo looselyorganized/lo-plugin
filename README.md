@@ -18,17 +18,17 @@ Add the marketplace and install the plugin:
 | backlog | `/lo:backlog` | View, add tasks/features |
 | plan | `/lo:plan` | Brainstorm and design implementation plans |
 | work | `/lo:work` | Execute plans with branch/worktree + parallel agents |
-| ship | `/lo:ship` | Test → simplify → security → commit → push → PR |
+| ship | `/lo:ship` | Stage-aware quality gates → commit → push/PR |
 | solution | `/lo:solution` | Capture reusable knowledge |
-| status | `/lo:status` | Manage project lifecycle transitions (explore → build → open → closed) |
+| status | `/lo:status` | Lifecycle transitions with stage-appropriate automation wizards |
 | new | `/lo:new` | Scaffold `.lo/` directory |
-| stream | `/lo:stream` | Update `.lo/STREAM.md` with milestones only |
+| stream | `/lo:stream` | Update `.lo/STREAM.md` with milestones, decisions, and lessons |
 | publish | `/lo:publish` | Publish research articles to the platform from `.lo/research/` material |
 | stocktaper-design-system | — | StockTaper / LO design system tokens, components, and layout patterns |
 
 ## The `.lo/` Convention
 
-> Version 0.2.0 — 2026-02-25
+> Version 0.5.0 — 2026-03-10
 
 Every LO project repo contains a `.lo/` directory at the repository root. This directory is the **single source of truth** for all project content that appears on the LO website. The website reads project data exclusively from Supabase, which is populated by a GitHub webhook that parses `.lo/` on push.
 
