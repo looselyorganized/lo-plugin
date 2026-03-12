@@ -76,6 +76,7 @@ Complete token inventory for the StockTaper design system. All tokens are define
 | `--color-divider`   | `text-divider`    | `bg-divider`   | `border-divider`  |
 | `--color-positive`  | `text-positive`   | `bg-positive`  | `border-positive` |
 | `--color-negative`  | `text-negative`   | `bg-negative`  | `border-negative` |
+| `--color-warning`   | `text-warning`    | `bg-warning`   | `border-warning`  |
 
 ### Color Usage Matrix
 

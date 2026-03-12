@@ -6,7 +6,7 @@
  *
  * RULES:
  * - Only use font-mono (IBM Plex Mono)
- * - Only use design token colors (cream, ink, charcoal, muted, divider, positive, negative)
+ * - Only use design token colors (cream, ink, charcoal, muted, divider, positive, negative, warning)
  * - Use dashed borders for cards/containers: border border-dashed border-divider
  * - Use rounded-[var(--radius-card)] for containers, rounded-[var(--radius-button)] for inputs
  * - Always accept className prop for composition
