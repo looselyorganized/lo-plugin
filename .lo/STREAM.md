@@ -3,6 +3,15 @@ type: stream
 ---
 
 <entry>
+date: 2026-03-12
+title: "Flow-first redesign"
+version: "0.6.0"
+<description>
+Rewrote the plugin around flow over ceremony. 11 skills down to 8 — /park captures conversation context, /plan and /work delegate to superpowers instead of reimplementing workflows, /ship absorbs /release. Done items pruned from the backlog on every ship. XML structural blocks and code snippet density across all skills for deterministic agent behavior.
+</description>
+</entry>
+
+<entry>
 date: 2026-03-10
 title: "CI responsibility split"
 <description>
