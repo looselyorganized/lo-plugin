@@ -1,8 +1,14 @@
 ---
-updated: 2026-03-10
+updated: 2026-03-12
+last_feature: 8
+last_task: 11
 ---
 
 ## Features
+
+- [ ] f008 Plugin v0.6.0 — Flow-First Redesign
+  Redesign plugin for fluidity: 8 skills (down from 11), context-aware depth scaling, backlog pruning, /park for rich conversation capture, /plan and /work as thin integration layers over superpowers. Ship pipeline stays as crown jewel.
+  [active](.lo/work/f008-plugin-v060/)
 
 - [x] f001 Changing LORF to LO
   Rename `.lorf/` directory to `.lo/`, update all skill references, plugin naming, and documentation.
@@ -28,9 +34,9 @@ updated: 2026-03-10
   Redesign using Claude Code's latest capabilities — subagents, hooks, allowed-tools, simplified pipelines.
   [done] v0.4.0 2026-03-09
 
-- [ ] f007 Project Refresh
+- [x] f007 Project Refresh
   `/lo:refresh` skill that updates (not regenerates) README.md, CLAUDE.md, and other project files to reflect current state. Reads project.yml, BACKLOG.md, and codebase context to patch stale sections. Called by `/lo:ship` as a final step, or manually anytime.
-  Status: backlog
+  [done] v0.5.0 2026-03-10
 
 ## Tasks
 
