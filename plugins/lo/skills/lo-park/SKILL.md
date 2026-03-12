@@ -103,31 +103,71 @@ Step 4: Persist.
 
 After the user approves:
 
-1. Read BACKLOG.md from disk. Get the next ID from `last_feature` or `last_task` frontmatter counter.
-2. Create `.lo/park/` directory if it doesn't exist.
-3. Write the capture to `.lo/park/<id>-<slug>.md`.
-4. Add a backlog entry under the appropriate section.
+1. Read BACKLOG.md from disk. Extract the next ID:
+
+```bash
+# Read the counter from frontmatter
+grep 'last_feature:' .lo/BACKLOG.md   # → last_feature: 9
+# Next feature ID = last_feature + 1 → f010
+```
+
+2. Create `.lo/park/` directory if it doesn't exist:
+
+```bash
+mkdir -p .lo/park
+```
+
+3. Write the capture file:
+
+```bash
+# Path: .lo/park/<id>-<slug>.md
+# Example: .lo/park/f010-image-gen.md
+```
+
+```markdown
+# f010 — Image Generation for MDX Pipeline
+parked: 2026-03-12
+
+Started by exploring whether we could auto-generate hero images...
+[rich narrative continues]
+```
+
+4. Add a backlog entry under the appropriate section of BACKLOG.md.
 
 For features, add under `## Features`:
 
-    - [ ] f{NNN} Feature Name
-      Brief description.
-      [parked](.lo/park/f{NNN}-slug.md)
+```markdown
+- [ ] f010 Image Generation for MDX Pipeline
+  AI-powered image generation integrated into the article publishing pipeline.
+  [parked](.lo/park/f010-image-gen.md)
+```
 
 For tasks, add under `## Tasks`:
 
-    - [ ] t{NNN} Task description
-      [parked](.lo/park/t{NNN}-slug.md)
+```markdown
+- [ ] t016 Fix dark mode toggle
+  [parked](.lo/park/t016-dark-mode.md)
+```
 
-5. Increment `last_feature` or `last_task` in BACKLOG.md frontmatter.
+5. Increment the counter in BACKLOG.md frontmatter:
+
+```yaml
+# Before:
+last_feature: 9
+# After:
+last_feature: 10
+```
+
 6. Update the `updated:` date in BACKLOG.md frontmatter to today.
 
 7. Report:
 
-    Parked: <id> "<name>"
-    Capture: .lo/park/<id>-slug.md
+```
+Parked: f010 "Image Generation for MDX Pipeline"
+Capture: .lo/park/f010-image-gen.md
 
-    Pick this up later with /lo:plan <id> or /lo:work <id>
+Pick this up later with /lo:plan f010 or /lo:work f010
+```
 </capture-flow>
 
 ---
@@ -136,18 +176,29 @@ For tasks, add under `## Tasks`:
 
 Just a backlog entry. No capture file. Use when the user provides a name directly.
 
-1. Read BACKLOG.md from disk. Get the next ID from the `last_feature` or `last_task` frontmatter counter.
+1. Read BACKLOG.md from disk. Get the next ID from the frontmatter counter:
+
+```bash
+grep 'last_task:' .lo/BACKLOG.md   # → last_task: 15
+# Next task ID = 15 + 1 → t016
+```
+
 2. If feature and no description was provided, ask for 1-2 sentences describing it.
+
 3. Add the entry to BACKLOG.md under the appropriate section. No `[parked]` link — this is a plain backlog item.
 
 For features:
 
-    - [ ] f{NNN} Feature Name
-      Brief description.
+```markdown
+- [ ] f010 Real-time Collab Editing
+  Collaborative editing for field notes using CRDTs.
+```
 
 For tasks:
 
-    - [ ] t{NNN} Task description
+```markdown
+- [ ] t016 Fix dark mode toggle
+```
 
 4. Increment the relevant counter in BACKLOG.md frontmatter.
 5. Update the `updated:` date to today.

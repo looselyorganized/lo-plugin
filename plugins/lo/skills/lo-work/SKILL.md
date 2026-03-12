@@ -44,13 +44,23 @@ Determine what to work on from the argument provided.
   - Search BACKLOG.md for a fuzzy match on the description
   - If a match is found, use that existing entry
   - If no match is found, classify it as a task and create a new backlog entry:
-    1. Read `last_task` from BACKLOG.md frontmatter
-    2. Add a new entry under `## Tasks`:
 
-           - [ ] t{NNN} Task description
+```bash
+# 1. Read counter
+grep 'last_task:' .lo/BACKLOG.md   # → last_task: 15
+# Next task ID = 15 + 1 → t016
+```
 
-    3. Increment `last_task` in frontmatter
-    4. Update the `updated:` date to today
+```markdown
+# 2. Add under ## Tasks in BACKLOG.md:
+- [ ] t016 Fix dark mode toggle on settings page
+```
+
+```yaml
+# 3. Increment counter in frontmatter:
+last_task: 16
+```
+
   - Mark this as an ad-hoc task (no plan, direct execution)
 
 **If no argument:**
@@ -75,10 +85,19 @@ Determine what to work on from the argument provided.
 
 Gather everything needed before execution begins.
 
-1. Read `.lo/project.yml` — extract `status` for test expectations and branch strategy.
-2. Check `.lo/work/<id>-slug/` for plan files (`001-*.md`, `002-*.md`, etc.).
-3. Check for `ears-requirements.md` in the work directory.
-4. Check for `parked-context.md` (moved there by `/lo:plan`).
+```bash
+# 1. Project status
+cat .lo/project.yml                          # → status: "build"
+
+# 2. Plan files
+ls .lo/work/<id>-slug/0*.md 2>/dev/null      # → 001-image-service.md
+
+# 3. EARS contract
+ls .lo/work/<id>-slug/ears-requirements.md 2>/dev/null
+
+# 4. Parked context (moved by /lo:plan)
+ls .lo/work/<id>-slug/parked-context.md 2>/dev/null
+```
 
 **If feature with plans:**
   - Parse tasks from plan files. Identify dependencies and parallel markers.
@@ -92,7 +111,15 @@ Gather everything needed before execution begins.
 
 ## Step 3: Set Up Branch Isolation
 
-Read the project status from `.lo/project.yml` and the current git branch, then apply these defaults:
+Read the project status and current branch:
+
+```bash
+cat .lo/project.yml            # → status: "build"
+git branch --show-current      # → main
+git status --short             # check for uncommitted changes
+```
+
+Apply these defaults:
 
 | Status | Current Branch | Default Action |
 |--------|---------------|----------------|
@@ -125,20 +152,40 @@ git checkout -b feat/f{NNN}-slug
 Choose the execution path based on the work item type.
 
 **Features with plans:**
-  - Check the plan task structure for parallel markers.
-  - Sequential tasks (no parallel markers) → invoke `superpowers:executing-plans`. Feed it the plan files, EARS contract if present, and project context.
-  - Parallel markers present → invoke `superpowers:subagent-driven-development`. Feed the same context. Let the superpower handle agent dispatch and merge.
+
+Check the plan task structure for `[parallel]` markers in task descriptions.
+
+Sequential tasks (no parallel markers):
+
+```
+Invoke Skill: superpowers:executing-plans
+Context: plan files from .lo/work/<id>-slug/, EARS contract if present, project status
+```
+
+Parallel markers present:
+
+```
+Invoke Skill: superpowers:subagent-driven-development
+Context: same as above — the superpower handles agent dispatch, worktrees, and merge
+```
 
 **Tasks without plans:**
-  - Execute directly. No subagents, no formal plan.
-  - Read project status for test expectations:
-    - `explore` → no tests mentioned
-    - `build` → write tests alongside if the work involves testable logic
-    - `open` → tests expected for all testable code
+
+Execute directly. No subagents, no formal plan. Commit after each logical change:
+
+```bash
+git add <changed-files>
+git commit -m "<type>(<id>): <description>"
+```
+
+Test expectations by project status:
+- `explore` → no tests mentioned
+- `build` → write tests alongside if the work involves testable logic
+- `open` → tests expected for all testable code
 
 **Ad-hoc tasks** (created from a description string in Step 1):
-  - Execute directly, commit as you go.
-  - Follow the same test expectations as tasks without plans.
+
+Execute directly, commit as you go. Same test expectations as tasks without plans.
 
 ---
 

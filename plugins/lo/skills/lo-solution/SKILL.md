@@ -41,9 +41,22 @@ When appending, add a new section under a `## YYYY-MM-DD — Additional Finding`
 
 ### Step 3: Generate Solution File
 
-Determine the next sequential ID by scanning `.lo/solutions/` for the highest `s{NNN}` in filenames and incrementing. IDs are permanent — never reuse an ID, even after deletion.
+Determine the next sequential ID by scanning `.lo/solutions/`:
+
+```bash
+# Find highest existing ID
+ls .lo/solutions/s*.md 2>/dev/null | sort -t's' -k2 -n | tail -1
+# → s003-response-caching.md → next ID is s004
+```
+
+IDs are permanent — never reuse an ID, even after deletion.
 
 Derive a topic slug from the problem/solution domain (not from the feature name). Filename: `s{NNN}-topic-slug.md` (kebab-case, 2-5 words).
+
+```bash
+# Example path:
+# .lo/solutions/s004-bun-debugger-workaround.md
+```
 
 Solution file format:
 
