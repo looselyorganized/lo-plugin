@@ -2,6 +2,31 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.6.0] — 2026-03-12
+
+### Added
+- `/lo:park` skill — captures ideas and conversation context with rich narrative preservation, two modes: full conversation capture with review gate, or quick backlog entry (f008)
+- `/lo:setup` skill — replaces `/lo:new` with `park/` directory scaffolding, BACKLOG.md ID counters, and optional TODO scan (f008)
+- Context-aware depth scaling in `/lo:plan` — three signals (conversation context, project status, feature complexity) determine planning depth from lightweight to full EARS (f008)
+- Backlog pruning in ship pipeline — removes all `[done]` entries on ship, keeping backlog as a parking lot for future work only (f008)
+- Dashboard mode in `/lo:status` — project overview showing active work, parked ideas, and recent stream entries (f008)
+- XML structural blocks across all skills for conditional agent routing (f008)
+
+### Changed
+- Skills consolidated from 11 to 8 — streamlined for fluidity over ceremony (f008)
+- `/lo:plan` and `/lo:work` redesigned as thin integration layers over superpowers skills — brainstorming, writing-plans, executing-plans, subagent-driven-development (f008)
+- `/lo:release` absorbed into `/lo:ship release` — single command for starting and finalizing releases (f008)
+- BACKLOG.md gains `last_feature` and `last_task` frontmatter counters for safe ID allocation after pruning (f008)
+- Ship release mode creates stream milestone before cleanup while work artifacts still exist (f008)
+- Code snippet density increased across all skills for deterministic agent behavior (f008)
+
+### Removed
+- `/lo:backlog` skill — functionality split between `/lo:park` (capture) and inline backlog management in other skills (f008)
+- `/lo:new` skill — replaced by `/lo:setup` (f008)
+- `/lo:publish` skill — research happens in conversation, not managed files (f008)
+- `/lo:release` skill — absorbed into `/lo:ship release` (f008)
+- `.lo/research/` directory convention — removed from setup scaffolding (f008)
+
 ## [0.5.0] — 2026-03-10
 
 ### Added
