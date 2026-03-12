@@ -24,6 +24,14 @@ Add the marketplace and install the plugin:
 | stream | `/lo:stream` | Milestone entries in `.lo/STREAM.md` |
 | solution | `/lo:solution` | Capture reusable knowledge in `.lo/solutions/` |
 
+### lo-design plugin
+
+| Skill | Command | Purpose |
+|-------|---------|---------|
+| stocktaper-design-system | — | Monochromatic, monospace, minimal design system for LO projects |
+
+Install separately: `/plugin install lo-design@looselyorganized`
+
 ## The `.lo/` Convention
 
 > Version 0.6.0 — 2026-03-12

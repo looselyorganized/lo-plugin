@@ -4,6 +4,14 @@ type: stream
 
 <entry>
 date: 2026-03-12
+title: "Design system gets its own plugin"
+<description>
+StockTaper extracted from the workflow plugin into standalone lo-design — independently installable, color tokens corrected to match the live site.
+</description>
+</entry>
+
+<entry>
+date: 2026-03-12
 title: "Flow-first redesign"
 version: "0.6.0"
 <description>

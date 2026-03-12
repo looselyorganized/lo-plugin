@@ -1,0 +1,11 @@
+{
+  "name": "lo-design",
+  "description": "StockTaper design system — monochromatic, monospace, minimal visual language for Loosely Organized projects",
+  "version": "0.6.0",
+  "author": {
+    "name": "Loosely Organized Research Facility"
+  },
+  "repository": "https://github.com/looselyorganized/lo-plugin",
+  "license": "MIT",
+  "keywords": ["lo", "design-system", "stocktaper", "tailwind", "dark-mode"]
+}
