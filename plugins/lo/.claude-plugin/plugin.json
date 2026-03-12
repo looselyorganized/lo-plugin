@@ -1,11 +1,11 @@
 {
   "name": "lo",
-  "description": "LO work system — backlog, work execution, knowledge capture, shipping pipeline, and design system for Loosely Organized projects",
-  "version": "0.5.0",
+  "description": "LO work system — park ideas, plan features, execute work, and ship with quality gates for Loosely Organized projects",
+  "version": "0.6.0",
   "author": {
     "name": "Loosely Organized Research Facility"
   },
   "repository": "https://github.com/looselyorganized/lo-plugin",
   "license": "MIT",
-  "keywords": ["lo", "work-management", "backlog", "skills", "design-system"]
+  "keywords": ["lo", "work-management", "skills", "shipping"]
 }

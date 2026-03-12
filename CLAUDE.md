@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-A Claude Code plugin (pure markdown, no runtime) providing the LO work system — 11 skills covering backlog management, plan execution, shipping pipelines, and a design system. Installed via the LO plugin marketplace.
+A Claude Code plugin (pure markdown, no runtime) providing the LO work system — 8 skills covering idea capture, planning, work execution, and shipping with quality gates. Installed via the LO plugin marketplace.
 
 ## Project Layout
 
@@ -30,12 +30,12 @@ scripts/
 ## Key Conventions
 
 - **Source files live in `plugins/lo/skills/`**. Never edit files in `~/.claude/plugins/cache/` — those are read-only copies.
-- **Version source** is `plugins/lo/.claude-plugin/plugin.json`. Bump it during `/lo:release`.
-- **Skills are markdown with YAML frontmatter** declaring `name`, `description`, `allowed-tools`. The body is the prompt.
+- **Version source** is `plugins/lo/.claude-plugin/plugin.json`. Bump it during `/lo:ship release`.
+- **Skills are markdown with YAML frontmatter** declaring `name`, `description`, `allowed-tools`, and `metadata` (author, version). The body is the prompt.
 - **Subagents** are markdown files in `.claude-plugin/agents/` with frontmatter for `model`, `tools`, `disallowedTools`, `maxTurns`.
 - **`lo-github-sync.sh`** generates `.coderabbit.yaml`, `.github/workflows/ci.yml`, `.github/workflows/auto-merge.yml`, `.github/workflows/audit.yml` (Open only, weekly cron), and configures GitHub branch protection via API. All generated files are marked "do not edit manually."
 
-## Stage-Aware Behavior (v0.5.0)
+## Stage-Aware Behavior (v0.6.0)
 
 Skills behave differently based on `status` in `.lo/project.yml`:
 
@@ -51,16 +51,16 @@ Open-status projects also get a weekly scheduled `npm audit` workflow (`audit.ym
 ## How Skills Reference Each Other
 
 ```
-/lo:new → scaffolds .lo/, runs lo-github-sync.sh
-/lo:backlog → manages BACKLOG.md
-/lo:plan → creates .lo/work/f{NNN}-slug/ with plan files
-/lo:work → executes plans, branches, parallel agents
+/lo:setup → scaffolds .lo/ (project.yml, BACKLOG.md, park/, work/, solutions/)
+/lo:park → captures ideas + conversation context → BACKLOG.md + .lo/park/
+/lo:plan → designs features → .lo/work/f{NNN}-slug/ (delegates to superpowers)
+/lo:work → executes plans, branches, parallel agents (delegates to superpowers)
 /lo:ship → quality gates → commit → push/PR (mode: fast/feature/release)
-/lo:release → creates semver branch, bumps version
+/lo:ship release → creates semver branch, bumps version
 /lo:ship tag → post-merge: tag + cleanup
 /lo:stream → editorial milestone entries in STREAM.md
 /lo:solution → reusable knowledge in .lo/solutions/
-/lo:status → lifecycle transitions with automation wizards
+/lo:status → project dashboard + lifecycle transitions
 ```
 
 ## Editing Skills
@@ -89,9 +89,9 @@ claude plugin validate .
 ## Release Process
 
 ```bash
-/lo:release bump minor    # Creates branch, bumps plugin.json
+/lo:ship release bump minor  # Creates branch, bumps plugin.json
 # ... work on branch ...
-/lo:ship                  # Changelog, stream, cleanup, PR to main
+/lo:ship                     # Changelog, stream, cleanup, PR to main
 # ... PR merges via auto-merge ...
-/lo:ship tag              # Tag, delete branch
+/lo:ship tag                 # Tag, delete branch
 ```
