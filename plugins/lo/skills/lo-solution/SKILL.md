@@ -35,9 +35,25 @@ If the answer sounds project-specific rather than reusable, gently redirect: "Is
 
 ### Step 2: Check Existing Solutions
 
-Scan `.lo/solutions/` for related solutions. If a related solution already exists, offer to append a new dated section to it rather than creating a duplicate.
+Scan `.lo/solutions/` for related solutions.
+
+<append-existing>
+If a related solution already exists, offer to append rather than creating a duplicate:
+
+```
+Found a related solution: s003 "Response Caching Pattern"
+Append to this solution, or create a new one?
+
+1. Append (recommended — avoids duplicates)
+2. New solution
+```
 
 When appending, add a new section under a `## YYYY-MM-DD — Additional Finding` heading with Problem, Solution, and Context subsections. Update the frontmatter `date:` to today and merge new tags with existing. Keep the same `id`.
+</append-existing>
+
+<create-new>
+If no related solution exists, proceed to Step 3 to create a new one.
+</create-new>
 
 ### Step 3: Generate Solution File
 

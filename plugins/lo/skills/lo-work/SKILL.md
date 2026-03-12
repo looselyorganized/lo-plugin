@@ -151,6 +151,7 @@ git checkout -b feat/f{NNN}-slug
 
 Choose the execution path based on the work item type.
 
+<features-with-plans>
 **Features with plans:**
 
 Check the plan task structure for `[parallel]` markers in task descriptions.
@@ -168,7 +169,9 @@ Parallel markers present:
 Invoke Skill: superpowers:subagent-driven-development
 Context: same as above — the superpower handles agent dispatch, worktrees, and merge
 ```
+</features-with-plans>
 
+<tasks-without-plans>
 **Tasks without plans:**
 
 Execute directly. No subagents, no formal plan. Commit after each logical change:
@@ -182,10 +185,13 @@ Test expectations by project status:
 - `explore` → no tests mentioned
 - `build` → write tests alongside if the work involves testable logic
 - `open` → tests expected for all testable code
+</tasks-without-plans>
 
+<ad-hoc-tasks>
 **Ad-hoc tasks** (created from a description string in Step 1):
 
 Execute directly, commit as you go. Same test expectations as tasks without plans.
+</ad-hoc-tasks>
 
 ---
 

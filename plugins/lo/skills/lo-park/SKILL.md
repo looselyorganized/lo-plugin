@@ -172,6 +172,7 @@ Pick this up later with /lo:plan f010 or /lo:work f010
 
 ---
 
+<quick-park>
 ## Mode 2: Quick Park
 
 Just a backlog entry. No capture file. Use when the user provides a name directly.
@@ -203,6 +204,7 @@ For tasks:
 4. Increment the relevant counter in BACKLOG.md frontmatter.
 5. Update the `updated:` date to today.
 6. Report: `Parked: <id> "<name>"`
+</quick-park>
 
 ---
 

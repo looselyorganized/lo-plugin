@@ -32,6 +32,7 @@ Scaffolds the `.lo/` directory convention in the current repository root. Create
 
 ## Flow
 
+<preflight>
 ### Step 1: Check for Existing .lo/
 
 Before creating anything, check if `.lo/` exists at the repo root.
@@ -59,6 +60,7 @@ If not a git repo, warn but proceed:
 This directory is not a git repository. LO will work, but GitHub automation
 (Step 8) will be skipped. Consider running git init first.
 ```
+</preflight>
 
 ### Step 2: Gather Project Metadata
 
@@ -146,6 +148,7 @@ type: stream
 
 Stream entries are added later via `/lo:stream` or during `/lo:ship` release mode.
 
+<optional-todo-scan>
 ### Step 7: Scan for TODOs (Optional)
 
 Ask the user:
@@ -162,7 +165,9 @@ If yes:
 5. Update the `updated` date
 
 If no, skip.
+</optional-todo-scan>
 
+<optional-github-sync>
 ### Step 8: Reconcile GitHub Automation (Optional)
 
 Skip this step if the repo has no git remote or is not a git repo.
@@ -181,6 +186,7 @@ If the script doesn't exist:
 GitHub sync script not found at scripts/lo-github-sync.sh.
 Skipping automation setup. You can configure CI/CD manually or add the script later.
 ```
+</optional-github-sync>
 
 ### Step 9: Write .gitkeep Files and Report
 
