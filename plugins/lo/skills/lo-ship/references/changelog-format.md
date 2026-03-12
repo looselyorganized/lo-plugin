@@ -70,7 +70,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 - EARS requirements as optional contract in plan → work → ship chain
-- /lo:release skill for versioned release management
+- Release management for versioned releases (now `/lo:ship release`)
 - README staleness check in ship Gate 4
 
 ### Changed

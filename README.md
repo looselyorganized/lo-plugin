@@ -1,6 +1,6 @@
-# lo — LORF Work System Plugin
+# lo — LO Work System Plugin
 
-Claude Code plugin for managing work in Loosely Organized projects. Provides a complete work lifecycle: backlog management, plan execution, knowledge capture, and a shipping pipeline.
+Claude Code plugin for managing work in Loosely Organized projects. Provides a complete work lifecycle: idea capture, planning, execution, knowledge capture, and a shipping pipeline.
 
 ## Install
 
@@ -15,20 +15,18 @@ Add the marketplace and install the plugin:
 
 | Skill | Command | Purpose |
 |-------|---------|---------|
-| backlog | `/lo:backlog` | View, add tasks/features |
+| setup | `/lo:setup` | Scaffold `.lo/` directory |
+| park | `/lo:park` | Capture ideas and conversation context for later |
 | plan | `/lo:plan` | Brainstorm and design implementation plans |
 | work | `/lo:work` | Execute plans with branch/worktree + parallel agents |
-| ship | `/lo:ship` | Stage-aware quality gates → commit → push/PR |
-| solution | `/lo:solution` | Capture reusable knowledge |
-| status | `/lo:status` | Lifecycle transitions with stage-appropriate automation wizards |
-| new | `/lo:new` | Scaffold `.lo/` directory |
-| stream | `/lo:stream` | Update `.lo/STREAM.md` with milestones, decisions, and lessons |
-| publish | `/lo:publish` | Publish research articles to the platform from `.lo/research/` material |
-| stocktaper-design-system | — | StockTaper / LO design system tokens, components, and layout patterns |
+| ship | `/lo:ship` | Quality gates → commit → push/PR; also starts releases |
+| status | `/lo:status` | Dashboard and lifecycle transitions with automation wizards |
+| stream | `/lo:stream` | Milestone entries in `.lo/STREAM.md` |
+| solution | `/lo:solution` | Capture reusable knowledge in `.lo/solutions/` |
 
 ## The `.lo/` Convention
 
-> Version 0.5.0 — 2026-03-10
+> Version 0.6.0 — 2026-03-12
 
 Every LO project repo contains a `.lo/` directory at the repository root. This directory is the **single source of truth** for all project content that appears on the LO website. The website reads project data exclusively from Supabase, which is populated by a GitHub webhook that parses `.lo/` on push.
 
@@ -41,16 +39,14 @@ Every LO project repo contains a `.lo/` directory at the repository root. This d
 ```
 .lo/
 ├── project.yml           # Project metadata (5 required fields, pure YAML)
-├── BACKLOG.md            # Feature and task backlog
+├── BACKLOG.md            # Feature and task backlog with ID counters
 ├── STREAM.md             # Milestones only (single file, newest first)
-├── research/             # Research docs (draft → review → published)
-│   ├── distributed-locking.md
-│   └── institutional-memory.md
+├── park/                 # Conversation captures (/lo:park)
 ├── work/                 # In-progress feature/task plans (deleted on ship)
 │   └── f001-feature-slug/
 │       └── 001-phase-slug.md
 ├── solutions/            # Reusable knowledge captured after shipping
-│   └── topic-slug.md
+│   └── s001-topic-slug.md
 ```
 
 All files use Markdown with YAML frontmatter (parsed by gray-matter). No MDX — `.lo/` content is plain Markdown to keep the contract simple and parseable by any tool.
@@ -110,31 +106,13 @@ Initial project scaffolding and architecture decisions.
 
 **Body:** 1-3 sentences per entry inside `<description>` tags. Public-facing voice.
 
-### `research/*.md` — Research Files
+### `park/` — Conversation Captures
 
-Raw materials captured during deep work sessions. Findings, observations, and analysis that may later be combined into published articles on the platform.
+Rich conversation summaries saved by `/lo:park`. When you've been discussing an idea and want to preserve the thinking without committing to planning, park it. The capture file preserves the flow of ideas, decisions, and open questions.
 
-**Filename convention:** `{slug}.md` (e.g., `distributed-locking.md`)
+**Filename convention:** `<id>-<slug>.md` (e.g., `f010-image-gen.md`)
 
-**Frontmatter contract:**
-
-```yaml
----
-title: "Distributed Locking for Multi-Agent Systems"
-date: "2026-01-20"
-topics:
-  - distributed-systems
-  - redis
-published_as: "distributed-locking-for-agents"  # optional, set by /lo:publish
----
-```
-
-**Body:** Free-form Markdown. Findings, code snippets, observations.
-
-**Required fields:** `title`, `date`, `topics`
-**Optional fields:** `published_as` (slug of the platform MDX article, set by `/lo:publish`)
-
-Publishing to the platform is handled by `/lo:publish` from the platform repo, which combines one or more research files into an MDX article.
+**Format:** Plain heading with date, followed by narrative capture. No YAML frontmatter.
 
 ### `work/` — In-Progress Work
 
@@ -174,14 +152,12 @@ tags:
 
 `.lo/` content is synced to Supabase by the [content-webhook](https://github.com/looselyorganized/content-webhook) — a Bun HTTP server that receives GitHub push webhooks. When a push touches `.lo/`, the webhook fetches files via GitHub API, parses frontmatter, and upserts to Supabase. The Supabase schema is the source of truth for table structure — query it directly rather than referencing documentation that may drift.
 
-Research articles are published separately via `/lo:publish` from the platform repo, which writes MDX files directly.
-
 ### Creating a Valid `.lo/` Directory
 
 To add your project to LO, create a `.lo/` directory at your repo root:
 
 ```bash
-mkdir -p .lo/research .lo/work .lo/solutions
+mkdir -p .lo/park .lo/work .lo/solutions
 cat > .lo/STREAM.md <<'EOF'
 ---
 type: stream
@@ -205,7 +181,9 @@ Create `.lo/BACKLOG.md`:
 
 ```markdown
 ---
-updated: 2026-03-11
+updated: 2026-03-12
+last_feature: 0
+last_task: 0
 ---
 
 ## Features
