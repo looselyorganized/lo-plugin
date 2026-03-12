@@ -10,10 +10,18 @@
     {
       "name": "lo",
       "source": "./plugins/lo",
-      "description": "LO work system — backlog, work execution, knowledge capture, shipping pipeline, and design system for Loosely Organized projects",
+      "description": "LO work system — park ideas, plan features, execute work, and ship with quality gates for Loosely Organized projects",
       "license": "MIT",
-      "keywords": ["lo", "work-management", "backlog", "skills", "design-system"],
+      "keywords": ["lo", "work-management", "skills", "shipping"],
       "category": "productivity"
+    },
+    {
+      "name": "lo-design",
+      "source": "./plugins/lo-design",
+      "description": "StockTaper design system — monochromatic, monospace, minimal visual language for Loosely Organized projects",
+      "license": "MIT",
+      "keywords": ["lo", "design-system", "stocktaper", "tailwind", "dark-mode"],
+      "category": "design"
     }
   ]
 }
