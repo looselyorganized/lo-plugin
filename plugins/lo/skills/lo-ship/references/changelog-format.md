@@ -28,7 +28,7 @@ Commits tell you *how*. Work artifacts and backlog tell you *what* and *why*. Th
 
 **Good** (synthesized from all three sources):
 ```
-- Emoji visual anchors across all skills — strategic 🛑/⚠️/🔒 markers at stop gates,
+- Emoji visual anchors across all skills — strategic markers at stop gates,
   warnings, and hard constraints to improve agent instruction-following (f004)
 ```
 
@@ -44,7 +44,7 @@ All notable changes to this project are documented in this file.
 ## [0.3.2] — 2026-03-07
 
 ### Added
-- Emoji visual anchors across all skills — 🛑/⚠️/🔒 markers at critical decision
+- Emoji visual anchors across all skills — markers at critical decision
   points to improve agent instruction-following (f004)
 - Feature lifecycle tracking in backlog — features now transition through
   backlog → active → done instead of being removed at plan time (t002)
