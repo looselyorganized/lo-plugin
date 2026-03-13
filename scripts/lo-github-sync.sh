@@ -380,7 +380,7 @@ reconcile_branch_protection() {
 
   if [[ "$ACTIVE" == "true" ]]; then
     local CHECKS="[]"
-    local CHECK_DESC="1 reviewer"
+    local CHECK_DESC="checks only (no reviewer)"
 
     local CHECKS_ARRAY=()
 
@@ -401,11 +401,11 @@ reconcile_branch_protection() {
       if [[ ${#CHECKS_ARRAY[@]} -gt 0 ]]; then
         CHECKS=$(printf '%s,' "${CHECKS_ARRAY[@]}")
         CHECKS="[${CHECKS%,}]"
-        CHECK_DESC="1 reviewer + checks"
+        CHECK_DESC="checks only (no reviewer)"
       fi
     fi
 
-    if [[ "$CURRENT_STATUS" == "1" ]]; then
+    if [[ "$CURRENT_STATUS" == "0" ]]; then
       # Verify check names match, not just reviewer count
       local CURRENT_CHECKS
       CURRENT_CHECKS=$(gh api "repos/${OWNER}/${REPO}/branches/main/protection/required_status_checks" --jq '[.checks[].context] | sort | join(",")' 2>&1) || CURRENT_CHECKS=""
@@ -429,7 +429,7 @@ reconcile_branch_protection() {
           "required_status_checks": null,
           "enforce_admins": false,
           "required_pull_request_reviews": {
-            "required_approving_review_count": 1
+            "required_approving_review_count": 0
           },
           "restrictions": null
         }'
@@ -441,7 +441,7 @@ reconcile_branch_protection() {
           },
           \"enforce_admins\": false,
           \"required_pull_request_reviews\": {
-            \"required_approving_review_count\": 1
+            \"required_approving_review_count\": 0
           },
           \"restrictions\": null
         }"
